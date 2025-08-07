@@ -1,4 +1,4 @@
-# AI QUANT Branding Repository
+# AI QUANT
 
 Welcome to the official branding repository for **AI QUANT**, a SaaS platform that provides AI-powered analytics for SPX index and SPX options.
 
