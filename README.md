@@ -37,7 +37,7 @@ To set up GitHub Secrets for your repository (e.g., for AI QUANT), follow these 
     • Click the “New repository secret” button.
     • Add secrets one by one using the following names:
 -
-see GITHUB secrets file
+see IMG jpeg file
 
 5. Use Secrets in GitHub Actions
     • These secrets are now securely available in your workflows using:
