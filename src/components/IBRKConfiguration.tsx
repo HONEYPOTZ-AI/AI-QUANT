@@ -302,7 +302,7 @@ const IBRKConfiguration = () => {
             onClick={handleTestConnection}
             disabled={isTesting || !settings.gateway_url}
             variant="outline"
-            className="border-slate-600 text-white hover:bg-slate-700">
+            className="border-slate-600 text-white hover:bg-slate-700 bg-[#2563eb] text-white">
 
             {isTesting ?
             <>

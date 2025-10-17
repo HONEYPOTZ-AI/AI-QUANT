@@ -6,14 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle2, XCircle, AlertCircle, Settings2, Save, Power, PowerOff } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, AlertCircle, Settings2, Save, Power, PowerOff, Eye, EyeOff } from 'lucide-react';
 
 const CTRADER_SETTINGS_TABLE_ID = 51256;
 
 interface CTraderSettings {
   id?: number;
   client_id: string;
-  connection_status: string;
+  client_secret: string;
+  is_connected: boolean;
   last_connection_time?: string;
 }
 
@@ -21,13 +22,15 @@ const CTraderConfiguration = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState<CTraderSettings>({
     client_id: '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
-    connection_status: 'disconnected',
+    client_secret: '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
+    is_connected: false,
     last_connection_time: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+  const [showSecret, setShowSecret] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -51,10 +54,11 @@ const CTraderConfiguration = () => {
         setSettings({
           id: loadedSettings.id,
           client_id: loadedSettings.client_id || '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
-          connection_status: loadedSettings.connection_status || 'disconnected',
+          client_secret: loadedSettings.client_secret || '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
+          is_connected: loadedSettings.is_connected || false,
           last_connection_time: loadedSettings.last_connection_time || ''
         });
-        setConnectionStatus(loadedSettings.connection_status === 'connected' ? 'connected' : 'disconnected');
+        setConnectionStatus(loadedSettings.is_connected ? 'connected' : 'disconnected');
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -78,13 +82,22 @@ const CTraderConfiguration = () => {
       return;
     }
 
+    if (!settings.client_secret) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter a Client Secret',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const settingsData = {
         client_id: settings.client_id,
-        connection_status: settings.connection_status,
-        last_connection_time: settings.last_connection_time,
-        updated_at: new Date().toISOString()
+        client_secret: settings.client_secret,
+        is_connected: settings.is_connected,
+        last_connection_time: settings.last_connection_time || null
       };
 
       let error;
@@ -95,10 +108,7 @@ const CTraderConfiguration = () => {
         });
         error = result.error;
       } else {
-        const result = await (window as any).ezsite.apis.tableCreate(CTRADER_SETTINGS_TABLE_ID, {
-          ...settingsData,
-          created_at: new Date().toISOString()
-        });
+        const result = await (window as any).ezsite.apis.tableCreate(CTRADER_SETTINGS_TABLE_ID, settingsData);
         error = result.error;
       }
 
@@ -123,10 +133,10 @@ const CTraderConfiguration = () => {
   };
 
   const handleConnect = async () => {
-    if (!settings.client_id) {
+    if (!settings.client_id || !settings.client_secret) {
       toast({
         title: 'Validation Error',
-        description: 'Please enter a Client ID first',
+        description: 'Please enter both Client ID and Client Secret first',
         variant: 'destructive'
       });
       return;
@@ -136,17 +146,11 @@ const CTraderConfiguration = () => {
     setConnectionStatus('connecting');
 
     try {
-      // Call cTrader authentication handler
-      const authResult = await (window as any).ezsite.apis.run('ctraderAuthHandler', {
-        clientId: settings.client_id
-      });
-
-      if (authResult.error) throw new Error(authResult.error);
-
       // Call cTrader connection manager
       const connectResult = await (window as any).ezsite.apis.run('ctraderConnectionManager', {
         action: 'connect',
-        clientId: settings.client_id
+        clientId: settings.client_id,
+        clientSecret: settings.client_secret
       });
 
       if (connectResult.error) throw new Error(connectResult.error);
@@ -157,14 +161,14 @@ const CTraderConfiguration = () => {
       // Update status in database
       const updatedSettings = {
         ...settings,
-        connection_status: 'connected',
+        is_connected: true,
         last_connection_time: currentTime
       };
 
       if (settings.id) {
         await (window as any).ezsite.apis.tableUpdate(CTRADER_SETTINGS_TABLE_ID, {
           id: settings.id,
-          connection_status: 'connected',
+          is_connected: true,
           last_connection_time: currentTime
         });
       }
@@ -207,11 +211,11 @@ const CTraderConfiguration = () => {
       if (settings.id) {
         await (window as any).ezsite.apis.tableUpdate(CTRADER_SETTINGS_TABLE_ID, {
           id: settings.id,
-          connection_status: 'disconnected'
+          is_connected: false
         });
       }
 
-      setSettings((prev) => ({ ...prev, connection_status: 'disconnected' }));
+      setSettings((prev) => ({ ...prev, is_connected: false }));
 
       toast({
         title: 'Success',
@@ -327,6 +331,36 @@ const CTraderConfiguration = () => {
             </p>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="client_secret" className="text-slate-200">
+              Client Secret <span className="text-red-500">*</span>
+            </Label>
+            <div className="relative">
+              <Input
+                id="client_secret"
+                type={showSecret ? "text" : "password"}
+                placeholder="Enter your cTrader Client Secret"
+                value={settings.client_secret}
+                onChange={(e) => setSettings({ ...settings, client_secret: e.target.value })}
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecret(!showSecret)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                {showSecret ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-slate-400">
+              Your cTrader OAuth Client Secret (stored encrypted)
+            </p>
+          </div>
+
           {settings.last_connection_time && (
             <div className="space-y-2">
               <Label className="text-slate-200">Last Connection Time</Label>
@@ -360,7 +394,7 @@ const CTraderConfiguration = () => {
           ) : (
             <Button
               onClick={handleConnect}
-              disabled={isConnecting || !settings.client_id}
+              disabled={isConnecting || !settings.client_id || !settings.client_secret}
               variant="outline"
               className="border-green-600 text-green-400 hover:bg-green-900/20"
             >
@@ -380,7 +414,7 @@ const CTraderConfiguration = () => {
 
           <Button
             onClick={handleSave}
-            disabled={isSaving || !settings.client_id}
+            disabled={isSaving || !settings.client_id || !settings.client_secret}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isSaving ? (
@@ -400,7 +434,7 @@ const CTraderConfiguration = () => {
         <Alert className="bg-blue-500/10 border-blue-500/20">
           <AlertCircle className="h-4 w-4 text-blue-400" />
           <AlertDescription className="text-blue-300 text-sm">
-            Ensure you have registered your application with cTrader and obtained a valid Client ID.
+            Ensure you have registered your application with cTrader and obtained a valid Client ID and Client Secret.
             Your credentials are stored securely and encrypted.
           </AlertDescription>
         </Alert>
