@@ -29,7 +29,7 @@ async function ctraderOrderExecutor(action, params = {}) {
     });
 
     if (error) throw new Error(`Failed to fetch access token: ${error}`);
-    
+
     const settings = data?.List?.[0];
     if (!settings || !settings.access_token) {
       throw new Error('No access token found. Please save your Access Token in settings.');

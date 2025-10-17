@@ -17,7 +17,7 @@ async function ctraderConnectionManager(action, params = {}) {
   // Helper to get valid access token from database
   async function getAccessToken(userId) {
     const TABLE_ID = 51256; // ctrader_api_settings
-    
+
     const { data, error } = await easysite.table.page(TABLE_ID, {
       PageNo: 1,
       PageSize: 1,
@@ -25,7 +25,7 @@ async function ctraderConnectionManager(action, params = {}) {
     });
 
     if (error) throw new Error(`Failed to fetch access token: ${error}`);
-    
+
     const settings = data?.List?.[0];
     if (!settings || !settings.access_token) {
       throw new Error('No access token found. Please save your Access Token in settings.');

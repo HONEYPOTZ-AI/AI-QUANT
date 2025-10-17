@@ -15,6 +15,7 @@ interface CTraderSettings {
   client_id: string;
   client_secret: string;
   access_token: string;
+  refresh_token: string;
   token_expires_in: number;
   is_connected: boolean;
   last_connection_time?: string;
@@ -26,6 +27,7 @@ const CTraderConfiguration = () => {
     client_id: '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
     client_secret: '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
     access_token: 'azIXkuHi7NbWnE4POmSgp6PoXVySLPQ7VryJJjTHMWM',
+    refresh_token: 'gwBMyUwt9ER1v5b7nwzxvMqgVHQFI771UbMp2nEtVog',
     token_expires_in: 2628000,
     is_connected: false,
     last_connection_time: ''
@@ -37,11 +39,14 @@ const CTraderConfiguration = () => {
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [showSecret, setShowSecret] = useState(false);
   const [showAccessToken, setShowAccessToken] = useState(false);
+  const [showRefreshToken, setShowRefreshToken] = useState(false);
   const [hasLoadedSecret, setHasLoadedSecret] = useState(false);
   const [hasLoadedAccessToken, setHasLoadedAccessToken] = useState(false);
+  const [hasLoadedRefreshToken, setHasLoadedRefreshToken] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [secretModified, setSecretModified] = useState(false);
   const [accessTokenModified, setAccessTokenModified] = useState(false);
+  const [refreshTokenModified, setRefreshTokenModified] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
 
   useEffect(() => {
@@ -68,14 +73,17 @@ const CTraderConfiguration = () => {
         // This is expected behavior for Secret component type
         const hasSecret = loadedSettings.client_secret !== '';
         const hasAccessToken = loadedSettings.access_token !== '';
+        const hasRefreshToken = loadedSettings.refresh_token !== '';
         setHasLoadedSecret(hasSecret);
         setHasLoadedAccessToken(hasAccessToken);
+        setHasLoadedRefreshToken(hasRefreshToken);
 
         setSettings({
           id: loadedSettings.id,
           client_id: loadedSettings.client_id || '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
           client_secret: hasSecret ? loadedSettings.client_secret : '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
           access_token: hasAccessToken ? loadedSettings.access_token : 'azIXkuHi7NbWnE4POmSgp6PoXVySLPQ7VryJJjTHMWM',
+          refresh_token: hasRefreshToken ? loadedSettings.refresh_token : 'gwBMyUwt9ER1v5b7nwzxvMqgVHQFI771UbMp2nEtVog',
           token_expires_in: loadedSettings.token_expires_in || 2628000,
           is_connected: loadedSettings.is_connected || false,
           last_connection_time: loadedSettings.last_connection_time || ''
@@ -122,6 +130,15 @@ const CTraderConfiguration = () => {
       return;
     }
 
+    if (!settings.refresh_token) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter a Refresh Token',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsSaving(true);
     setSaveSuccess(false);
 
@@ -130,6 +147,7 @@ const CTraderConfiguration = () => {
         client_id: settings.client_id,
         client_secret: settings.client_secret,
         access_token: settings.access_token,
+        refresh_token: settings.refresh_token,
         token_expires_in: settings.token_expires_in,
         is_connected: settings.is_connected,
         last_connection_time: settings.last_connection_time || null
@@ -153,8 +171,10 @@ const CTraderConfiguration = () => {
       setSaveSuccess(true);
       setSecretModified(false);
       setAccessTokenModified(false);
+      setRefreshTokenModified(false);
       setHasLoadedSecret(true);
       setHasLoadedAccessToken(true);
+      setHasLoadedRefreshToken(true);
 
       toast({
         title: '✓ Settings Saved Successfully',
@@ -333,6 +353,11 @@ const CTraderConfiguration = () => {
   const handleAccessTokenChange = (value: string) => {
     setSettings({ ...settings, access_token: value });
     setAccessTokenModified(true);
+  };
+
+  const handleRefreshTokenChange = (value: string) => {
+    setSettings({ ...settings, refresh_token: value });
+    setRefreshTokenModified(true);
   };
 
   const handleTestConnection = async () => {
@@ -565,6 +590,52 @@ const CTraderConfiguration = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="refresh_token" className="text-slate-200 flex items-center gap-2">
+              Refresh Token <span className="text-red-500">*</span>
+              {hasLoadedRefreshToken && !refreshTokenModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+                  <ShieldCheck className="h-3 w-3 mr-1" />
+                  Encrypted
+                </Badge>
+              }
+            </Label>
+            <div className="relative">
+              <Input
+                id="refresh_token"
+                type={showRefreshToken ? "text" : "password"}
+                placeholder={hasLoadedRefreshToken && !refreshTokenModified ? "••••••••••••••••••••" : "Enter your cTrader Refresh Token"}
+                value={settings.refresh_token}
+                onChange={(e) => handleRefreshTokenChange(e.target.value)}
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
+              <button
+                type="button"
+                onClick={() => setShowRefreshToken(!showRefreshToken)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                aria-label={showRefreshToken ? "Hide token" : "Show token"}>
+
+                {showRefreshToken ?
+                <EyeOff className="h-4 w-4" /> :
+
+                <Eye className="h-4 w-4" />
+                }
+              </button>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-400">
+              <ShieldCheck className="h-3 w-3 mt-0.5 flex-shrink-0 text-emerald-400" />
+              <span>
+                Your Refresh Token is stored with end-to-end encryption for obtaining new access tokens.
+              </span>
+            </div>
+            {hasLoadedRefreshToken && !refreshTokenModified &&
+            <p className="text-xs text-blue-400 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                Token is currently masked. Enter new value to update.
+              </p>
+            }
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="token_expires_in" className="text-slate-200">
               Token Expires In (seconds) <span className="text-red-500">*</span>
             </Label>
@@ -653,7 +724,7 @@ const CTraderConfiguration = () => {
 
           <Button
             onClick={handleSave}
-            disabled={isSaving || !settings.client_id || !settings.client_secret || !settings.access_token}
+            disabled={isSaving || !settings.client_id || !settings.client_secret || !settings.access_token || !settings.refresh_token}
             className="bg-blue-600 hover:bg-blue-700 text-white">
 
             {isSaving ?

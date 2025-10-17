@@ -64,7 +64,7 @@ async function ctraderConnectionTester(userId) {
         const lastConnectionTime = new Date(settings.last_connection_time);
         const calculatedExpiry = new Date(lastConnectionTime.getTime() + settings.token_expires_in * 1000);
         const isExpired = new Date() >= calculatedExpiry;
-        
+
         if (isExpired) {
           result.errors.push('Access token may be expired. Please update your Access Token.');
           result.details.authenticationStatus = 'Token expired';

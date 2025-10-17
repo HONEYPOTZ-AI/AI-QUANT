@@ -177,7 +177,7 @@ async function ctraderAuthHandler(action, params = {}) {
         // If token_expires_in is set, calculate expiry time
         let isExpired = false;
         let expiresAt = settings.token_expiry || settings.expires_at;
-        
+
         if (settings.token_expires_in && settings.last_connection_time) {
           const lastConnectionTime = new Date(settings.last_connection_time);
           const calculatedExpiry = new Date(lastConnectionTime.getTime() + settings.token_expires_in * 1000);
