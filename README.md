@@ -1,62 +1,89 @@
-# AI QUANT
+# Welcome to your EzSite project
 
-Welcome to the official branding repository for **AI QUANT**, a SaaS platform that provides AI-powered analytics for SPX index and SPX options.
+A clean, modern React template with TypeScript, Vite, TailwindCSS, and ShadCN UI components. This template provides a solid foundation for building web applications with best practices in mind.
 
-## 🚀 Overview
+## Tech Features
 
-AI QUANT is designed to empower traders, quant researchers, and financial analysts with real-time insights, anomaly detection, and predictive analytics. This repository contains the visual identity and branding assets for the platform.
+- ⚡️ **Vite** - Lightning fast build tool
+- 🔥 **React 18** - Latest React features
+- 🧩 **TypeScript** - Type safety for better developer experience
+- 🎨 **TailwindCSS** - Utility-first CSS framework
+- 🧰 **ShadCN UI** - Accessible and customizable UI components
+- 📱 **Responsive Design** - Mobile-first approach
+- 🧭 **React Router** - Easy client-side routing
+- 🔄 **React Query** - Data fetching and state management
+- 🧪 **Form Handling** - React Hook Form with Zod validation
 
-## 📦 Contents
+## Getting Started
 
-- Logo with slogan
-- Favicon
-- App icon
-- Mobile-optimized social media branding
-- LICENSE.txt (MIT License)
-- CONTRIBUTING.md
+### Prerequisites
 
-## 🧰 Technologies Used
+- Node.js 18+ 
+- npm or yarn or pnpm
 
-The AI QUANT platform is built using the following technologies:
+### Installation
 
-- **Frontend**: React + TypeScript
-- **Backend**: FastAPI (Python)
-- **Infrastructure**: Terraform
-- **Deployment**: Trusted Execution Environments (TEE) on Azure, AWS, or GCP
+1. Clone this repository:
+```bash
+git clone https://github.com/your-username/react-template-project.git
+cd react-template-project
+```
 
-To set up GitHub Secrets for your repository (e.g., for AI QUANT), follow these steps:
-⸻
-🔐 Step-by-Step: Adding Secrets to GitHub
-1. Go to Your Repository
-    • Navigate to your GitHub repo (e.g., github.com/your-org/ai-quant).
-2. Open Settings
-    • Click on the Settings tab (top right of the repo page).
-3. Access Secrets
-    • In the left sidebar, scroll down to Security → click Secrets and variables → then Actions.
-4. Add New Repository Secret
-    • Click the “New repository secret” button.
-    • Add secrets one by one using the following names:
--
-see IMG jpeg file
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn
+# or
+pnpm install
+```
 
-5. Use Secrets in GitHub Actions
-    • These secrets are now securely available in your workflows using:
-    • env:
-  IBKR_API_KEY: ${{ secrets.IBKR_API_KEY }}
+3. Start the development server:
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
 
+4. Open your browser and visit `http://localhost:5173`
 
-## 📄 License
+## Project Structure
 
-This project is licensed under the [MIT License](LICENSE.txt). You are free to use, modify, and distribute the assets for commercial and non-commercial purposes.
+```
+react-template-project/
+├── public/              # Static assets
+│   ├── components/      # Reusable components
+│   │   └── ui/          # UI components from ShadCN
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Utility functions and libraries
+│   ├── pages/           # Page components
+│   ├── App.tsx          # Main application component
+│   ├── index.css        # Global styles
+│   └── main.tsx         # Application entry point
+├── .gitignore
+├── package.json         # Project dependencies and scripts
+├── tailwind.config.ts   # TailwindCSS configuration
+├── tsconfig.json        # TypeScript configuration
+└── vite.config.ts       # Vite configuration
+```
 
-## 🤝 Contributing
+## Customization
 
-We welcome contributions to improve and expand the branding assets. Please read the [CONTRIBUTING.md](CONTRIBUTING.md) guide for instructions on how to get started.
+- **Styling**: Modify `tailwind.config.ts` to customize your design tokens
+- **Components**: Add or modify components in the `src/components` directory
+- **Pages**: Create new pages in the `src/pages` directory
+- **Routing**: Update routes in `src/App.tsx`
 
-## 📬 Contact
+## Building for Production
 
-For commercial licensing inquiries, please contact: **team@honeypotz.net**
+```bash
+npm run build
+# or
+yarn build
+# or
+pnpm build
+```
 
----
-
-Thank you for supporting AI QUANT!
+The built files will be in the `dist` directory, ready to be deployed.
