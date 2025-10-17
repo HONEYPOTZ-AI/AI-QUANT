@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,10 +16,12 @@ import {
   AlertCircle,
   ArrowUpCircle,
   ArrowDownCircle,
-  Target } from
+  Target,
+  Database } from
 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useMarketData, type DataSource } from '@/components/MarketDataService';
 
 interface Signal {
   timestamp: string;
@@ -44,18 +47,59 @@ export default function CFDStrategyPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [useRealData, setUseRealData] = useState(false);
   const { toast } = useToast();
+  const { data: liveMarketData, dataSource, setDataSource, subscribe, unsubscribe } = useMarketData();
 
-  // Generate realistic US30 market data
+  // Subscribe to US30 for live data
+  useEffect(() => {
+    subscribe(['US30']);
+    return () => {
+      unsubscribe(['US30']);
+    };
+  }, []);
+
+  // Generate realistic US30 market data or use live data
   const generateMarketData = (bars = 100): MarketData[] => {
+    // If using real data and we have it, build historical from current price
+    if (useRealData && liveMarketData['US30']) {
+      const currentPrice = liveMarketData['US30'].price.current;
+      const data: MarketData[] = [];
+      const now = Date.now();
+      let price = currentPrice * 0.98; // Start slightly lower
+
+      for (let i = bars; i >= 0; i--) {
+        const timestamp = new Date(now - i * 5 * 60 * 1000).toISOString();
+        const open = price;
+        const volatility = 30 + Math.random() * 40;
+        const high = open + Math.random() * volatility;
+        const low = open - Math.random() * volatility;
+        const close = i === 0 ? currentPrice : (low + Math.random() * (high - low));
+        const volume = Math.floor(5000 + Math.random() * 15000);
+
+        data.push({
+          timestamp,
+          open: parseFloat(open.toFixed(2)),
+          high: parseFloat(high.toFixed(2)),
+          low: parseFloat(low.toFixed(2)),
+          close: parseFloat(close.toFixed(2)),
+          volume
+        });
+
+        const trend = close > open ? 1 : -1;
+        price = close + Math.random() * 20 * trend;
+      }
+
+      return data;
+    }
+
+    // Otherwise use generated data
     const data: MarketData[] = [];
-    let currentPrice = 42500; // US30 typical price
+    let currentPrice = 42500;
     const now = Date.now();
 
     for (let i = bars; i >= 0; i--) {
-      const timestamp = new Date(now - i * 5 * 60 * 1000).toISOString(); // 5-minute bars
-
-      // Generate realistic OHLC
+      const timestamp = new Date(now - i * 5 * 60 * 1000).toISOString();
       const open = currentPrice;
       const volatility = 50 + Math.random() * 50;
       const high = open + Math.random() * volatility;
@@ -72,7 +116,6 @@ export default function CFDStrategyPage() {
         volume
       });
 
-      // Update current price for next bar with trend
       const trend = Math.random() > 0.5 ? 1 : -1;
       currentPrice = close + Math.random() * 20 * trend;
     }
@@ -155,6 +198,16 @@ export default function CFDStrategyPage() {
                 <Activity className="w-3 h-3 mr-1" />
                 Live Strategy
               </Badge>
+              <Select value={useRealData ? 'live' : 'generated'} onValueChange={(v) => setUseRealData(v === 'live')}>
+                <SelectTrigger className="w-[140px] bg-slate-700 border-slate-600 text-sm">
+                  <Database className="w-3 h-3 mr-1" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="generated">Generated</SelectItem>
+                  <SelectItem value="live">Live ({dataSource === 'ibrk' ? 'IBRK' : dataSource === 'auto' ? 'Auto' : 'Mock'})</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 onClick={fetchDataAndSignals}
                 disabled={loading}

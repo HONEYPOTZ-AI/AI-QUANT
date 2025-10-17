@@ -46,7 +46,8 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   { id: 'analytics', label: 'AI Analytics', icon: <Brain className="h-5 w-5" /> },
   { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
   { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
-  { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> }];
+  { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> },
+  { id: 'settings', label: 'IBRK Settings', icon: <Settings className="h-5 w-5" /> }];
 
   const externalLinks = [
   { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
@@ -123,10 +124,6 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
           <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700">
             <User className="h-5 w-5 mr-3" />
             Profile
-          </Button>
-          <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700">
-            <Settings className="h-5 w-5 mr-3" />
-            Settings
           </Button>
         </div>
         <div className="mt-4 p-3 bg-slate-900 rounded-lg">

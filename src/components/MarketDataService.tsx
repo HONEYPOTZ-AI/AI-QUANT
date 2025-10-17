@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+export type DataSource = 'mock' | 'ibrk' | 'auto';
+
 interface MarketData {
   symbol: string;
   price: {
@@ -27,6 +29,7 @@ interface MarketData {
     volatility: number;
     lastUpdate: number;
     dataAge: number;
+    source?: string;
   };
 }
 
@@ -36,6 +39,8 @@ interface MarketDataState {
   lastUpdate: string;
   marketSummary: any;
   correlations: any;
+  dataSource: DataSource;
+  loading: boolean;
 }
 
 interface MarketDataContextType extends MarketDataState {
@@ -43,26 +48,65 @@ interface MarketDataContextType extends MarketDataState {
   unsubscribe: (symbols: string[]) => void;
   getPrice: (symbol: string) => number | null;
   refreshData: () => void;
+  setDataSource: (source: DataSource) => void;
 }
 
 const MarketDataContext = createContext<MarketDataContextType | null>(null);
 
 // Mock data generator for demonstration
 const generateMockData = (symbol: string): MarketData => {
-  const basePrice = Math.random() * 1000 + 50;
-  const change = (Math.random() - 0.5) * 20;
-  const changePercent = change / basePrice * 100;
+  const basePrices: Record<string, number> = {
+    'US30': 42500,
+    'AAPL': 175.0,
+    'GOOGL': 140.0,
+    'MSFT': 340.0,
+    'TSLA': 250.0,
+    'NVDA': 450.0,
+  };
+
+  const basePrice = basePrices[symbol] || Math.random() * 1000 + 50;
+  const change = (Math.random() - 0.5) * basePrice * 0.02;
+  const changePercent = (change / basePrice) * 100;
 
   return {
     symbol,
-    price: Number(basePrice.toFixed(2)),
-    change: Number(change.toFixed(2)),
-    changePercent: Number(changePercent.toFixed(2)),
-    volume: Math.floor(Math.random() * 1000000),
-    high: Number((basePrice + Math.abs(change) * 1.2).toFixed(2)),
-    low: Number((basePrice - Math.abs(change) * 1.2).toFixed(2)),
-    open: Number((basePrice - change).toFixed(2)),
-    timestamp: new Date().toISOString()
+    price: {
+      current: Number(basePrice.toFixed(2)),
+      open: Number((basePrice - change).toFixed(2)),
+      high: Number((basePrice + Math.abs(change) * 1.2).toFixed(2)),
+      low: Number((basePrice - Math.abs(change) * 1.2).toFixed(2)),
+      change: Number(change.toFixed(2)),
+      changePercent: Number(changePercent.toFixed(2))
+    },
+    volume: {
+      current: Math.floor(Math.random() * 1000000 + 100000),
+      average: 800000,
+      ratio: 1.2
+    },
+    indicators: {
+      rsi: 30 + Math.random() * 40,
+      macd: (Math.random() - 0.5) * 2,
+      bollingerBands: { upper: basePrice * 1.02, middle: basePrice, lower: basePrice * 0.98 },
+      movingAverages: {
+        sma20: basePrice * 0.99,
+        sma50: basePrice * 0.98,
+        ema12: basePrice * 0.995,
+        ema26: basePrice * 0.99
+      }
+    },
+    sentiment: {
+      sentiment: changePercent > 0.5 ? 'bullish' : changePercent < -0.5 ? 'bearish' : 'neutral',
+      score: 50 + changePercent * 10,
+      confidence: 70,
+      factors: ['Mock data indicator']
+    },
+    metadata: {
+      marketHours: true,
+      volatility: Math.abs(changePercent),
+      lastUpdate: Date.now(),
+      dataAge: 0,
+      source: 'mock'
+    }
   };
 };
 
@@ -70,35 +114,109 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
   const [state, setState] = useState<MarketDataState>({
     data: {},
     isConnected: false,
-    lastUpdate: ''
+    lastUpdate: '',
+    marketSummary: null,
+    correlations: null,
+    dataSource: 'mock',
+    loading: false
   });
   const [subscriptions, setSubscriptions] = useState<Set<string>>(new Set());
 
-  // Simulate connection and data updates
+  // Fetch data from selected source
+  const fetchData = async (source: DataSource, symbols: string[]) => {
+    if (symbols.length === 0) return;
+
+    setState((prev) => ({ ...prev, loading: true }));
+
+    try {
+      let result;
+
+      if (source === 'ibrk') {
+        // Fetch from IBRK
+        const response = await window.ezsite.nodejs.ibrkMarketDataFetcher(symbols, null);
+        if (response.error) throw new Error(response.error);
+        result = response.data;
+      } else if (source === 'auto') {
+        // Try IBRK first, fallback to mock
+        try {
+          const response = await window.ezsite.nodejs.ibrkMarketDataFetcher(symbols, null);
+          if (response.error) throw new Error(response.error);
+          result = response.data;
+        } catch (err) {
+          console.warn('IBRK failed, falling back to mock data:', err);
+          result = await fetchMockData(symbols);
+        }
+      } else {
+        // Use mock data
+        result = await fetchMockData(symbols);
+      }
+
+      setState((prev) => ({
+        ...prev,
+        data: result.data || {},
+        marketSummary: result.summary || null,
+        correlations: result.correlations || null,
+        lastUpdate: result.metadata?.fetchTime || new Date().toISOString(),
+        isConnected: true,
+        loading: false
+      }));
+
+    } catch (err: any) {
+      console.error('Failed to fetch market data:', err);
+      // Fallback to mock on error
+      const mockResult = await fetchMockData(symbols);
+      setState((prev) => ({
+        ...prev,
+        data: mockResult.data || {},
+        marketSummary: mockResult.summary || null,
+        correlations: mockResult.correlations || null,
+        lastUpdate: new Date().toISOString(),
+        isConnected: true,
+        loading: false
+      }));
+    }
+  };
+
+  const fetchMockData = async (symbols: string[]) => {
+    const data: Record<string, MarketData> = {};
+    symbols.forEach((symbol) => {
+      data[symbol] = generateMockData(symbol);
+    });
+
+    return {
+      data,
+      summary: {
+        totalSymbols: symbols.length,
+        marketTrend: 'neutral',
+        averageChange: 0,
+        totalVolume: Object.values(data).reduce((sum, d) => sum + d.volume.current, 0)
+      },
+      correlations: {},
+      metadata: {
+        fetchTime: new Date().toISOString(),
+        source: 'mock'
+      }
+    };
+  };
+
+  // Update data based on subscriptions and source
   useEffect(() => {
+    if (subscriptions.size === 0) return;
+
     setState((prev) => ({ ...prev, isConnected: true }));
 
+    // Fetch immediately
+    fetchData(state.dataSource, Array.from(subscriptions));
+
+    // Set up periodic updates
     const interval = setInterval(() => {
-      if (subscriptions.size > 0) {
-        const newData: Record<string, MarketData> = {};
-
-        subscriptions.forEach((symbol) => {
-          newData[symbol] = generateMockData(symbol);
-        });
-
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, ...newData },
-          lastUpdate: new Date().toISOString()
-        }));
-      }
-    }, 2000); // Update every 2 seconds
+      fetchData(state.dataSource, Array.from(subscriptions));
+    }, state.dataSource === 'mock' ? 2000 : 5000); // Mock: 2s, IBRK: 5s
 
     return () => {
       clearInterval(interval);
-      setState((prev) => ({ ...prev, isConnected: false }));
     };
-  }, [subscriptions]);
+  }, [subscriptions, state.dataSource]);
 
   const subscribe = (symbols: string[]) => {
     setSubscriptions((prev) => {
@@ -117,21 +235,33 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
   };
 
   const getPrice = (symbol: string): number | null => {
-    return state.data[symbol]?.price || null;
+    return state.data[symbol]?.price.current || null;
+  };
+
+  const refreshData = () => {
+    if (subscriptions.size > 0) {
+      fetchData(state.dataSource, Array.from(subscriptions));
+    }
+  };
+
+  const setDataSource = (source: DataSource) => {
+    setState((prev) => ({ ...prev, dataSource: source }));
   };
 
   const value: MarketDataContextType = {
     ...state,
     subscribe,
     unsubscribe,
-    getPrice
+    getPrice,
+    refreshData,
+    setDataSource
   };
 
   return (
     <MarketDataContext.Provider value={value}>
       {children}
-    </MarketDataContext.Provider>);
-
+    </MarketDataContext.Provider>
+  );
 }
 
 export function useMarketData() {

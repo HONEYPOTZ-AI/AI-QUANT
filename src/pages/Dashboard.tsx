@@ -31,6 +31,7 @@ import RealTimeChart from '@/components/RealTimeChart';
 import UserProfile from '@/components/UserProfile';
 import ApiIntegration from '@/components/ApiIntegration';
 import LoginForm from '@/components/LoginForm';
+import IBRKConfiguration from '@/components/IBRKConfiguration';
 
 const Dashboard = () => {
   const [spxPrice, setSpxPrice] = useState(4782.35);
@@ -261,6 +262,10 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <IBRKConfiguration />
           </TabsContent>
         </Tabs>
       </main>

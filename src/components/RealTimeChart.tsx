@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Activity, Wifi, WifiOff } from 'lucide-react';
 import { useMarketData } from '@/components/MarketDataService';
+import { Database } from 'lucide-react';
 
 interface RealTimeChartProps {
   symbol: string;
@@ -13,7 +14,7 @@ interface RealTimeChartProps {
 }
 
 export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartProps) {
-  const { data, isConnected, subscribe, unsubscribe } = useMarketData();
+  const { data, isConnected, subscribe, unsubscribe, dataSource, loading } = useMarketData();
 
   const [timeframe, setTimeframe] = useState('1m');
 
@@ -70,14 +71,20 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
           <div>
             <CardTitle className="flex items-center gap-2">
               {symbol}
-              <div className="flex items-center gap-1">
-                {isConnected ?
-                <Wifi className="w-4 h-4 text-green-500" /> :
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  {isConnected ?
+                  <Wifi className="w-4 h-4 text-green-500" /> :
 
-                <WifiOff className="w-4 h-4 text-red-500" />
-                }
-                <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
-                  {isConnected ? "LIVE" : "DISCONNECTED"}
+                  <WifiOff className="w-4 h-4 text-red-500" />
+                  }
+                  <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                    {isConnected ? "LIVE" : "DISCONNECTED"}
+                  </Badge>
+                </div>
+                <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                  <Database className="w-3 h-3" />
+                  {dataSource === 'ibrk' ? 'IBRK' : dataSource === 'auto' ? 'Auto' : 'Mock'}
                 </Badge>
               </div>
             </CardTitle>
