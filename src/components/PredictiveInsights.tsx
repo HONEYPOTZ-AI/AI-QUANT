@@ -141,7 +141,7 @@ function PredictiveInsights() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="predictive-insights">
       {/* AI Prediction Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">

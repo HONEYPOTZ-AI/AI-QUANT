@@ -102,7 +102,7 @@ const AnomalyAlerts = () => {
   const dismissedAlerts = alerts.filter((alert) => alert.dismissed);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="anomaly-alerts">
       {/* Alert Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-red-500/10 border-red-500/20">

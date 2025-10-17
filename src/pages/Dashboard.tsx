@@ -239,7 +239,9 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <PredictiveInsights />
+            <div data-tour="predictive-insights">
+              <PredictiveInsights />
+            </div>
 
             {/* Portfolio Optimization Section */}
             <Card className="border-border/50">
@@ -276,7 +278,9 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="alerts" className="space-y-6">
-            <AnomalyAlerts />
+            <div data-tour="anomaly-alerts">
+              <AnomalyAlerts />
+            </div>
           </TabsContent>
 
           <TabsContent value="options" className="space-y-6">

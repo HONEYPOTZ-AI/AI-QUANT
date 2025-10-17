@@ -128,8 +128,8 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
           onClick={onStartTour}
           data-tour="help-button"
           className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200 mb-2"
-          title="Start Interactive Tour"
-        >
+          title="Start Interactive Tour">
+
           <HelpCircle className="w-5 h-5" />
           <span className="font-medium">Help & Tour</span>
         </button>

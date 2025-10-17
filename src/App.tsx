@@ -23,7 +23,8 @@ function App() {
           <MarketDataProvider>
             <Router>
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/anomaly-detection" element={<AnomalyDetectionPage />} />
                 <Route path="/cfd-strategy" element={<CFDStrategyPage />} />
