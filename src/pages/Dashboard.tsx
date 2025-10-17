@@ -32,8 +32,35 @@ import UserProfile from '@/components/UserProfile';
 import ApiIntegration from '@/components/ApiIntegration';
 import LoginForm from '@/components/LoginForm';
 import IBRKConfiguration from '@/components/IBRKConfiguration';
+import Walkthrough from '@/components/Walkthrough';
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [activeView, setActiveView] = useState('overview');
+  const [runTour, setRunTour] = useState(false);
+
+  // Check if this is the user's first visit
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
+    if (!hasSeenTour && user) {
+      // Delay tour start to ensure DOM is ready
+      const timer = setTimeout(() => {
+        setRunTour(true);
+        localStorage.setItem('hasSeenTour', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
+
+  const handleStartTour = () => {
+    setRunTour(true);
+  };
+
+  const handleCloseTour = () => {
+    setRunTour(false);
+  };
+
   const [spxPrice, setSpxPrice] = useState(4782.35);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [activeTab, setActiveTab] = useState('overview');
@@ -87,8 +114,9 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-900 flex">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-slate-900 flex" data-tour="dashboard-overview">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onStartTour={handleStartTour} />
+      <Walkthrough run={runTour} onClose={handleCloseTour} />
       
       <main className="flex-1 p-8">
         {/* Header */}
@@ -205,7 +233,9 @@ const Dashboard = () => {
               )}
             </div>
 
-            <MarketOverview />
+            <div data-tour="market-overview">
+              <MarketOverview />
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -265,7 +295,16 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            <IBRKConfiguration />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <ApiIntegration />
+              <div data-tour="user-profile">
+                <UserProfile />
+              </div>
+            </div>
+
+            <div className="mb-6" data-tour="ibrk-config">
+              <IBRKConfiguration />
+            </div>
           </TabsContent>
         </Tabs>
       </main>

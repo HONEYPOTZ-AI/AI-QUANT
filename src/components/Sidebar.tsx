@@ -14,16 +14,18 @@ import {
   User,
   Database,
   LogOut,
-  TrendingUp } from 'lucide-react';
+  TrendingUp,
+  HelpCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onStartTour?: () => void;
 }
 
-const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
+const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -106,7 +108,8 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
             <Link key={link.path} to={link.path}>
                 <Button
                 variant="ghost"
-                className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700">
+                className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700"
+                data-tour={link.path === '/cfd-strategy' ? 'sidebar-cfd' : link.path === '/anomaly-detection' ? 'sidebar-anomaly' : undefined}>
 
                   <div className="flex items-center gap-3">
                     {link.icon}
@@ -121,6 +124,15 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
 
       {/* Footer */}
       <div className="p-4 border-t border-slate-700">
+        <button
+          onClick={onStartTour}
+          data-tour="help-button"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200 mb-2"
+          title="Start Interactive Tour"
+        >
+          <HelpCircle className="w-5 h-5" />
+          <span className="font-medium">Help & Tour</span>
+        </button>
         <div className="space-y-2">
           <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700">
             <User className="h-5 w-5 mr-3" />
