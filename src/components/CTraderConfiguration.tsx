@@ -14,6 +14,8 @@ interface CTraderSettings {
   id?: number;
   client_id: string;
   client_secret: string;
+  access_token: string;
+  token_expires_in: number;
   is_connected: boolean;
   last_connection_time?: string;
 }
@@ -23,6 +25,8 @@ const CTraderConfiguration = () => {
   const [settings, setSettings] = useState<CTraderSettings>({
     client_id: '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
     client_secret: '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
+    access_token: 'azIXkuHi7NbWnE4POmSgp6PoXVySLPQ7VryJJjTHMWM',
+    token_expires_in: 2628000,
     is_connected: false,
     last_connection_time: ''
   });
@@ -32,9 +36,12 @@ const CTraderConfiguration = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [showSecret, setShowSecret] = useState(false);
+  const [showAccessToken, setShowAccessToken] = useState(false);
   const [hasLoadedSecret, setHasLoadedSecret] = useState(false);
+  const [hasLoadedAccessToken, setHasLoadedAccessToken] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [secretModified, setSecretModified] = useState(false);
+  const [accessTokenModified, setAccessTokenModified] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
 
   useEffect(() => {
@@ -56,16 +63,20 @@ const CTraderConfiguration = () => {
 
       if (data?.List && data.List.length > 0) {
         const loadedSettings = data.List[0];
-        
+
         // Secret fields return empty string when called from frontend
         // This is expected behavior for Secret component type
         const hasSecret = loadedSettings.client_secret !== '';
+        const hasAccessToken = loadedSettings.access_token !== '';
         setHasLoadedSecret(hasSecret);
-        
+        setHasLoadedAccessToken(hasAccessToken);
+
         setSettings({
           id: loadedSettings.id,
           client_id: loadedSettings.client_id || '18001_d63gVTSSDt3Axw3DCoT3FpQwy60ySNc1LRtRed7Z3SBXv6qmG2',
           client_secret: hasSecret ? loadedSettings.client_secret : '7P1GUL6X41TO37StUtlTIEyEtxvDtLZmqIYAimyahYrCvU5GVX',
+          access_token: hasAccessToken ? loadedSettings.access_token : 'azIXkuHi7NbWnE4POmSgp6PoXVySLPQ7VryJJjTHMWM',
+          token_expires_in: loadedSettings.token_expires_in || 2628000,
           is_connected: loadedSettings.is_connected || false,
           last_connection_time: loadedSettings.last_connection_time || ''
         });
@@ -102,13 +113,24 @@ const CTraderConfiguration = () => {
       return;
     }
 
+    if (!settings.access_token) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please enter an Access Token',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsSaving(true);
     setSaveSuccess(false);
-    
+
     try {
       const settingsData = {
         client_id: settings.client_id,
         client_secret: settings.client_secret,
+        access_token: settings.access_token,
+        token_expires_in: settings.token_expires_in,
         is_connected: settings.is_connected,
         last_connection_time: settings.last_connection_time || null
       };
@@ -130,12 +152,14 @@ const CTraderConfiguration = () => {
       // Show success state
       setSaveSuccess(true);
       setSecretModified(false);
+      setAccessTokenModified(false);
       setHasLoadedSecret(true);
-      
+      setHasLoadedAccessToken(true);
+
       toast({
         title: '✓ Settings Saved Successfully',
         description: 'Your cTrader credentials have been securely stored and encrypted.',
-        duration: 5000,
+        duration: 5000
       });
 
       // Reset success indicator after 3 seconds
@@ -265,29 +289,29 @@ const CTraderConfiguration = () => {
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Connected
-          </Badge>
-        );
+          </Badge>);
+
       case 'disconnected':
         return (
           <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
             <XCircle className="h-3 w-3 mr-1" />
             Disconnected
-          </Badge>
-        );
+          </Badge>);
+
       case 'connecting':
         return (
           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             Connecting...
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge className="bg-slate-500/10 text-slate-400 border-slate-500/20">
             <AlertCircle className="h-3 w-3 mr-1" />
             Unknown
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -306,6 +330,11 @@ const CTraderConfiguration = () => {
     setSecretModified(true);
   };
 
+  const handleAccessTokenChange = (value: string) => {
+    setSettings({ ...settings, access_token: value });
+    setAccessTokenModified(true);
+  };
+
   const handleTestConnection = async () => {
     if (!settings.id) {
       toast({
@@ -322,7 +351,7 @@ const CTraderConfiguration = () => {
     try {
       // Get user info to pass userId
       const { data: userInfo, error: userError } = await (window as any).ezsite.apis.getUserInfo();
-      
+
       if (userError || !userInfo) {
         throw new Error('Failed to get user information. Please log in again.');
       }
@@ -345,7 +374,7 @@ const CTraderConfiguration = () => {
           description: `Connected to cTrader API. Found ${testData.details.accountCount} account(s).`,
           duration: 5000
         });
-        
+
         // Update connection status
         setConnectionStatus('connected');
         await loadSettings();
@@ -359,7 +388,7 @@ const CTraderConfiguration = () => {
       }
     } catch (error) {
       console.error('Test connection error:', error);
-      
+
       setTestResult({
         success: false,
         errors: [error instanceof Error ? error.message : 'Unknown error occurred']
@@ -384,8 +413,8 @@ const CTraderConfiguration = () => {
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -403,24 +432,24 @@ const CTraderConfiguration = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {saveSuccess && (
-          <Alert className="bg-green-500/10 border-green-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
+        {saveSuccess &&
+        <Alert className="bg-green-500/10 border-green-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400 flex items-center gap-2">
               <span>✓ Credentials saved and encrypted successfully!</span>
               <ShieldCheck className="h-4 w-4" />
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {connectionStatus === 'connected' && !saveSuccess && (
-          <Alert className="bg-green-500/10 border-green-500/20">
+        {connectionStatus === 'connected' && !saveSuccess &&
+        <Alert className="bg-green-500/10 border-green-500/20">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400">
               Successfully connected to cTrader API
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="space-y-4">
           <div className="space-y-2">
@@ -433,8 +462,8 @@ const CTraderConfiguration = () => {
               placeholder="Enter your cTrader Client ID"
               value={settings.client_id}
               onChange={(e) => setSettings({ ...settings, client_id: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             <p className="text-xs text-slate-400">
               Your cTrader OAuth Client ID
             </p>
@@ -443,12 +472,12 @@ const CTraderConfiguration = () => {
           <div className="space-y-2">
             <Label htmlFor="client_secret" className="text-slate-200 flex items-center gap-2">
               Client Secret <span className="text-red-500">*</span>
-              {hasLoadedSecret && !secretModified && (
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+              {hasLoadedSecret && !secretModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                   <ShieldCheck className="h-3 w-3 mr-1" />
                   Encrypted
                 </Badge>
-              )}
+              }
             </Label>
             <div className="relative">
               <Input
@@ -457,19 +486,19 @@ const CTraderConfiguration = () => {
                 placeholder={hasLoadedSecret && !secretModified ? "••••••••••••••••••••" : "Enter your cTrader Client Secret"}
                 value={settings.client_secret}
                 onChange={(e) => handleSecretChange(e.target.value)}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
               <button
                 type="button"
                 onClick={() => setShowSecret(!showSecret)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
-                aria-label={showSecret ? "Hide secret" : "Show secret"}
-              >
-                {showSecret ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                aria-label={showSecret ? "Hide secret" : "Show secret"}>
+
+                {showSecret ?
+                <EyeOff className="h-4 w-4" /> :
+
+                <Eye className="h-4 w-4" />
+                }
               </button>
             </div>
             <div className="flex items-start gap-2 text-xs text-slate-400">
@@ -481,22 +510,85 @@ const CTraderConfiguration = () => {
                 {!showSecret && " for security."}
               </span>
             </div>
-            {hasLoadedSecret && !secretModified && (
-              <p className="text-xs text-blue-400 flex items-center gap-1">
+            {hasLoadedSecret && !secretModified &&
+            <p className="text-xs text-blue-400 flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 Secret is currently masked. Enter new value to update.
               </p>
-            )}
+            }
           </div>
 
-          {settings.last_connection_time && (
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <Label htmlFor="access_token" className="text-slate-200 flex items-center gap-2">
+              Access Token <span className="text-red-500">*</span>
+              {hasLoadedAccessToken && !accessTokenModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+                  <ShieldCheck className="h-3 w-3 mr-1" />
+                  Encrypted
+                </Badge>
+              }
+            </Label>
+            <div className="relative">
+              <Input
+                id="access_token"
+                type={showAccessToken ? "text" : "password"}
+                placeholder={hasLoadedAccessToken && !accessTokenModified ? "••••••••••••••••••••" : "Enter your cTrader Access Token"}
+                value={settings.access_token}
+                onChange={(e) => handleAccessTokenChange(e.target.value)}
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
+              <button
+                type="button"
+                onClick={() => setShowAccessToken(!showAccessToken)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                aria-label={showAccessToken ? "Hide token" : "Show token"}>
+
+                {showAccessToken ?
+                <EyeOff className="h-4 w-4" /> :
+
+                <Eye className="h-4 w-4" />
+                }
+              </button>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-400">
+              <ShieldCheck className="h-3 w-3 mt-0.5 flex-shrink-0 text-emerald-400" />
+              <span>
+                Your Access Token is stored with end-to-end encryption for secure API authentication.
+              </span>
+            </div>
+            {hasLoadedAccessToken && !accessTokenModified &&
+            <p className="text-xs text-blue-400 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                Token is currently masked. Enter new value to update.
+              </p>
+            }
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="token_expires_in" className="text-slate-200">
+              Token Expires In (seconds) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="token_expires_in"
+              type="number"
+              placeholder="Enter token expiration time in seconds"
+              value={settings.token_expires_in}
+              onChange={(e) => setSettings({ ...settings, token_expires_in: parseInt(e.target.value) || 0 })}
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
+            <p className="text-xs text-slate-400">
+              Duration in seconds before the access token expires (e.g., 2628000 = ~30 days)
+            </p>
+          </div>
+
+          {settings.last_connection_time &&
+          <div className="space-y-2">
               <Label className="text-slate-200">Last Connection Time</Label>
               <div className="bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-slate-300 text-sm">
                 {formatLastConnectionTime(settings.last_connection_time)}
               </div>
             </div>
-          )}
+          }
         </div>
 
         <div className="flex flex-wrap gap-3 pt-4">
@@ -504,88 +596,88 @@ const CTraderConfiguration = () => {
             onClick={handleTestConnection}
             disabled={isTesting || !settings.id}
             variant="outline"
-            className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
-          >
-            {isTesting ? (
-              <>
+            className="border-blue-600 text-blue-400 hover:bg-blue-900/20">
+
+            {isTesting ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Testing...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Wifi className="h-4 w-4 mr-2" />
                 Test Connection
               </>
-            )}
+            }
           </Button>
 
-          {connectionStatus === 'connected' ? (
-            <Button
-              onClick={handleDisconnect}
-              disabled={isConnecting}
-              variant="outline"
-              className="border-red-600 text-red-400 hover:bg-red-900/20"
-            >
-              {isConnecting ? (
-                <>
+          {connectionStatus === 'connected' ?
+          <Button
+            onClick={handleDisconnect}
+            disabled={isConnecting}
+            variant="outline"
+            className="border-red-600 text-red-400 hover:bg-red-900/20">
+
+              {isConnecting ?
+            <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Disconnecting...
-                </>
-              ) : (
-                <>
+                </> :
+
+            <>
                   <PowerOff className="h-4 w-4 mr-2" />
                   Disconnect
                 </>
-              )}
-            </Button>
-          ) : (
-            <Button
-              onClick={handleConnect}
-              disabled={isConnecting || !settings.client_id || !settings.client_secret}
-              variant="outline"
-              className="border-green-600 text-green-400 hover:bg-green-900/20"
-            >
-              {isConnecting ? (
-                <>
+            }
+            </Button> :
+
+          <Button
+            onClick={handleConnect}
+            disabled={isConnecting || !settings.client_id || !settings.client_secret}
+            variant="outline"
+            className="border-green-600 text-green-400 hover:bg-green-900/20">
+
+              {isConnecting ?
+            <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Connecting...
-                </>
-              ) : (
-                <>
+                </> :
+
+            <>
                   <Power className="h-4 w-4 mr-2" />
                   Connect
                 </>
-              )}
+            }
             </Button>
-          )}
+          }
 
           <Button
             onClick={handleSave}
-            disabled={isSaving || !settings.client_id || !settings.client_secret}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isSaving ? (
-              <>
+            disabled={isSaving || !settings.client_id || !settings.client_secret || !settings.access_token}
+            className="bg-blue-600 hover:bg-blue-700 text-white">
+
+            {isSaving ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="h-4 w-4 mr-2" />
                 Save Settings
               </>
-            )}
+            }
           </Button>
         </div>
 
         {/* Test Result Display */}
-        {testResult && (
-          <Alert className={`${testResult.success ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'} animate-in fade-in slide-in-from-top-2 duration-300`}>
-            {testResult.success ? (
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-            ) : (
-              <XCircle className="h-4 w-4 text-red-500" />
-            )}
+        {testResult &&
+        <Alert className={`${testResult.success ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'} animate-in fade-in slide-in-from-top-2 duration-300`}>
+            {testResult.success ?
+          <CheckCircle2 className="h-4 w-4 text-green-500" /> :
+
+          <XCircle className="h-4 w-4 text-red-500" />
+          }
             <AlertDescription className={testResult.success ? 'text-green-300' : 'text-red-300'}>
               <div className="space-y-2">
                 <div className="font-semibold">
@@ -595,11 +687,11 @@ const CTraderConfiguration = () => {
                 <div className="text-sm space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">Credentials:</span>
-                    {testResult.details.credentialsFound ? (
-                      <span className="text-green-400">✓ Found</span>
-                    ) : (
-                      <span className="text-red-400">✗ Not Found</span>
-                    )}
+                    {testResult.details.credentialsFound ?
+                  <span className="text-green-400">✓ Found</span> :
+
+                  <span className="text-red-400">✗ Not Found</span>
+                  }
                   </div>
                   
                   <div className="flex items-center gap-2">
@@ -616,24 +708,24 @@ const CTraderConfiguration = () => {
                     </span>
                   </div>
 
-                  {testResult.connected && testResult.details.accountCount > 0 && (
-                    <div className="flex items-center gap-2">
+                  {testResult.connected && testResult.details.accountCount > 0 &&
+                <div className="flex items-center gap-2">
                       <span className="font-medium">Accounts Found:</span>
                       <span className="text-blue-400">{testResult.details.accountCount}</span>
                     </div>
-                  )}
+                }
                 </div>
 
-                {testResult.errors && testResult.errors.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-red-500/20">
+                {testResult.errors && testResult.errors.length > 0 &&
+              <div className="mt-2 pt-2 border-t border-red-500/20">
                     <div className="font-medium text-xs mb-1">Error Details:</div>
-                    {testResult.errors.map((error: string, index: number) => (
-                      <div key={index} className="text-xs text-red-300 ml-2">
+                    {testResult.errors.map((error: string, index: number) =>
+                <div key={index} className="text-xs text-red-300 ml-2">
                         • {error}
                       </div>
-                    ))}
-                  </div>
                 )}
+                  </div>
+              }
 
                 <div className="text-xs text-slate-400 mt-2">
                   Tested at: {new Date(testResult.timestamp).toLocaleString()}
@@ -641,7 +733,7 @@ const CTraderConfiguration = () => {
               </div>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <Alert className="bg-blue-500/10 border-blue-500/20">
           <AlertCircle className="h-4 w-4 text-blue-400" />
@@ -651,8 +743,8 @@ const CTraderConfiguration = () => {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default CTraderConfiguration;

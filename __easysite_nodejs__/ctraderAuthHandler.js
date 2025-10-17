@@ -174,11 +174,22 @@ async function ctraderAuthHandler(action, params = {}) {
           throw new Error('No stored token found. Please authenticate first.');
         }
 
-        const now = new Date();
-        const expiresAt = new Date(settings.expires_at);
-        const isExpired = now >= expiresAt;
+        // If token_expires_in is set, calculate expiry time
+        let isExpired = false;
+        let expiresAt = settings.token_expiry || settings.expires_at;
+        
+        if (settings.token_expires_in && settings.last_connection_time) {
+          const lastConnectionTime = new Date(settings.last_connection_time);
+          const calculatedExpiry = new Date(lastConnectionTime.getTime() + settings.token_expires_in * 1000);
+          expiresAt = calculatedExpiry.toISOString();
+          isExpired = new Date() >= calculatedExpiry;
+        } else if (settings.expires_at) {
+          const now = new Date();
+          const expiryDate = new Date(settings.expires_at);
+          isExpired = now >= expiryDate;
+        }
 
-        // If token is expired, try to refresh it
+        // If token is expired and we have a refresh token, try to refresh it
         if (isExpired && settings.refresh_token) {
           return await ctraderAuthHandler('refreshToken', { userId });
         }
@@ -186,7 +197,7 @@ async function ctraderAuthHandler(action, params = {}) {
         return {
           accessToken: settings.access_token,
           refreshToken: settings.refresh_token,
-          expiresAt: settings.expires_at,
+          expiresAt: expiresAt,
           tokenType: settings.token_type || 'Bearer',
           isExpired
         };

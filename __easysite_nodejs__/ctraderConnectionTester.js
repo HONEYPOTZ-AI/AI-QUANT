@@ -7,7 +7,7 @@
 
 async function ctraderConnectionTester(userId) {
   const TABLE_ID = 51256; // ctrader_api_settings
-  
+
   if (!userId) {
     throw new Error('userId is required');
   }
@@ -41,31 +41,42 @@ async function ctraderConnectionTester(userId) {
     }
 
     const settings = settingsData?.List?.[0];
-    
-    if (!settings || !settings.client_id || !settings.client_secret) {
-      result.errors.push('No credentials found. Please save your Client ID and Client Secret first.');
+
+    if (!settings || !settings.client_id || !settings.client_secret || !settings.access_token) {
+      result.errors.push('No credentials found. Please save your Client ID, Client Secret, and Access Token first.');
       result.details.authenticationStatus = 'No credentials stored';
       throw new Error('Missing credentials');
     }
 
     result.details.credentialsFound = true;
-    result.details.authenticationStatus = 'Credentials found';
+    result.details.authenticationStatus = 'Credentials found (including Access Token)';
 
-    // Step 2: Validate/Refresh authentication token
+    // Step 2: Validate access token is present
     try {
-      const { data: authData, error: authError } = await easysite.run({
-        path: '__easysite_nodejs__/ctraderAuthHandler.js',
-        param: ['validateConnection', { userId }]
-      });
-
-      if (authError || !authData?.isValid) {
-        result.errors.push('Authentication failed: No valid access token. Please authenticate via OAuth flow first.');
-        result.details.authenticationStatus = 'Token missing or expired';
-        throw new Error('Authentication required');
+      if (!settings.access_token) {
+        result.errors.push('No access token found. Please save your Access Token in settings.');
+        result.details.authenticationStatus = 'No access token';
+        throw new Error('Access token required');
       }
 
-      result.authenticated = true;
-      result.details.authenticationStatus = 'Token valid';
+      // Check if token might be expired based on token_expires_in
+      if (settings.token_expires_in && settings.last_connection_time) {
+        const lastConnectionTime = new Date(settings.last_connection_time);
+        const calculatedExpiry = new Date(lastConnectionTime.getTime() + settings.token_expires_in * 1000);
+        const isExpired = new Date() >= calculatedExpiry;
+        
+        if (isExpired) {
+          result.errors.push('Access token may be expired. Please update your Access Token.');
+          result.details.authenticationStatus = 'Token expired';
+          result.authenticated = false;
+        } else {
+          result.authenticated = true;
+          result.details.authenticationStatus = 'Access token valid';
+        }
+      } else {
+        result.authenticated = true;
+        result.details.authenticationStatus = 'Access token present';
+      }
 
     } catch (authError) {
       result.errors.push(`Authentication error: ${authError.message}`);

@@ -17,15 +17,22 @@ async function ctraderMarketDataFetcher(action, params = {}) {
   const API_VERSION = 'v3';
   const TABLE_ID = 51256; // ctrader_api_settings
 
-  // Helper to get access token
+  // Helper to get access token from database
   async function getAccessToken(userId) {
-    const { data, error } = await easysite.run({
-      path: '__easysite_nodejs__/ctraderAuthHandler.js',
-      param: ['getStoredToken', { userId }]
+    const { data, error } = await easysite.table.page(TABLE_ID, {
+      PageNo: 1,
+      PageSize: 1,
+      Filters: [{ name: 'user_id', op: 'Equal', value: userId }]
     });
 
-    if (error) throw new Error(`Failed to get access token: ${error}`);
-    return data.accessToken;
+    if (error) throw new Error(`Failed to fetch access token: ${error}`);
+    
+    const settings = data?.List?.[0];
+    if (!settings || !settings.access_token) {
+      throw new Error('No access token found. Please save your Access Token in settings.');
+    }
+
+    return settings.access_token;
   }
 
   // Helper to get account ID

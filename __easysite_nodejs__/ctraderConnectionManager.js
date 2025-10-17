@@ -14,16 +14,24 @@ async function ctraderConnectionManager(action, params = {}) {
   const API_BASE_URL = 'https://api.ctrader.com';
   const API_VERSION = 'v3';
 
-  // Helper to get valid access token
+  // Helper to get valid access token from database
   async function getAccessToken(userId) {
-    // Use the auth handler to get/refresh token
-    const { data, error } = await easysite.run({
-      path: '__easysite_nodejs__/ctraderAuthHandler.js',
-      param: ['getStoredToken', { userId }]
+    const TABLE_ID = 51256; // ctrader_api_settings
+    
+    const { data, error } = await easysite.table.page(TABLE_ID, {
+      PageNo: 1,
+      PageSize: 1,
+      Filters: [{ name: 'user_id', op: 'Equal', value: userId }]
     });
 
-    if (error) throw new Error(`Failed to get access token: ${error}`);
-    return data.accessToken;
+    if (error) throw new Error(`Failed to fetch access token: ${error}`);
+    
+    const settings = data?.List?.[0];
+    if (!settings || !settings.access_token) {
+      throw new Error('No access token found. Please save your Access Token in settings.');
+    }
+
+    return settings.access_token;
   }
 
   // Helper to make authenticated API request
