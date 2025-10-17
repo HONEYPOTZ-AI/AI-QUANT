@@ -100,19 +100,19 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
         <div className="mt-6 pt-6 border-t border-slate-700">
           <p className="text-xs text-slate-500 uppercase font-semibold mb-2 px-3">Trading Tools</p>
           <div className="space-y-2">
-            {externalLinks.map((link) => (
-              <Link key={link.path} to={link.path}>
+            {externalLinks.map((link) =>
+            <Link key={link.path} to={link.path}>
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700"
-                >
+                variant="ghost"
+                className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700">
+
                   <div className="flex items-center gap-3">
                     {link.icon}
                     <span>{link.label}</span>
                   </div>
                 </Button>
               </Link>
-            ))}
+            )}
           </div>
         </div>
       </nav>

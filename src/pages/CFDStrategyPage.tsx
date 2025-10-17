@@ -6,17 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import CFDStrategyChart from '@/components/CFDStrategyChart';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Activity, 
-  BarChart3, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  BarChart3,
   RefreshCw,
   AlertCircle,
   ArrowUpCircle,
   ArrowDownCircle,
-  Target
-} from 'lucide-react';
+  Target } from
+'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,10 +51,10 @@ export default function CFDStrategyPage() {
     const data: MarketData[] = [];
     let currentPrice = 42500; // US30 typical price
     const now = Date.now();
-    
+
     for (let i = bars; i >= 0; i--) {
       const timestamp = new Date(now - i * 5 * 60 * 1000).toISOString(); // 5-minute bars
-      
+
       // Generate realistic OHLC
       const open = currentPrice;
       const volatility = 50 + Math.random() * 50;
@@ -62,7 +62,7 @@ export default function CFDStrategyPage() {
       const low = open - Math.random() * volatility;
       const close = low + Math.random() * (high - low);
       const volume = Math.floor(5000 + Math.random() * 15000);
-      
+
       data.push({
         timestamp,
         open: parseFloat(open.toFixed(2)),
@@ -71,45 +71,45 @@ export default function CFDStrategyPage() {
         close: parseFloat(close.toFixed(2)),
         volume
       });
-      
+
       // Update current price for next bar with trend
       const trend = Math.random() > 0.5 ? 1 : -1;
-      currentPrice = close + (Math.random() * 20 * trend);
+      currentPrice = close + Math.random() * 20 * trend;
     }
-    
+
     return data;
   };
 
   const fetchDataAndSignals = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       // Generate market data
       const data = generateMarketData(100);
       setMarketData(data);
-      
+
       // Call the CFD strategy engine
       const result = await window.ezsite.nodejs.cfdStrategyEngine(data);
-      
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
+
       setSignals(result.data || []);
-      
+
       toast({
         title: 'Strategy Analysis Complete',
-        description: `Generated ${result.data?.length || 0} trading signals`,
+        description: `Generated ${result.data?.length || 0} trading signals`
       });
-      
+
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to fetch strategy data';
       setError(errorMsg);
       toast({
         title: 'Error',
         description: errorMsg,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -120,8 +120,8 @@ export default function CFDStrategyPage() {
     fetchDataAndSignals();
   }, []);
 
-  const longSignals = signals.filter(s => s.type === 'long').length;
-  const shortSignals = signals.filter(s => s.type === 'short').length;
+  const longSignals = signals.filter((s) => s.type === 'long').length;
+  const shortSignals = signals.filter((s) => s.type === 'short').length;
   const totalSignals = signals.length;
   const longShortRatio = shortSignals > 0 ? (longSignals / shortSignals).toFixed(2) : 'N/A';
 
@@ -155,12 +155,12 @@ export default function CFDStrategyPage() {
                 <Activity className="w-3 h-3 mr-1" />
                 Live Strategy
               </Badge>
-              <Button 
-                onClick={fetchDataAndSignals} 
+              <Button
+                onClick={fetchDataAndSignals}
                 disabled={loading}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+                className="bg-blue-600 hover:bg-blue-700">
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -192,7 +192,7 @@ export default function CFDStrategyPage() {
             <CardContent>
               <div className="text-3xl font-bold text-green-400">{longSignals}</div>
               <p className="text-xs text-slate-500 mt-1">
-                {totalSignals > 0 ? `${((longSignals / totalSignals) * 100).toFixed(1)}% of total` : '0%'}
+                {totalSignals > 0 ? `${(longSignals / totalSignals * 100).toFixed(1)}% of total` : '0%'}
               </p>
             </CardContent>
           </Card>
@@ -207,7 +207,7 @@ export default function CFDStrategyPage() {
             <CardContent>
               <div className="text-3xl font-bold text-red-400">{shortSignals}</div>
               <p className="text-xs text-slate-500 mt-1">
-                {totalSignals > 0 ? `${((shortSignals / totalSignals) * 100).toFixed(1)}% of total` : '0%'}
+                {totalSignals > 0 ? `${(shortSignals / totalSignals * 100).toFixed(1)}% of total` : '0%'}
               </p>
             </CardContent>
           </Card>
@@ -218,24 +218,24 @@ export default function CFDStrategyPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                {strategyStatus === 'long' && (
-                  <>
+                {strategyStatus === 'long' &&
+                <>
                     <TrendingUp className="w-6 h-6 text-green-400" />
                     <span className="text-2xl font-bold text-green-400">LONG</span>
                   </>
-                )}
-                {strategyStatus === 'short' && (
-                  <>
+                }
+                {strategyStatus === 'short' &&
+                <>
                     <TrendingDown className="w-6 h-6 text-red-400" />
                     <span className="text-2xl font-bold text-red-400">SHORT</span>
                   </>
-                )}
-                {strategyStatus === 'neutral' && (
-                  <>
+                }
+                {strategyStatus === 'neutral' &&
+                <>
                     <Activity className="w-6 h-6 text-slate-400" />
                     <span className="text-2xl font-bold text-slate-400">NEUTRAL</span>
                   </>
-                )}
+                }
               </div>
               <p className="text-xs text-slate-500 mt-1">
                 L/S Ratio: {longShortRatio}
@@ -245,12 +245,12 @@ export default function CFDStrategyPage() {
         </div>
 
         {/* Error Display */}
-        {error && (
-          <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900/50">
+        {error &&
+        <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900/50">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Chart Section */}
         <Card className="bg-slate-800/50 border-slate-700 mb-6">
@@ -264,17 +264,17 @@ export default function CFDStrategyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="space-y-3">
+            {loading ?
+            <div className="space-y-3">
                 <Skeleton className="h-[500px] w-full bg-slate-700/50" />
-              </div>
-            ) : marketData.length > 0 ? (
-              <CFDStrategyChart data={marketData} signals={signals} height={500} />
-            ) : (
-              <div className="h-[500px] flex items-center justify-center text-slate-400">
+              </div> :
+            marketData.length > 0 ?
+            <CFDStrategyChart data={marketData} signals={signals} height={500} /> :
+
+            <div className="h-[500px] flex items-center justify-center text-slate-400">
                 No market data available
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -287,33 +287,33 @@ export default function CFDStrategyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <Skeleton key={i} className="h-20 w-full bg-slate-700/50" />
-                ))}
-              </div>
-            ) : signals.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {signals.map((signal, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-4 rounded-lg border ${
-                      signal.type === 'long'
-                        ? 'bg-green-900/10 border-green-900/30'
-                        : 'bg-red-900/10 border-red-900/30'
-                    }`}
-                  >
+            {loading ?
+            <div className="space-y-3">
+                {[1, 2, 3].map((i) =>
+              <Skeleton key={i} className="h-20 w-full bg-slate-700/50" />
+              )}
+              </div> :
+            signals.length > 0 ?
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+                {signals.map((signal, idx) =>
+              <div
+                key={idx}
+                className={`p-4 rounded-lg border ${
+                signal.type === 'long' ?
+                'bg-green-900/10 border-green-900/30' :
+                'bg-red-900/10 border-red-900/30'}`
+                }>
+
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        {signal.type === 'long' ? (
-                          <TrendingUp className="w-5 h-5 text-green-400" />
-                        ) : (
-                          <TrendingDown className="w-5 h-5 text-red-400" />
-                        )}
+                        {signal.type === 'long' ?
+                    <TrendingUp className="w-5 h-5 text-green-400" /> :
+
+                    <TrendingDown className="w-5 h-5 text-red-400" />
+                    }
                         <span className={`font-bold uppercase ${
-                          signal.type === 'long' ? 'text-green-400' : 'text-red-400'
-                        }`}>
+                    signal.type === 'long' ? 'text-green-400' : 'text-red-400'}`
+                    }>
                           {signal.type} Signal
                         </span>
                       </div>
@@ -341,16 +341,16 @@ export default function CFDStrategyPage() {
                     </div>
                     <p className="text-sm text-slate-300 italic">{signal.commentary}</p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-slate-400">
+              )}
+              </div> :
+
+            <div className="text-center py-12 text-slate-400">
                 No trading signals generated for current dataset
               </div>
-            )}
+            }
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }
