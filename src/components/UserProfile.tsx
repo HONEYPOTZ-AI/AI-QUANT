@@ -18,7 +18,7 @@ export default function UserProfile() {
     first_name: '',
     last_name: '',
     department: '',
-    profile_image: '',
+    profile_image: ''
   });
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function UserProfile() {
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
         department: profile.department || '',
-        profile_image: profile.profile_image || '',
+        profile_image: profile.profile_image || ''
       });
     }
   }, [profile]);
@@ -38,7 +38,7 @@ export default function UserProfile() {
     try {
       const { error } = await window.ezsite.apis.tableUpdate(34154, {
         ID: profile.id,
-        ...formData,
+        ...formData
       });
 
       if (error) throw new Error(error);
@@ -58,24 +58,24 @@ export default function UserProfile() {
         <CardContent className="p-6">
           <div className="text-center">Loading profile...</div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'trader': return 'bg-blue-100 text-blue-800';
-      case 'analyst': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin':return 'bg-red-100 text-red-800';
+      case 'trader':return 'bg-blue-100 text-blue-800';
+      case 'analyst':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getAccessLevelColor = (level: string) => {
     switch (level) {
-      case 'enterprise': return 'bg-purple-100 text-purple-800';
-      case 'premium': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'enterprise':return 'bg-purple-100 text-purple-800';
+      case 'premium':return 'bg-yellow-100 text-yellow-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -105,28 +105,28 @@ export default function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>First Name</Label>
-                  {isEditing ? (
-                    <Input
-                      value={formData.first_name}
-                      onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                      placeholder="Enter first name"
-                    />
-                  ) : (
-                    <div className="font-medium">{profile.first_name || 'Not set'}</div>
-                  )}
+                  {isEditing ?
+                  <Input
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    placeholder="Enter first name" /> :
+
+
+                  <div className="font-medium">{profile.first_name || 'Not set'}</div>
+                  }
                 </div>
                 
                 <div>
                   <Label>Last Name</Label>
-                  {isEditing ? (
-                    <Input
-                      value={formData.last_name}
-                      onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                      placeholder="Enter last name"
-                    />
-                  ) : (
-                    <div className="font-medium">{profile.last_name || 'Not set'}</div>
-                  )}
+                  {isEditing ?
+                  <Input
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    placeholder="Enter last name" /> :
+
+
+                  <div className="font-medium">{profile.last_name || 'Not set'}</div>
+                  }
                 </div>
                 
                 <div>
@@ -136,21 +136,21 @@ export default function UserProfile() {
                 
                 <div>
                   <Label>Department</Label>
-                  {isEditing ? (
-                    <Input
-                      value={formData.department}
-                      onChange={(e) => setFormData({...formData, department: e.target.value})}
-                      placeholder="Enter department"
-                    />
-                  ) : (
-                    <div className="font-medium">{profile.department || 'Not set'}</div>
-                  )}
+                  {isEditing ?
+                  <Input
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="Enter department" /> :
+
+
+                  <div className="font-medium">{profile.department || 'Not set'}</div>
+                  }
                 </div>
               </div>
               
               <div className="flex gap-2 mt-4">
-                {isEditing ? (
-                  <>
+                {isEditing ?
+                <>
                     <Button onClick={handleSave} size="sm">
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Save Changes
@@ -158,13 +158,13 @@ export default function UserProfile() {
                     <Button variant="outline" onClick={() => setIsEditing(false)} size="sm">
                       Cancel
                     </Button>
-                  </>
-                ) : (
-                  <Button onClick={() => setIsEditing(true)} size="sm" variant="outline">
+                  </> :
+
+                <Button onClick={() => setIsEditing(true)} size="sm" variant="outline">
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
-                )}
+                }
               </div>
             </div>
           </div>
@@ -211,12 +211,12 @@ export default function UserProfile() {
                 <Clock className="w-4 h-4 text-gray-400" />
                 <span>Member since: {new Date(user.CreateTime).toLocaleDateString()}</span>
               </div>
-              {profile.last_login && (
-                <div className="flex items-center gap-2">
+              {profile.last_login &&
+              <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <span>Last login: {new Date(profile.last_login).toLocaleString()}</span>
                 </div>
-              )}
+              }
             </div>
           </div>
           
@@ -225,19 +225,19 @@ export default function UserProfile() {
           <div>
             <Label className="text-sm font-medium text-gray-600 mb-2 block">Permissions</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {Object.entries(profile.permissions).map(([permission, enabled]) => (
-                <Badge 
-                  key={permission}
-                  variant={enabled ? "default" : "secondary"}
-                  className="text-xs"
-                >
+              {Object.entries(profile.permissions).map(([permission, enabled]) =>
+              <Badge
+                key={permission}
+                variant={enabled ? "default" : "secondary"}
+                className="text-xs">
+
                   {permission.replace(/_/g, ' ').toUpperCase()}
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

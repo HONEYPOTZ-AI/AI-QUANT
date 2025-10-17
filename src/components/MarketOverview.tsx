@@ -2,10 +2,67 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, DollarSign, BarChart3, Users } from 'lucide-react';
+import { useMarketData } from './MarketDataService';
 
 const MarketOverview = () => {
-  const [marketData, setMarketData] = useState([
+  const { marketSummary, marketData, isLoading } = useMarketData();
+
+  if (isLoading || !marketSummary) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[1,2,3,4].map(i => (
+          <Card key={i} className="border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
+              <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 bg-muted animate-pulse rounded w-16 mb-2"></div>
+              <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  const totalVolume = marketSummary.totalVolume;
+  const avgChange = marketSummary.averageChange;
+  const marketMomentum = marketSummary.marketMomentum;
+  const totalSymbols = marketSummary.totalSymbols;
+
+  const marketStats = [
+    {
+      title: 'Market Trend',
+      value: marketSummary.marketTrend.toUpperCase(),
+      change: `${avgChange > 0 ? '+' : ''}${avgChange}%`,
+      trend: avgChange > 0 ? 'up' : 'down',
+      icon: avgChange > 0 ? TrendingUp : TrendingDown
+    },
+    {
+      title: 'Active Symbols',
+      value: totalSymbols.toString(),
+      change: `${marketSummary.bullishStocks} bullish`,
+      trend: marketSummary.bullishStocks > marketSummary.bearishStocks ? 'up' : 'down',
+      icon: Users
+    },
+    {
+      title: 'Total Volume',
+      value: `${(totalVolume / 1000000).toFixed(1)}M`,
+      change: `${marketSummary.bearishStocks} bearish`,
+      trend: marketSummary.bearishStocks < marketSummary.bullishStocks ? 'up' : 'down',
+      icon: BarChart3
+    },
+    {
+      title: 'Market Momentum',
+      value: `${marketMomentum > 0 ? '+' : ''}${marketMomentum}%`,
+      change: marketSummary.neutralStocks > 0 ? `${marketSummary.neutralStocks} neutral` : 'Strong direction',
+      trend: marketMomentum > 0 ? 'up' : 'down',
+      icon: Activity
+    }
+  ];
+  const [localMarketData, setLocalMarketData] = useState([
   {
     symbol: 'SPX',
     name: 'S&P 500 Index',
@@ -43,7 +100,7 @@ const MarketOverview = () => {
   // Mock real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setMarketData((prevData) =>
+      setLocalMarketData((prevData) =>
       prevData.map((item) => ({
         ...item,
         price: item.price + (Math.random() - 0.5) * 2,
@@ -76,7 +133,7 @@ const MarketOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {marketData.map((item, index) =>
+            {localMarketData.map((item, index) =>
             <div key={index} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-white">{item.symbol}</span>

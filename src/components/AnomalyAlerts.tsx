@@ -18,58 +18,52 @@ interface Alert {
 }
 
 const AnomalyAlerts = () => {
-  const [alerts, setAlerts] = useState<Alert[]>([
-  {
-    id: '1',
-    type: 'price',
-    severity: 'high',
-    title: 'Unusual Price Movement Detected',
-    description: 'SPX showing atypical price action with 3.2σ deviation from expected range',
-    timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-    symbol: 'SPX',
-    confidence: 94.2,
-    dismissed: false
-  },
-  {
-    id: '2',
-    type: 'volume',
-    severity: 'medium',
-    title: 'Volume Spike Alert',
-    description: 'Options volume for SPX Dec 4800 calls exceeded 5x average daily volume',
-    timestamp: new Date(Date.now() - 1200000), // 20 minutes ago
-    symbol: 'SPX',
-    confidence: 87.5,
-    dismissed: false
-  },
-  {
-    id: '3',
-    type: 'volatility',
-    severity: 'high',
-    title: 'Volatility Anomaly',
-    description: 'Implied volatility skew showing unusual patterns across strike prices',
-    timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-    symbol: 'SPX',
-    confidence: 91.8,
-    dismissed: false
-  },
-  {
-    id: '4',
-    type: 'pattern',
-    severity: 'low',
-    title: 'Technical Pattern Alert',
-    description: 'AI detected potential breakout pattern forming in SPX price action',
-    timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-    symbol: 'SPX',
-    confidence: 76.3,
-    dismissed: false
-  }]
-  );
+  const { marketData, isLoading } = useMarketData();
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { toast } = useToast();
+
+  const detectAnomalies = async () => {
+    if (!marketData || Object.keys(marketData).length === 0) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const { data: result, error } = await window.ezsite.apis.run({
+        path: "anomalyDetection",
+        param: [marketData, 0.7, 50] // sensitivity = 0.7, lookbackPeriod = 50
+      });
+
+      if (error) throw new Error(error);
+      
+      setAlerts(result.alerts || []);
+      
+      if (result.alerts?.length > 0) {
+        toast({
+          title: "Anomalies Detected",
+          description: `Found ${result.alerts.length} market anomalies`,
+        });
+      }
+    } catch (error) {
+      console.error('Anomaly detection error:', error);
+      toast({
+        title: "Detection Error",
+        description: "Failed to analyze market anomalies",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  useEffect(() => {
+    detectAnomalies();
+  }, [marketData]);
 
   const dismissAlert = (alertId: string) => {
     setAlerts((prev) =>
-    prev.map((alert) =>
-    alert.id === alertId ? { ...alert, dismissed: true } : alert
-    )
+      prev.map((alert) =>
+        alert.id === alertId ? { ...alert, dismissed: true } : alert
+      )
     );
   };
 

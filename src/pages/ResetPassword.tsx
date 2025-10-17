@@ -17,7 +17,7 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
+
   const token = searchParams.get('token');
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function ResetPassword() {
     try {
       const { error } = await window.ezsite.apis.resetPassword({
         token,
-        password,
+        password
       });
 
       if (error) {
@@ -59,9 +59,9 @@ export default function ResetPassword() {
         setSuccess(true);
         toast({
           title: 'Password Reset Successful',
-          description: 'Your password has been updated. You can now sign in with your new password.',
+          description: 'Your password has been updated. You can now sign in with your new password.'
         });
-        
+
         setTimeout(() => {
           navigate('/');
         }, 3000);
@@ -94,16 +94,16 @@ export default function ResetPassword() {
             <p className="text-sm text-gray-600 mb-4">
               Redirecting to login page in 3 seconds...
             </p>
-            <Button 
+            <Button
               onClick={() => navigate('/')}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
+              className="w-full bg-blue-600 hover:bg-blue-700">
+
               Continue to Login
             </Button>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -123,12 +123,12 @@ export default function ResetPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert className="mb-4 border-red-200 bg-red-50">
+          {error &&
+          <Alert className="mb-4 border-red-200 bg-red-50">
               <AlertCircle className="w-4 h-4" />
               <AlertDescription className="text-red-700">{error}</AlertDescription>
             </Alert>
-          )}
+          }
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -141,13 +141,13 @@ export default function ResetPassword() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isLoading}
-                />
+                  disabled={isLoading} />
+
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
+
                   {showPassword ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
                 </button>
               </div>
@@ -162,15 +162,15 @@ export default function ResetPassword() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                disabled={isLoading}
-              />
+                disabled={isLoading} />
+
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700" 
-              disabled={isLoading || !token}
-            >
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={isLoading || !token}>
+
               {isLoading ? 'Updating Password...' : 'Update Password'}
             </Button>
           </form>
@@ -179,13 +179,13 @@ export default function ResetPassword() {
             <Button
               variant="link"
               onClick={() => navigate('/')}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
+              className="text-sm text-gray-600 hover:text-gray-800">
+
               Back to Login
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

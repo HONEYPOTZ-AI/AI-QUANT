@@ -57,10 +57,10 @@ export default function AuthSuccess() {
               Redirecting to login page in <span className="font-bold text-blue-600">{countdown}</span> seconds...
             </p>
             
-            <Button 
+            <Button
               onClick={handleContinue}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
+              className="w-full bg-blue-600 hover:bg-blue-700">
+
               Continue to Login
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -71,6 +71,6 @@ export default function AuthSuccess() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

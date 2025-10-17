@@ -1,17 +1,70 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Brain, TrendingUp, TrendingDown, Target, Zap, BarChart3 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Brain, TrendingUp, TrendingDown, Target, RefreshCw, BarChart3, Zap } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { useMarketData } from './MarketDataService';
+import { useToast } from '@/hooks/use-toast';
 
-const PredictiveInsights = () => {
-  const [predictions, setPredictions] = useState({
-    nextDay: { direction: 'bullish', probability: 73.2, targetPrice: 4795.80 },
-    nextWeek: { direction: 'bullish', probability: 68.9, targetPrice: 4820.50 },
-    nextMonth: { direction: 'neutral', probability: 56.7, targetPrice: 4785.20 }
-  });
+function PredictiveInsights() {
+  const { marketData, isLoading } = useMarketData();
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [summary, setSummary] = useState<any>(null);
+  const { toast } = useToast();
+
+  const generatePredictions = async () => {
+    if (!marketData || Object.keys(marketData).length === 0) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const { data: result, error } = await window.ezsite.apis.run({
+        path: "predictiveAnalytics",
+        param: [marketData, 24, 0.85] // horizon = 24 hours, confidence = 0.85
+      });
+
+      if (error) throw new Error(error);
+      
+      setPredictions(result.topPredictions || []);
+      setSummary(result.summary || null);
+      
+      toast({
+        title: "Predictions Generated",
+        description: `AI analysis complete with ${result.summary?.averageConfidence || 0}% avg confidence`,
+      });
+    } catch (error) {
+      console.error('Prediction error:', error);
+      toast({
+        title: "Prediction Error",
+        description: "Failed to generate AI predictions",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  useEffect(() => {
+    generatePredictions();
+  }, [marketData]);
+
+  // Generate chart data from predictions
+  const chartData = predictions.slice(0, 5).map((pred, index) => ({
+    name: pred.symbol,
+    current: parseFloat(marketData[pred.symbol]?.price?.current || 0),
+    predicted: parseFloat(marketData[pred.symbol]?.price?.current || 0) * (1 + parseFloat(pred.predictedChange) / 100),
+    confidence: parseFloat(pred.confidence)
+  }));
+
+  const getPredictionBadge = (change: number) => {
+    if (change > 2) return { variant: 'default', icon: TrendingUp, text: 'Strong Bull' };
+    if (change > 0.5) return { variant: 'default', icon: TrendingUp, text: 'Bullish' };
+    if (change < -2) return { variant: 'destructive', icon: TrendingDown, text: 'Strong Bear' };
+    if (change < -0.5) return { variant: 'destructive', icon: TrendingDown, text: 'Bearish' };
+    return { variant: 'outline', icon: BarChart3, text: 'Neutral' };
+  };
 
   const [confidence, setConfidence] = useState(87.3);
 
@@ -98,21 +151,21 @@ const PredictiveInsights = () => {
                 <Brain className="h-5 w-5 text-blue-500" />
                 <span className="font-medium text-white">Next Day</span>
               </div>
-              {getDirectionIcon(predictions.nextDay.direction)}
+              {predictions.nextDay && getDirectionIcon(predictions.nextDay.direction)}
             </div>
             <div className="space-y-2">
               <div className="text-2xl font-bold text-white">
-                ${predictions.nextDay.targetPrice.toFixed(2)}
+                ${predictions.nextDay ? predictions.nextDay.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${getDirectionColor(predictions.nextDay.direction)}`}>
-                  {predictions.nextDay.direction.toUpperCase()}
+                <span className={`text-sm font-medium ${predictions.nextDay ? getDirectionColor(predictions.nextDay.direction) : ''}`}>
+                  {predictions.nextDay ? predictions.nextDay.direction.toUpperCase() : 'N/A'}
                 </span>
                 <span className="text-sm text-slate-400">
-                  {predictions.nextDay.probability}% confidence
+                  {predictions.nextDay ? predictions.nextDay.probability : 0}% confidence
                 </span>
               </div>
-              <Progress value={predictions.nextDay.probability} className="h-2" />
+              <Progress value={predictions.nextDay ? predictions.nextDay.probability : 0} className="h-2" />
             </div>
           </CardContent>
         </Card>
@@ -124,21 +177,21 @@ const PredictiveInsights = () => {
                 <Target className="h-5 w-5 text-green-500" />
                 <span className="font-medium text-white">Next Week</span>
               </div>
-              {getDirectionIcon(predictions.nextWeek.direction)}
+              {predictions.nextWeek && getDirectionIcon(predictions.nextWeek.direction)}
             </div>
             <div className="space-y-2">
               <div className="text-2xl font-bold text-white">
-                ${predictions.nextWeek.targetPrice.toFixed(2)}
+                ${predictions.nextWeek ? predictions.nextWeek.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${getDirectionColor(predictions.nextWeek.direction)}`}>
-                  {predictions.nextWeek.direction.toUpperCase()}
+                <span className={`text-sm font-medium ${predictions.nextWeek ? getDirectionColor(predictions.nextWeek.direction) : ''}`}>
+                  {predictions.nextWeek ? predictions.nextWeek.direction.toUpperCase() : 'N/A'}
                 </span>
                 <span className="text-sm text-slate-400">
-                  {predictions.nextWeek.probability}% confidence
+                  {predictions.nextWeek ? predictions.nextWeek.probability : 0}% confidence
                 </span>
               </div>
-              <Progress value={predictions.nextWeek.probability} className="h-2" />
+              <Progress value={predictions.nextWeek ? predictions.nextWeek.probability : 0} className="h-2" />
             </div>
           </CardContent>
         </Card>
@@ -150,21 +203,21 @@ const PredictiveInsights = () => {
                 <Zap className="h-5 w-5 text-purple-500" />
                 <span className="font-medium text-white">Next Month</span>
               </div>
-              {getDirectionIcon(predictions.nextMonth.direction)}
+              {predictions.nextMonth && getDirectionIcon(predictions.nextMonth.direction)}
             </div>
             <div className="space-y-2">
               <div className="text-2xl font-bold text-white">
-                ${predictions.nextMonth.targetPrice.toFixed(2)}
+                ${predictions.nextMonth ? predictions.nextMonth.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${getDirectionColor(predictions.nextMonth.direction)}`}>
-                  {predictions.nextMonth.direction.toUpperCase()}
+                <span className={`text-sm font-medium ${predictions.nextMonth ? getDirectionColor(predictions.nextMonth.direction) : ''}`}>
+                  {predictions.nextMonth ? predictions.nextMonth.direction.toUpperCase() : 'N/A'}
                 </span>
                 <span className="text-sm text-slate-400">
-                  {predictions.nextMonth.probability}% confidence
+                  {predictions.nextMonth ? predictions.nextMonth.probability : 0}% confidence
                 </span>
               </div>
-              <Progress value={predictions.nextMonth.probability} className="h-2" />
+              <Progress value={predictions.nextMonth ? predictions.nextMonth.probability : 0} className="h-2" />
             </div>
           </CardContent>
         </Card>

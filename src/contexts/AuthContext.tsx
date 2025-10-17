@@ -30,15 +30,15 @@ interface AuthState {
 }
 
 type AuthAction =
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_USER'; payload: { user: User | null; profile: UserProfile | null } }
-  | { type: 'LOGOUT' };
+{type: 'SET_LOADING';payload: boolean;} |
+{type: 'SET_USER';payload: {user: User | null;profile: UserProfile | null;};} |
+{type: 'LOGOUT';};
 
 const initialState: AuthState = {
   user: null,
   profile: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: true
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -51,7 +51,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         user: action.payload.user,
         profile: action.payload.profile,
         isAuthenticated: !!action.payload.user,
-        isLoading: false,
+        isLoading: false
       };
     case 'LOGOUT':
       return {
@@ -59,7 +59,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         user: null,
         profile: null,
         isAuthenticated: false,
-        isLoading: false,
+        isLoading: false
       };
     default:
       return state;
@@ -67,8 +67,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (credentials: { email: string; password: string }) => Promise<{ error?: string }>;
-  register: (credentials: { email: string; password: string }) => Promise<{ error?: string }>;
+  login: (credentials: {email: string;password: string;}) => Promise<{error?: string;}>;
+  register: (credentials: {email: string;password: string;}) => Promise<{error?: string;}>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
@@ -77,7 +77,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: {children: ReactNode;}) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   const fetchUserProfile = async (userId: number): Promise<UserProfile | null> => {
@@ -87,17 +87,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         PageSize: 1,
         Filters: [{ name: 'user_id', op: 'Equal', value: userId }]
       });
-      
+
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         const profile = data.List[0];
         return {
           ...profile,
-          permissions: profile.permissions ? JSON.parse(profile.permissions) : {},
+          permissions: profile.permissions ? JSON.parse(profile.permissions) : {}
         };
       }
-      
+
       // Create default profile if none exists
       const defaultProfile = {
         user_id: userId,
@@ -109,16 +109,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         api_access_level: 'basic' as const,
         profile_image: '',
         last_login: new Date().toISOString(),
-        is_active: true,
+        is_active: true
       };
-      
+
       const { error: createError } = await window.ezsite.apis.tableCreate(34154, defaultProfile);
       if (createError) throw new Error(createError);
-      
+
       return {
         ...defaultProfile,
         id: 0, // Will be set by database
-        permissions: {},
+        permissions: {}
       };
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -130,12 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const { data: userData, error } = await window.ezsite.apis.getUserInfo();
-      
+
       if (error || !userData) {
         dispatch({ type: 'LOGOUT' });
         return;
       }
-      
+
       const profile = await fetchUserProfile(userData.ID);
       dispatch({ type: 'SET_USER', payload: { user: userData, profile } });
     } catch (error) {
@@ -144,16 +144,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (credentials: { email: string; password: string }) => {
+  const login = async (credentials: {email: string;password: string;}) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const { error } = await window.ezsite.apis.login(credentials);
-      
+
       if (error) {
         dispatch({ type: 'SET_LOADING', payload: false });
         return { error };
       }
-      
+
       await refreshUser();
       toast({ title: 'Welcome back!', description: 'Successfully logged in.' });
       return {};
@@ -164,20 +164,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (credentials: { email: string; password: string }) => {
+  const register = async (credentials: {email: string;password: string;}) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const { error } = await window.ezsite.apis.register(credentials);
-      
+
       dispatch({ type: 'SET_LOADING', payload: false });
-      
+
       if (error) {
         return { error };
       }
-      
-      toast({ 
-        title: 'Registration successful!', 
-        description: 'Please check your email to verify your account.' 
+
+      toast({
+        title: 'Registration successful!',
+        description: 'Please check your email to verify your account.'
       });
       return {};
     } catch (error) {
@@ -219,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     hasPermission,
     hasRole,
-    refreshUser,
+    refreshUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

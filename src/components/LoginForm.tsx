@@ -84,11 +84,11 @@ export default function LoginForm() {
               <TabsTrigger value="register">Sign Up</TabsTrigger>
             </TabsList>
 
-            {error && (
-              <Alert className="mb-4 border-red-200 bg-red-50">
+            {error &&
+            <Alert className="mb-4 border-red-200 bg-red-50">
                 <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
-            )}
+            }
 
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
@@ -101,8 +101,8 @@ export default function LoginForm() {
                     value={loginData.email}
                     onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                     required
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Password</Label>
@@ -114,26 +114,26 @@ export default function LoginForm() {
                       value={loginData.password}
                       onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                       required
-                      disabled={isLoading}
-                    />
+                      disabled={isLoading} />
+
                     <button
                       type="button"
                       className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
+                      onClick={() => setShowPassword(!showPassword)}>
+
                       {showPassword ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
                     </button>
                   </div>
                 </div>
                 <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
+                  {isLoading ?
+                  <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Signing in...
-                    </>
-                  ) : (
-                    'Sign In'
-                  )}
+                    </> :
+
+                  'Sign In'
+                  }
                 </Button>
               </form>
             </TabsContent>
@@ -149,8 +149,8 @@ export default function LoginForm() {
                     value={registerData.email}
                     onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
                     required
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-password">Password</Label>
@@ -161,8 +161,8 @@ export default function LoginForm() {
                     value={registerData.password}
                     onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                     required
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -173,24 +173,24 @@ export default function LoginForm() {
                     value={registerData.confirmPassword}
                     onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
                     required
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
                 <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
+                  {isLoading ?
+                  <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating account...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
+                    </> :
+
+                  'Create Account'
+                  }
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

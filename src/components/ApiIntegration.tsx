@@ -38,15 +38,15 @@ export default function ApiIntegration() {
     try {
       const { data, error } = await window.ezsite.apis.tablePage(34155, {
         PageNo: 1,
-        PageSize: 10,
+        PageSize: 10
       });
-      
+
       if (error) throw new Error(error);
-      
+
       if (data?.List) {
         const sources = data.List.map((item: any) => ({
           ...item,
-          data_types: item.data_types ? JSON.parse(item.data_types) : [],
+          data_types: item.data_types ? JSON.parse(item.data_types) : []
         }));
         setDataSources(sources);
       }
@@ -71,13 +71,13 @@ export default function ApiIntegration() {
         is_active: true,
         rate_limit: 100,
         data_types: JSON.stringify(['stocks', 'options', 'futures', 'forex']),
-        last_sync: new Date().toISOString(),
+        last_sync: new Date().toISOString()
       };
 
       const { error } = await window.ezsite.apis.tableCreate(34155, ibkrSource);
       if (error) throw new Error(error);
 
-      setConnectionStatus(prev => ({ ...prev, ibkr: true }));
+      setConnectionStatus((prev) => ({ ...prev, ibkr: true }));
       toast({ title: 'IBKR Connected', description: 'Successfully connected to Interactive Brokers API.' });
       fetchDataSources();
     } catch (error) {
@@ -103,13 +103,13 @@ export default function ApiIntegration() {
         is_active: true,
         rate_limit: 500,
         data_types: JSON.stringify(['market_data', 'analytics', 'fundamentals', 'news']),
-        last_sync: new Date().toISOString(),
+        last_sync: new Date().toISOString()
       };
 
       const { error } = await window.ezsite.apis.tableCreate(34155, spSource);
       if (error) throw new Error(error);
 
-      setConnectionStatus(prev => ({ ...prev, spglobal: true }));
+      setConnectionStatus((prev) => ({ ...prev, spglobal: true }));
       toast({ title: 'S&P Global Connected', description: 'Successfully connected to S&P Global API.' });
       fetchDataSources();
     } catch (error) {
@@ -124,13 +124,13 @@ export default function ApiIntegration() {
     try {
       const { error } = await window.ezsite.apis.tableUpdate(34155, {
         ID: id,
-        is_active: isActive,
+        is_active: isActive
       });
 
       if (error) throw new Error(error);
-      
+
       fetchDataSources();
-      toast({ 
+      toast({
         title: isActive ? 'Data Source Enabled' : 'Data Source Disabled',
         description: `Data source has been ${isActive ? 'enabled' : 'disabled'}.`
       });
@@ -146,8 +146,8 @@ export default function ApiIntegration() {
         <AlertDescription>
           You do not have permission to access API integration settings.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   return (
@@ -188,9 +188,9 @@ export default function ApiIntegration() {
                       <Input
                         id="ibkr-username"
                         value={ibkrCredentials.username}
-                        onChange={(e) => setIbkrCredentials({...ibkrCredentials, username: e.target.value})}
-                        placeholder="Enter IBKR username"
-                      />
+                        onChange={(e) => setIbkrCredentials({ ...ibkrCredentials, username: e.target.value })}
+                        placeholder="Enter IBKR username" />
+
                     </div>
                     <div>
                       <Label htmlFor="ibkr-password">Password</Label>
@@ -198,23 +198,23 @@ export default function ApiIntegration() {
                         id="ibkr-password"
                         type="password"
                         value={ibkrCredentials.password}
-                        onChange={(e) => setIbkrCredentials({...ibkrCredentials, password: e.target.value})}
-                        placeholder="Enter IBKR password"
-                      />
+                        onChange={(e) => setIbkrCredentials({ ...ibkrCredentials, password: e.target.value })}
+                        placeholder="Enter IBKR password" />
+
                     </div>
                   </div>
                   <Button onClick={connectIBKR} disabled={isLoading} className="w-full md:w-auto">
-                    {connectionStatus.ibkr ? (
-                      <>
+                    {connectionStatus.ibkr ?
+                    <>
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Reconnect IBKR
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                    <>
                         <Wifi className="w-4 h-4 mr-2" />
                         Connect IBKR
                       </>
-                    )}
+                    }
                   </Button>
                 </CardContent>
               </Card>
@@ -238,37 +238,37 @@ export default function ApiIntegration() {
                       type="password"
                       value={spGlobalKey}
                       onChange={(e) => setSpGlobalKey(e.target.value)}
-                      placeholder="Enter S&P Global API key"
-                    />
+                      placeholder="Enter S&P Global API key" />
+
                   </div>
                   <Button onClick={connectSPGlobal} disabled={isLoading} className="w-full md:w-auto">
-                    {connectionStatus.spglobal ? (
-                      <>
+                    {connectionStatus.spglobal ?
+                    <>
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Reconnect S&P Global
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                    <>
                         <Wifi className="w-4 h-4 mr-2" />
                         Connect S&P Global
                       </>
-                    )}
+                    }
                   </Button>
                 </CardContent>
               </Card>
             </TabsContent>
             
             <TabsContent value="status" className="space-y-4">
-              {dataSources.length === 0 ? (
-                <Alert>
+              {dataSources.length === 0 ?
+              <Alert>
                   <AlertCircle className="w-4 h-4" />
                   <AlertDescription>
                     No data sources configured. Please set up your API connections.
                   </AlertDescription>
-                </Alert>
-              ) : (
-                dataSources.map((source) => (
-                  <Card key={source.id}>
+                </Alert> :
+
+              dataSources.map((source) =>
+              <Card key={source.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -283,9 +283,9 @@ export default function ApiIntegration() {
                             {source.is_active ? "Active" : "Inactive"}
                           </Badge>
                           <Switch
-                            checked={source.is_active}
-                            onCheckedChange={(checked) => toggleDataSource(source.id, checked)}
-                          />
+                        checked={source.is_active}
+                        onCheckedChange={(checked) => toggleDataSource(source.id, checked)} />
+
                         </div>
                       </div>
                       
@@ -309,21 +309,21 @@ export default function ApiIntegration() {
                       <div className="mt-3">
                         <span className="text-gray-600 text-sm">Data Types:</span>
                         <div className="flex gap-2 mt-1">
-                          {source.data_types.map((type) => (
-                            <Badge key={type} variant="outline" className="text-xs">
+                          {source.data_types.map((type) =>
+                      <Badge key={type} variant="outline" className="text-xs">
                               {type}
                             </Badge>
-                          ))}
+                      )}
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                ))
-              )}
+              )
+              }
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

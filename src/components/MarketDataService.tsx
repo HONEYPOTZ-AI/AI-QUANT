@@ -2,26 +2,47 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 
 interface MarketData {
   symbol: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  volume: number;
-  high: number;
-  low: number;
-  open: number;
-  timestamp: string;
+  price: {
+    current: number;
+    open: number;
+    high: number;
+    low: number;
+    change: number;
+    changePercent: number;
+  };
+  volume: {
+    current: number;
+    average: number;
+    ratio: number;
+  };
+  indicators: any;
+  sentiment: {
+    sentiment: string;
+    score: number;
+    confidence: number;
+    factors: string[];
+  };
+  metadata: {
+    marketHours: boolean;
+    volatility: number;
+    lastUpdate: number;
+    dataAge: number;
+  };
 }
 
 interface MarketDataState {
   data: Record<string, MarketData>;
   isConnected: boolean;
   lastUpdate: string;
+  marketSummary: any;
+  correlations: any;
 }
 
 interface MarketDataContextType extends MarketDataState {
   subscribe: (symbols: string[]) => void;
   unsubscribe: (symbols: string[]) => void;
   getPrice: (symbol: string) => number | null;
+  refreshData: () => void;
 }
 
 const MarketDataContext = createContext<MarketDataContextType | null>(null);
@@ -30,8 +51,8 @@ const MarketDataContext = createContext<MarketDataContextType | null>(null);
 const generateMockData = (symbol: string): MarketData => {
   const basePrice = Math.random() * 1000 + 50;
   const change = (Math.random() - 0.5) * 20;
-  const changePercent = (change / basePrice) * 100;
-  
+  const changePercent = change / basePrice * 100;
+
   return {
     symbol,
     price: Number(basePrice.toFixed(2)),
@@ -41,56 +62,56 @@ const generateMockData = (symbol: string): MarketData => {
     high: Number((basePrice + Math.abs(change) * 1.2).toFixed(2)),
     low: Number((basePrice - Math.abs(change) * 1.2).toFixed(2)),
     open: Number((basePrice - change).toFixed(2)),
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   };
 };
 
-export function MarketDataProvider({ children }: { children: ReactNode }) {
+export function MarketDataProvider({ children }: {children: ReactNode;}) {
   const [state, setState] = useState<MarketDataState>({
     data: {},
     isConnected: false,
-    lastUpdate: '',
+    lastUpdate: ''
   });
   const [subscriptions, setSubscriptions] = useState<Set<string>>(new Set());
 
   // Simulate connection and data updates
   useEffect(() => {
-    setState(prev => ({ ...prev, isConnected: true }));
-    
+    setState((prev) => ({ ...prev, isConnected: true }));
+
     const interval = setInterval(() => {
       if (subscriptions.size > 0) {
         const newData: Record<string, MarketData> = {};
-        
-        subscriptions.forEach(symbol => {
+
+        subscriptions.forEach((symbol) => {
           newData[symbol] = generateMockData(symbol);
         });
-        
-        setState(prev => ({
+
+        setState((prev) => ({
           ...prev,
           data: { ...prev.data, ...newData },
-          lastUpdate: new Date().toISOString(),
+          lastUpdate: new Date().toISOString()
         }));
       }
     }, 2000); // Update every 2 seconds
-    
+
     return () => {
       clearInterval(interval);
-      setState(prev => ({ ...prev, isConnected: false }));
+      setState((prev) => ({ ...prev, isConnected: false }));
     };
   }, [subscriptions]);
 
   const subscribe = (symbols: string[]) => {
-    setSubscriptions(prev => {
+    setSubscriptions((prev) => {
       const newSet = new Set(prev);
-      symbols.forEach(symbol => newSet.add(symbol));
+      symbols.forEach((symbol) => newSet.add(symbol));
       return newSet;
     });
   };
 
   const unsubscribe = (symbols: string[]) => {
-    setSubscriptions(prev => {
+    setSubscriptions((prev) => {
       const newSet = new Set(prev);
-      symbols.forEach(symbol => newSet.delete(symbol));
+      symbols.forEach((symbol) => newSet.delete(symbol));
       return newSet;
     });
   };
@@ -103,14 +124,14 @@ export function MarketDataProvider({ children }: { children: ReactNode }) {
     ...state,
     subscribe,
     unsubscribe,
-    getPrice,
+    getPrice
   };
 
   return (
     <MarketDataContext.Provider value={value}>
       {children}
-    </MarketDataContext.Provider>
-  );
+    </MarketDataContext.Provider>);
+
 }
 
 export function useMarketData() {
@@ -125,7 +146,7 @@ export function useMarketData() {
 export class MarketDataAPI {
   private static instance: MarketDataAPI;
   private baseURL = '/api/market-data'; // Will be replaced with actual FastAPI endpoint
-  
+
   static getInstance(): MarketDataAPI {
     if (!MarketDataAPI.instance) {
       MarketDataAPI.instance = new MarketDataAPI();
@@ -134,7 +155,7 @@ export class MarketDataAPI {
   }
 
   // IBKR API Integration (placeholder)
-  async connectIBKR(credentials: { username: string; password: string }) {
+  async connectIBKR(credentials: {username: string;password: string;}) {
     // This will integrate with actual IBKR API
     console.log('Connecting to IBKR API...');
     try {
