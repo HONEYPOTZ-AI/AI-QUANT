@@ -16,54 +16,54 @@ const PredictiveInsights = () => {
   const [confidence, setConfidence] = useState(87.3);
 
   const forecastData = [
-    { time: 'Today', actual: 4782.35, predicted: 4782.35, upper: 4782.35, lower: 4782.35 },
-    { time: '+1D', actual: null, predicted: 4795.80, upper: 4820.30, lower: 4771.30 },
-    { time: '+2D', actual: null, predicted: 4801.25, upper: 4835.60, lower: 4766.90 },
-    { time: '+3D', actual: null, predicted: 4809.15, upper: 4855.40, lower: 4762.90 },
-    { time: '+4D', actual: null, predicted: 4815.60, upper: 4875.20, lower: 4756.00 },
-    { time: '+5D', actual: null, predicted: 4820.50, upper: 4890.80, lower: 4750.20 },
-    { time: '+1W', actual: null, predicted: 4820.50, upper: 4910.30, lower: 4730.70 },
-    { time: '+2W', actual: null, predicted: 4805.20, upper: 4925.50, lower: 4684.90 }
-  ];
+  { time: 'Today', actual: 4782.35, predicted: 4782.35, upper: 4782.35, lower: 4782.35 },
+  { time: '+1D', actual: null, predicted: 4795.80, upper: 4820.30, lower: 4771.30 },
+  { time: '+2D', actual: null, predicted: 4801.25, upper: 4835.60, lower: 4766.90 },
+  { time: '+3D', actual: null, predicted: 4809.15, upper: 4855.40, lower: 4762.90 },
+  { time: '+4D', actual: null, predicted: 4815.60, upper: 4875.20, lower: 4756.00 },
+  { time: '+5D', actual: null, predicted: 4820.50, upper: 4890.80, lower: 4750.20 },
+  { time: '+1W', actual: null, predicted: 4820.50, upper: 4910.30, lower: 4730.70 },
+  { time: '+2W', actual: null, predicted: 4805.20, upper: 4925.50, lower: 4684.90 }];
+
 
   const aiModels = [
-    {
-      name: 'LSTM Deep Neural Network',
-      type: 'Time Series',
-      accuracy: 89.2,
-      status: 'active',
-      lastTrained: '2 hours ago'
-    },
-    {
-      name: 'Prophet Forecasting',
-      type: 'Statistical',
-      accuracy: 84.7,
-      status: 'active',
-      lastTrained: '4 hours ago'
-    },
-    {
-      name: 'Transformer Model',
-      type: 'Attention-Based',
-      accuracy: 91.5,
-      status: 'training',
-      lastTrained: '1 day ago'
-    },
-    {
-      name: 'Ensemble Model',
-      type: 'Combined',
-      accuracy: 93.1,
-      status: 'active',
-      lastTrained: '30 minutes ago'
-    }
-  ];
+  {
+    name: 'LSTM Deep Neural Network',
+    type: 'Time Series',
+    accuracy: 89.2,
+    status: 'active',
+    lastTrained: '2 hours ago'
+  },
+  {
+    name: 'Prophet Forecasting',
+    type: 'Statistical',
+    accuracy: 84.7,
+    status: 'active',
+    lastTrained: '4 hours ago'
+  },
+  {
+    name: 'Transformer Model',
+    type: 'Attention-Based',
+    accuracy: 91.5,
+    status: 'training',
+    lastTrained: '1 day ago'
+  },
+  {
+    name: 'Ensemble Model',
+    type: 'Combined',
+    accuracy: 93.1,
+    status: 'active',
+    lastTrained: '30 minutes ago'
+  }];
+
 
   const marketFactors = [
-    { factor: 'Technical Indicators', impact: 85, direction: 'bullish' },
-    { factor: 'Options Flow', impact: 72, direction: 'bearish' },
-    { factor: 'Macroeconomic Data', impact: 68, direction: 'neutral' },
-    { factor: 'Sentiment Analysis', impact: 79, direction: 'bullish' },
-    { factor: 'Volume Patterns', impact: 81, direction: 'bullish' }
-  ];
+  { factor: 'Technical Indicators', impact: 85, direction: 'bullish' },
+  { factor: 'Options Flow', impact: 72, direction: 'bearish' },
+  { factor: 'Macroeconomic Data', impact: 68, direction: 'neutral' },
+  { factor: 'Sentiment Analysis', impact: 79, direction: 'bullish' },
+  { factor: 'Volume Patterns', impact: 81, direction: 'bullish' }];
+
 
   const getDirectionIcon = (direction: string) => {
     switch (direction) {
@@ -186,44 +186,44 @@ const PredictiveInsights = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="time" stroke="#9CA3AF" />
                 <YAxis stroke="#9CA3AF" domain={['dataMin - 20', 'dataMax + 20']} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1F2937', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1F2937',
                     border: '1px solid #374151',
                     borderRadius: '8px',
                     color: '#F9FAFB'
-                  }} 
-                />
+                  }} />
+
                 <Area
                   type="monotone"
                   dataKey="upper"
                   stackId="1"
                   stroke="none"
                   fill="#3B82F6"
-                  fillOpacity={0.1}
-                />
+                  fillOpacity={0.1} />
+
                 <Area
                   type="monotone"
                   dataKey="lower"
                   stackId="1"
                   stroke="none"
                   fill="#FFFFFF"
-                  fillOpacity={0}
-                />
+                  fillOpacity={0} />
+
                 <Line
                   type="monotone"
                   dataKey="predicted"
                   stroke="#3B82F6"
                   strokeWidth={3}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                />
+                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }} />
+
                 <Line
                   type="monotone"
                   dataKey="actual"
                   stroke="#10B981"
                   strokeWidth={2}
-                  dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                />
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }} />
+
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -256,20 +256,20 @@ const PredictiveInsights = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {aiModels.map((model, index) => (
-                <div key={index} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+              {aiModels.map((model, index) =>
+              <div key={index} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <h4 className="font-semibold text-white">{model.name}</h4>
                       <p className="text-sm text-slate-400">{model.type}</p>
                     </div>
-                    <Badge 
-                      variant={model.status === 'active' ? 'default' : model.status === 'training' ? 'secondary' : 'outline'}
-                      className={
-                        model.status === 'active' ? 'bg-green-500/10 text-green-400' :
-                        model.status === 'training' ? 'bg-blue-500/10 text-blue-400' : ''
-                      }
-                    >
+                    <Badge
+                    variant={model.status === 'active' ? 'default' : model.status === 'training' ? 'secondary' : 'outline'}
+                    className={
+                    model.status === 'active' ? 'bg-green-500/10 text-green-400' :
+                    model.status === 'training' ? 'bg-blue-500/10 text-blue-400' : ''
+                    }>
+
                       {model.status}
                     </Badge>
                   </div>
@@ -284,7 +284,7 @@ const PredictiveInsights = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -300,8 +300,8 @@ const PredictiveInsights = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {marketFactors.map((factor, index) => (
-                <div key={index} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+              {marketFactors.map((factor, index) =>
+              <div key={index} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-white">{factor.factor}</span>
@@ -321,13 +321,13 @@ const PredictiveInsights = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default PredictiveInsights;

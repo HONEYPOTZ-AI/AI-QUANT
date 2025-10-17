@@ -7,35 +7,40 @@ import { ArrowRight, BarChart3, Brain, Shield, Zap, TrendingUp, AlertTriangle } 
 import { Link } from 'react-router-dom';
 
 const HomePage = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  if (!isAuthenticated) {
+    return <LoginForm />;
+  }
+
   const features = [
-    {
-      icon: <Brain className="h-8 w-8 text-blue-500" />,
-      title: "AI-Powered Analytics",
-      description: "Advanced machine learning models for SPX forecasting and anomaly detection"
-    },
-    {
-      icon: <BarChart3 className="h-8 w-8 text-green-500" />,
-      title: "Real-Time Market Data",
-      description: "Live IBKR and S&P price feeds with millisecond precision"
-    },
-    {
-      icon: <AlertTriangle className="h-8 w-8 text-orange-500" />,
-      title: "Anomaly Detection",
-      description: "Detect unusual market patterns and pricing anomalies instantly"
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-purple-500" />,
-      title: "Secure TEE Deployment",
-      description: "Trusted execution environments across Azure, AWS, and GCP"
-    }
-  ];
+  {
+    icon: <Brain className="h-8 w-8 text-blue-500" />,
+    title: "AI-Powered Analytics",
+    description: "Advanced machine learning models for SPX forecasting and anomaly detection"
+  },
+  {
+    icon: <BarChart3 className="h-8 w-8 text-green-500" />,
+    title: "Real-Time Market Data",
+    description: "Live IBKR and S&P price feeds with millisecond precision"
+  },
+  {
+    icon: <AlertTriangle className="h-8 w-8 text-orange-500" />,
+    title: "Anomaly Detection",
+    description: "Detect unusual market patterns and pricing anomalies instantly"
+  },
+  {
+    icon: <Shield className="h-8 w-8 text-purple-500" />,
+    title: "Secure TEE Deployment",
+    description: "Trusted execution environments across Azure, AWS, and GCP"
+  }];
 
   const stats = [
-    { label: "Data Points Analyzed", value: "10M+", trend: "+15%" },
-    { label: "Prediction Accuracy", value: "87.3%", trend: "+2.1%" },
-    { label: "Active Strategies", value: "142", trend: "+8" },
-    { label: "Alerts Triggered", value: "3,249", trend: "+12%" }
-  ];
+  { label: "Data Points Analyzed", value: "10M+", trend: "+15%" },
+  { label: "Prediction Accuracy", value: "87.3%", trend: "+2.1%" },
+  { label: "Active Strategies", value: "142", trend: "+8" },
+  { label: "Alerts Triggered", value: "3,249", trend: "+12%" }];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -100,8 +105,8 @@ const HomePage = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-          {stats.map((stat, index) => (
-            <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          {stats.map((stat, index) =>
+          <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
               <CardContent className="p-6 text-center">
                 <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
                 <div className="text-slate-400 text-sm mb-2">{stat.label}</div>
@@ -110,13 +115,13 @@ const HomePage = () => {
                 </Badge>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
 
         {/* Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-colors">
+          {features.map((feature, index) =>
+          <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-colors">
               <CardHeader>
                 <div className="mb-4">{feature.icon}</div>
                 <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
@@ -125,7 +130,7 @@ const HomePage = () => {
                 </CardDescription>
               </CardHeader>
             </Card>
-          ))}
+          )}
         </div>
       </section>
 
@@ -138,8 +143,8 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 };
 
 export default HomePage;

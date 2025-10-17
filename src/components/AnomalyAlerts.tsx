@@ -19,57 +19,57 @@ interface Alert {
 
 const AnomalyAlerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([
-    {
-      id: '1',
-      type: 'price',
-      severity: 'high',
-      title: 'Unusual Price Movement Detected',
-      description: 'SPX showing atypical price action with 3.2σ deviation from expected range',
-      timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-      symbol: 'SPX',
-      confidence: 94.2,
-      dismissed: false
-    },
-    {
-      id: '2',
-      type: 'volume',
-      severity: 'medium',
-      title: 'Volume Spike Alert',
-      description: 'Options volume for SPX Dec 4800 calls exceeded 5x average daily volume',
-      timestamp: new Date(Date.now() - 1200000), // 20 minutes ago
-      symbol: 'SPX',
-      confidence: 87.5,
-      dismissed: false
-    },
-    {
-      id: '3',
-      type: 'volatility',
-      severity: 'high',
-      title: 'Volatility Anomaly',
-      description: 'Implied volatility skew showing unusual patterns across strike prices',
-      timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-      symbol: 'SPX',
-      confidence: 91.8,
-      dismissed: false
-    },
-    {
-      id: '4',
-      type: 'pattern',
-      severity: 'low',
-      title: 'Technical Pattern Alert',
-      description: 'AI detected potential breakout pattern forming in SPX price action',
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      symbol: 'SPX',
-      confidence: 76.3,
-      dismissed: false
-    }
-  ]);
+  {
+    id: '1',
+    type: 'price',
+    severity: 'high',
+    title: 'Unusual Price Movement Detected',
+    description: 'SPX showing atypical price action with 3.2σ deviation from expected range',
+    timestamp: new Date(Date.now() - 300000), // 5 minutes ago
+    symbol: 'SPX',
+    confidence: 94.2,
+    dismissed: false
+  },
+  {
+    id: '2',
+    type: 'volume',
+    severity: 'medium',
+    title: 'Volume Spike Alert',
+    description: 'Options volume for SPX Dec 4800 calls exceeded 5x average daily volume',
+    timestamp: new Date(Date.now() - 1200000), // 20 minutes ago
+    symbol: 'SPX',
+    confidence: 87.5,
+    dismissed: false
+  },
+  {
+    id: '3',
+    type: 'volatility',
+    severity: 'high',
+    title: 'Volatility Anomaly',
+    description: 'Implied volatility skew showing unusual patterns across strike prices',
+    timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
+    symbol: 'SPX',
+    confidence: 91.8,
+    dismissed: false
+  },
+  {
+    id: '4',
+    type: 'pattern',
+    severity: 'low',
+    title: 'Technical Pattern Alert',
+    description: 'AI detected potential breakout pattern forming in SPX price action',
+    timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+    symbol: 'SPX',
+    confidence: 76.3,
+    dismissed: false
+  }]
+  );
 
   const dismissAlert = (alertId: string) => {
-    setAlerts(prev => 
-      prev.map(alert => 
-        alert.id === alertId ? { ...alert, dismissed: true } : alert
-      )
+    setAlerts((prev) =>
+    prev.map((alert) =>
+    alert.id === alertId ? { ...alert, dismissed: true } : alert
+    )
     );
   };
 
@@ -101,8 +101,8 @@ const AnomalyAlerts = () => {
     }
   };
 
-  const activeAlerts = alerts.filter(alert => !alert.dismissed);
-  const dismissedAlerts = alerts.filter(alert => alert.dismissed);
+  const activeAlerts = alerts.filter((alert) => !alert.dismissed);
+  const dismissedAlerts = alerts.filter((alert) => alert.dismissed);
 
   return (
     <div className="space-y-6">
@@ -113,7 +113,7 @@ const AnomalyAlerts = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-red-400">
-                  {activeAlerts.filter(a => a.severity === 'high').length}
+                  {activeAlerts.filter((a) => a.severity === 'high').length}
                 </div>
                 <div className="text-sm text-red-400">High Severity</div>
               </div>
@@ -127,7 +127,7 @@ const AnomalyAlerts = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-orange-400">
-                  {activeAlerts.filter(a => a.severity === 'medium').length}
+                  {activeAlerts.filter((a) => a.severity === 'medium').length}
                 </div>
                 <div className="text-sm text-orange-400">Medium Severity</div>
               </div>
@@ -141,7 +141,7 @@ const AnomalyAlerts = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-yellow-400">
-                  {activeAlerts.filter(a => a.severity === 'low').length}
+                  {activeAlerts.filter((a) => a.severity === 'low').length}
                 </div>
                 <div className="text-sm text-yellow-400">Low Severity</div>
               </div>
@@ -176,17 +176,17 @@ const AnomalyAlerts = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {activeAlerts.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+            {activeAlerts.length === 0 ?
+            <div className="text-center py-8 text-slate-400">
                 <Bell className="h-12 w-12 mx-auto mb-4" />
                 <p>No active alerts at this time</p>
-              </div>
-            ) : (
-              activeAlerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className={`p-4 rounded-lg border ${getSeverityColor(alert.severity)} bg-slate-900/50`}
-                >
+              </div> :
+
+            activeAlerts.map((alert) =>
+            <div
+              key={alert.id}
+              className={`p-4 rounded-lg border ${getSeverityColor(alert.severity)} bg-slate-900/50`}>
+
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       {getAlertIcon(alert.type)}
@@ -211,24 +211,24 @@ const AnomalyAlerts = () => {
                       </div>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => dismissAlert(alert.id)}
-                      className="text-slate-400 hover:text-white"
-                    >
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => dismissAlert(alert.id)}
+                  className="text-slate-400 hover:text-white">
+
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              ))
-            )}
+            )
+            }
           </div>
         </CardContent>
       </Card>
 
       {/* Dismissed Alerts */}
-      {dismissedAlerts.length > 0 && (
-        <Card className="bg-slate-800 border-slate-700">
+      {dismissedAlerts.length > 0 &&
+      <Card className="bg-slate-800 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <X className="h-5 w-5 text-slate-500" />
@@ -238,11 +238,11 @@ const AnomalyAlerts = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {dismissedAlerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="p-3 rounded-lg bg-slate-900/30 border border-slate-700 opacity-60"
-                >
+              {dismissedAlerts.map((alert) =>
+            <div
+              key={alert.id}
+              className="p-3 rounded-lg bg-slate-900/30 border border-slate-700 opacity-60">
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {getAlertIcon(alert.type)}
@@ -256,13 +256,13 @@ const AnomalyAlerts = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AnomalyAlerts;

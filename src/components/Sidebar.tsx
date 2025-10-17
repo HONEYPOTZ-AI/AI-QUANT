@@ -2,17 +2,20 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BarChart3, 
-  Brain, 
-  AlertTriangle, 
-  Target, 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  BarChart3,
+  Brain,
+  AlertTriangle,
+  Target,
   Zap,
   Home,
   Settings,
-  User
-} from 'lucide-react';
+  User,
+  Database,
+  LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -20,12 +23,29 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
+  const { user, profile, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'trader': return 'bg-blue-100 text-blue-800';
+      case 'analyst': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const navigation = [
-    { id: 'overview', label: 'Market Overview', icon: <BarChart3 className="h-5 w-5" /> },
-    { id: 'analytics', label: 'AI Analytics', icon: <Brain className="h-5 w-5" /> },
-    { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
-    { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
-  ];
+  { id: 'overview', label: 'Market Overview', icon: <BarChart3 className="h-5 w-5" /> },
+  { id: 'analytics', label: 'AI Analytics', icon: <Brain className="h-5 w-5" /> },
+  { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
+  { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
+  { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> }];
+
 
   return (
     <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
@@ -45,30 +65,30 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-2">
-          {navigation.map((item) => (
-            <Button
-              key={item.id}
-              variant={activeTab === item.id ? "secondary" : "ghost"}
-              className={`w-full justify-start text-left ${
-                activeTab === item.id 
-                  ? "bg-blue-600/20 text-blue-400 hover:bg-blue-600/30" 
-                  : "text-slate-300 hover:text-white hover:bg-slate-700"
-              }`}
-              onClick={() => setActiveTab(item.id)}
-            >
+          {navigation.map((item) =>
+          <Button
+            key={item.id}
+            variant={activeTab === item.id ? "secondary" : "ghost"}
+            className={`w-full justify-start text-left ${
+            activeTab === item.id ?
+            "bg-blue-600/20 text-blue-400 hover:bg-blue-600/30" :
+            "text-slate-300 hover:text-white hover:bg-slate-700"}`
+            }
+            onClick={() => setActiveTab(item.id)}>
+
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-3">
                   {item.icon}
                   <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <Badge variant="destructive" className="bg-red-500/20 text-red-400 text-xs">
+                {item.badge &&
+              <Badge variant="destructive" className="bg-red-500/20 text-red-400 text-xs">
                     {item.badge}
                   </Badge>
-                )}
+              }
               </div>
             </Button>
-          ))}
+          )}
         </div>
       </nav>
 
@@ -94,8 +114,8 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Sidebar;
