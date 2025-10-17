@@ -110,7 +110,7 @@ const IBRKConfiguration = () => {
 
       toast({
         title: 'Success',
-        description: 'IBRK settings saved successfully',
+        description: 'IBRK settings saved successfully'
       });
 
       // Reload settings to get the ID if it was a create
@@ -142,27 +142,27 @@ const IBRKConfiguration = () => {
 
     try {
       // Simulate connection test - in production, this would call the actual API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // For now, we'll just update the status based on the presence of settings
       const isValid = settings.api_key && settings.account_id && settings.gateway_url;
-      
+
       if (isValid) {
         setConnectionStatus('connected');
-        
+
         // Update status in database
         if (settings.id) {
           await (window as any).ezsite.apis.tableUpdate(IBRK_SETTINGS_TABLE_ID, {
             id: settings.id,
             connection_status: 'active'
           });
-          
-          setSettings(prev => ({ ...prev, connection_status: 'active' }));
+
+          setSettings((prev) => ({ ...prev, connection_status: 'active' }));
         }
 
         toast({
           title: 'Success',
-          description: 'Connection test successful',
+          description: 'Connection test successful'
         });
       } else {
         throw new Error('Invalid configuration');
@@ -170,7 +170,7 @@ const IBRKConfiguration = () => {
     } catch (error) {
       console.error('Error testing connection:', error);
       setConnectionStatus('disconnected');
-      
+
       toast({
         title: 'Connection Failed',
         description: 'Unable to connect to IBRK API. Please check your settings.',
@@ -188,29 +188,29 @@ const IBRKConfiguration = () => {
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Connected
-          </Badge>
-        );
+          </Badge>);
+
       case 'disconnected':
         return (
           <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
             <XCircle className="h-3 w-3 mr-1" />
             Disconnected
-          </Badge>
-        );
+          </Badge>);
+
       case 'testing':
         return (
           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             Testing...
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge className="bg-slate-500/10 text-slate-400 border-slate-500/20">
             <AlertCircle className="h-3 w-3 mr-1" />
             Unknown
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -222,8 +222,8 @@ const IBRKConfiguration = () => {
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -241,14 +241,14 @@ const IBRKConfiguration = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {connectionStatus === 'connected' && (
-          <Alert className="bg-green-500/10 border-green-500/20">
+        {connectionStatus === 'connected' &&
+        <Alert className="bg-green-500/10 border-green-500/20">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400">
               Successfully connected to Interactive Brokers API
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="space-y-4">
           <div className="space-y-2">
@@ -261,8 +261,8 @@ const IBRKConfiguration = () => {
               placeholder="Enter your IBRK API key"
               value={settings.api_key}
               onChange={(e) => setSettings({ ...settings, api_key: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
           </div>
 
           <div className="space-y-2">
@@ -275,8 +275,8 @@ const IBRKConfiguration = () => {
               placeholder="Enter your IBRK account ID"
               value={settings.account_id}
               onChange={(e) => setSettings({ ...settings, account_id: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
           </div>
 
           <div className="space-y-2">
@@ -289,8 +289,8 @@ const IBRKConfiguration = () => {
               placeholder="https://api.ibkr.com"
               value={settings.gateway_url}
               onChange={(e) => setSettings({ ...settings, gateway_url: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             <p className="text-xs text-slate-400">
               Enter the IBRK Gateway or TWS API endpoint URL
             </p>
@@ -302,37 +302,37 @@ const IBRKConfiguration = () => {
             onClick={handleTestConnection}
             disabled={isTesting || !settings.gateway_url}
             variant="outline"
-            className="border-slate-600 text-white hover:bg-slate-700"
-          >
-            {isTesting ? (
-              <>
+            className="border-slate-600 text-white hover:bg-slate-700">
+
+            {isTesting ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Testing...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <TestTube className="h-4 w-4 mr-2" />
                 Test Connection
               </>
-            )}
+            }
           </Button>
 
           <Button
             onClick={handleSave}
             disabled={isSaving || !settings.api_key || !settings.account_id || !settings.gateway_url}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isSaving ? (
-              <>
+            className="bg-blue-600 hover:bg-blue-700 text-white">
+
+            {isSaving ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="h-4 w-4 mr-2" />
                 Save Settings
               </>
-            )}
+            }
           </Button>
         </div>
 
@@ -344,8 +344,8 @@ const IBRKConfiguration = () => {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default IBRKConfiguration;

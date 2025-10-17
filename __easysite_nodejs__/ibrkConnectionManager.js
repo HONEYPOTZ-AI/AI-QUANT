@@ -6,17 +6,17 @@
  */
 async function ibrkConnectionManager(userId, options = {}) {
   const { timeout = 10000, validate = true } = options;
-  
+
   // Import credentials handler (simulate by calling it)
   const IBRK_SETTINGS_TABLE_ID = 51055;
-  
+
   // Retrieve credentials
-  const filters = userId ? [{ 
-    name: "user_id", 
-    op: "Equal", 
-    value: userId 
+  const filters = userId ? [{
+    name: "user_id",
+    op: "Equal",
+    value: userId
   }] : [];
-  
+
   const { data: credData, error: credError } = await easysite.table.page({
     customTableID: IBRK_SETTINGS_TABLE_ID,
     pageFilter: {
@@ -27,36 +27,36 @@ async function ibrkConnectionManager(userId, options = {}) {
       Filters: filters
     }
   });
-  
+
   if (credError) {
     throw new Error(`Failed to retrieve credentials: ${credError}`);
   }
-  
+
   if (!credData?.List || credData.List.length === 0) {
     throw new Error("No IBRK API credentials found");
   }
-  
+
   const credentials = credData.List[0];
-  
+
   // Check if enabled
   if (credentials.is_enabled === false) {
     throw new Error("IBRK API is disabled for this user");
   }
-  
+
   // Validate credentials
   if (!credentials.api_host || !credentials.api_port) {
     throw new Error("Invalid credentials: missing host or port");
   }
-  
+
   const connectionUrl = `http://${credentials.api_host}:${credentials.api_port}`;
   const clientId = credentials.client_id || 1;
-  
+
   try {
     // Attempt connection to IBRK Gateway/TWS API
     // Using the /v1/api/tickle endpoint to verify connection
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     const response = await fetch(`${connectionUrl}/v1/api/tickle`, {
       method: 'POST',
       signal: controller.signal,
@@ -64,15 +64,15 @@ async function ibrkConnectionManager(userId, options = {}) {
         'Content-Type': 'application/json'
       }
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (!response.ok) {
       throw new Error(`Connection failed with status: ${response.status}`);
     }
-    
+
     const result = await response.json();
-    
+
     // Update connection status in database
     await easysite.table.update({
       customTableID: IBRK_SETTINGS_TABLE_ID,
@@ -82,7 +82,7 @@ async function ibrkConnectionManager(userId, options = {}) {
         last_connected: new Date().toISOString()
       }
     });
-    
+
     return {
       status: 'connected',
       host: credentials.api_host,
@@ -92,7 +92,7 @@ async function ibrkConnectionManager(userId, options = {}) {
       connectedAt: new Date().toISOString(),
       sessionId: result.session || null
     };
-    
+
   } catch (err) {
     // Update failure status
     await easysite.table.update({
@@ -103,11 +103,11 @@ async function ibrkConnectionManager(userId, options = {}) {
         last_error: err.message
       }
     });
-    
+
     if (err.name === 'AbortError') {
       throw new Error(`Connection timeout after ${timeout}ms`);
     }
-    
+
     throw new Error(`Connection failed: ${err.message}`);
   }
 }

@@ -5,14 +5,14 @@
  */
 async function ibrkCredentialsHandler(userId = null) {
   const IBRK_SETTINGS_TABLE_ID = 51055;
-  
+
   // Build filters based on whether userId is provided
-  const filters = userId ? [{ 
-    name: "user_id", 
-    op: "Equal", 
-    value: userId 
+  const filters = userId ? [{
+    name: "user_id",
+    op: "Equal",
+    value: userId
   }] : [];
-  
+
   // Retrieve credentials from database
   const { data, error } = await easysite.table.page({
     customTableID: IBRK_SETTINGS_TABLE_ID,
@@ -24,22 +24,22 @@ async function ibrkCredentialsHandler(userId = null) {
       Filters: filters
     }
   });
-  
+
   if (error) {
     throw new Error(`Failed to retrieve IBRK credentials: ${error}`);
   }
-  
+
   if (!data?.List || data.List.length === 0) {
     throw new Error("No IBRK API credentials found in database");
   }
-  
+
   const settings = data.List[0];
-  
+
   // Validate required fields
   if (!settings.api_host || !settings.api_port) {
     throw new Error("Invalid IBRK credentials: missing host or port");
   }
-  
+
   return {
     id: settings.id,
     host: settings.api_host,

@@ -5,14 +5,14 @@
  */
 async function ibrkStatusMonitor(userId) {
   const IBRK_SETTINGS_TABLE_ID = 51055;
-  
+
   // Retrieve current settings
-  const filters = userId ? [{ 
-    name: "user_id", 
-    op: "Equal", 
-    value: userId 
+  const filters = userId ? [{
+    name: "user_id",
+    op: "Equal",
+    value: userId
   }] : [];
-  
+
   const { data, error } = await easysite.table.page({
     customTableID: IBRK_SETTINGS_TABLE_ID,
     pageFilter: {
@@ -23,20 +23,20 @@ async function ibrkStatusMonitor(userId) {
       Filters: filters
     }
   });
-  
+
   if (error) {
     throw new Error(`Failed to retrieve status: ${error}`);
   }
-  
+
   if (!data?.List || data.List.length === 0) {
     return {
       status: 'not_configured',
       message: 'No IBRK API settings found'
     };
   }
-  
+
   const settings = data.List[0];
-  
+
   // Check if enabled
   if (settings.is_enabled === false) {
     return {
@@ -45,14 +45,14 @@ async function ibrkStatusMonitor(userId) {
       lastConnected: settings.last_connected || null
     };
   }
-  
+
   const connectionUrl = `http://${settings.api_host}:${settings.api_port}`;
-  
+
   // Perform health check
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
+
     const response = await fetch(`${connectionUrl}/v1/api/tickle`, {
       method: 'POST',
       signal: controller.signal,
@@ -60,12 +60,12 @@ async function ibrkStatusMonitor(userId) {
         'Content-Type': 'application/json'
       }
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     const isHealthy = response.ok;
     const currentStatus = isHealthy ? 'connected' : 'unhealthy';
-    
+
     // Update status if changed
     if (settings.connection_status !== currentStatus) {
       await easysite.table.update({
@@ -77,7 +77,7 @@ async function ibrkStatusMonitor(userId) {
         }
       });
     }
-    
+
     return {
       status: currentStatus,
       host: settings.api_host,
@@ -87,7 +87,7 @@ async function ibrkStatusMonitor(userId) {
       healthy: isHealthy,
       responseTime: response.headers.get('x-response-time') || null
     };
-    
+
   } catch (err) {
     // Connection failed
     await easysite.table.update({
@@ -99,7 +99,7 @@ async function ibrkStatusMonitor(userId) {
         last_checked: new Date().toISOString()
       }
     });
-    
+
     return {
       status: 'disconnected',
       message: `Connection check failed: ${err.message}`,

@@ -61,12 +61,12 @@ const generateMockData = (symbol: string): MarketData => {
     'GOOGL': 140.0,
     'MSFT': 340.0,
     'TSLA': 250.0,
-    'NVDA': 450.0,
+    'NVDA': 450.0
   };
 
   const basePrice = basePrices[symbol] || Math.random() * 1000 + 50;
   const change = (Math.random() - 0.5) * basePrice * 0.02;
-  const changePercent = (change / basePrice) * 100;
+  const changePercent = change / basePrice * 100;
 
   return {
     symbol,
@@ -260,8 +260,8 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
   return (
     <MarketDataContext.Provider value={value}>
       {children}
-    </MarketDataContext.Provider>
-  );
+    </MarketDataContext.Provider>);
+
 }
 
 export function useMarketData() {

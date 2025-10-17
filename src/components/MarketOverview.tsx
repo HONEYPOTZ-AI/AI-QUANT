@@ -154,7 +154,7 @@ const MarketOverview = () => {
         </CardHeader>
       </Card>
 
-      {/* Market Indices */
+      {/* Market Indices */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">

@@ -10,14 +10,14 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
   }
 
   const IBRK_SETTINGS_TABLE_ID = 51055;
-  
+
   // Retrieve IBRK credentials
-  const filters = userId ? [{ 
-    name: "user_id", 
-    op: "Equal", 
-    value: userId 
+  const filters = userId ? [{
+    name: "user_id",
+    op: "Equal",
+    value: userId
   }] : [];
-  
+
   const { data: credData, error: credError } = await easysite.table.page({
     customTableID: IBRK_SETTINGS_TABLE_ID,
     pageFilter: {
@@ -28,29 +28,29 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
       Filters: filters
     }
   });
-  
+
   if (credError) {
     throw new Error(`Failed to retrieve IBRK credentials: ${credError}`);
   }
-  
+
   if (!credData?.List || credData.List.length === 0) {
     throw new Error('No IBRK API credentials found. Please configure IBRK connection first.');
   }
-  
+
   const credentials = credData.List[0];
-  
+
   if (credentials.is_enabled === false) {
     throw new Error('IBRK API is disabled. Please enable it in settings.');
   }
-  
+
   if (!credentials.api_host || !credentials.api_port) {
     throw new Error('Invalid IBRK credentials: missing host or port');
   }
-  
+
   const connectionUrl = `http://${credentials.api_host}:${credentials.api_port}`;
   const timestamp = new Date().toISOString();
   const marketData = {};
-  
+
   // Check connection status first
   try {
     const tickleResponse = await fetch(`${connectionUrl}/v1/api/tickle`, {
@@ -58,51 +58,51 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
       headers: { 'Content-Type': 'application/json' },
       signal: AbortSignal.timeout(5000)
     });
-    
+
     if (!tickleResponse.ok) {
       throw new Error('IBRK connection not available');
     }
   } catch (err) {
     throw new Error(`IBRK connection failed: ${err.message}`);
   }
-  
+
   // Fetch market data for each symbol
   for (const symbol of symbols) {
     try {
       // Map common symbols to IBRK contract IDs (US30 -> YM for Dow futures)
       const ibrkSymbol = mapToIBRKSymbol(symbol);
-      
+
       // Fetch snapshot data from IBRK
       const snapshotResponse = await fetch(`${connectionUrl}/v1/api/md/snapshot`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(10000)
       });
-      
+
       if (!snapshotResponse.ok) {
         console.warn(`Failed to fetch ${symbol} from IBRK, using fallback`);
         marketData[symbol] = generateFallbackData(symbol);
         continue;
       }
-      
+
       const snapshotData = await snapshotResponse.json();
-      
+
       // Parse IBRK response and normalize to our format
       const normalizedData = normalizeIBRKData(symbol, snapshotData, timestamp);
       marketData[symbol] = normalizedData;
-      
+
     } catch (err) {
       console.warn(`Error fetching ${symbol} from IBRK:`, err.message);
       marketData[symbol] = generateFallbackData(symbol);
     }
   }
-  
+
   // Calculate market summary
   const marketSummary = calculateMarketSummary(marketData);
-  
+
   // Calculate correlations
   const correlations = calculateCorrelationMatrix(symbols, marketData);
-  
+
   // Update last connection status
   await easysite.table.update({
     customTableID: IBRK_SETTINGS_TABLE_ID,
@@ -111,7 +111,7 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
       last_connected: timestamp
     }
   });
-  
+
   return {
     data: marketData,
     summary: marketSummary,
@@ -134,13 +134,13 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
  */
 function mapToIBRKSymbol(symbol) {
   const mapping = {
-    'US30': 'YM',      // Dow Jones futures
-    'SPX': 'ES',       // S&P 500 futures
-    'NDX': 'NQ',       // NASDAQ futures
-    'US500': 'ES',     // S&P 500 futures
-    'NAS100': 'NQ'     // NASDAQ futures
+    'US30': 'YM', // Dow Jones futures
+    'SPX': 'ES', // S&P 500 futures
+    'NDX': 'NQ', // NASDAQ futures
+    'US500': 'ES', // S&P 500 futures
+    'NAS100': 'NQ' // NASDAQ futures
   };
-  
+
   return mapping[symbol] || symbol;
 }
 
@@ -150,27 +150,27 @@ function mapToIBRKSymbol(symbol) {
 function normalizeIBRKData(symbol, ibrkData, timestamp) {
   // IBRK snapshot typically includes fields like:
   // 31: bid, 84: ask, 86: last, 87: high, 88: low, 7295: volume
-  
+
   const last = parseFloat(ibrkData['86'] || ibrkData.last || 0);
   const bid = parseFloat(ibrkData['31'] || ibrkData.bid || last * 0.9995);
   const ask = parseFloat(ibrkData['84'] || ibrkData.ask || last * 1.0005);
   const high = parseFloat(ibrkData['87'] || ibrkData.high || last * 1.005);
   const low = parseFloat(ibrkData['88'] || ibrkData.low || last * 0.995);
   const volume = parseInt(ibrkData['7295'] || ibrkData.volume || 1000);
-  
+
   // Calculate open from previous close (approximation)
   const open = last * (0.998 + Math.random() * 0.004);
-  
+
   // Calculate change
   const change = last - open;
-  const changePercent = (change / open) * 100;
-  
+  const changePercent = change / open * 100;
+
   // Generate technical indicators based on price
   const indicators = generateTechnicalIndicators(symbol, last);
-  
+
   // Generate sentiment
   const sentiment = calculateMarketSentiment(symbol, changePercent / 100);
-  
+
   return {
     symbol,
     timestamp,
@@ -193,7 +193,7 @@ function normalizeIBRKData(symbol, ibrkData, timestamp) {
     sentiment,
     metadata: {
       marketHours: isMarketHours(),
-      volatility: parseFloat((Math.abs(changePercent)).toFixed(2)),
+      volatility: parseFloat(Math.abs(changePercent).toFixed(2)),
       lastUpdate: Date.now(),
       dataAge: 0,
       source: 'ibrk'
@@ -213,11 +213,11 @@ function generateFallbackData(symbol) {
     'SPX': 4500,
     'NDX': 15000
   };
-  
+
   const basePrice = basePrices[symbol] || Math.random() * 1000 + 50;
   const change = (Math.random() - 0.5) * basePrice * 0.02;
-  const changePercent = (change / basePrice) * 100;
-  
+  const changePercent = change / basePrice * 100;
+
   return {
     symbol,
     timestamp: new Date().toISOString(),
@@ -250,7 +250,7 @@ function isMarketHours() {
   const now = new Date();
   const hour = now.getUTCHours();
   const day = now.getUTCDay();
-  
+
   // US market hours: Mon-Fri, 13:30-20:00 UTC (9:30 AM - 4:00 PM ET)
   return day >= 1 && day <= 5 && hour >= 13 && hour < 20;
 }
@@ -258,7 +258,7 @@ function isMarketHours() {
 function generateTechnicalIndicators(symbol, currentPrice) {
   const rsi = 30 + Math.random() * 40;
   const macd = (Math.random() - 0.5) * 2;
-  
+
   return {
     rsi: parseFloat(rsi.toFixed(2)),
     macd: parseFloat(macd.toFixed(4)),
@@ -285,7 +285,7 @@ function generateTechnicalIndicators(symbol, currentPrice) {
 function calculateMarketSentiment(symbol, priceChange) {
   let sentiment = 'neutral';
   let score = 50;
-  
+
   if (priceChange > 0.02) {
     sentiment = 'bullish';
     score = 60 + Math.random() * 30;
@@ -295,14 +295,14 @@ function calculateMarketSentiment(symbol, priceChange) {
   } else {
     score = 40 + Math.random() * 20;
   }
-  
+
   const newsImpact = (Math.random() - 0.5) * 20;
   score = Math.max(0, Math.min(100, score + newsImpact));
-  
-  if (score > 65) sentiment = 'bullish';
-  else if (score < 35) sentiment = 'bearish';
-  else sentiment = 'neutral';
-  
+
+  if (score > 65) sentiment = 'bullish';else
+  if (score < 35) sentiment = 'bearish';else
+  sentiment = 'neutral';
+
   return {
     sentiment,
     score: parseFloat(score.toFixed(1)),
@@ -315,38 +315,38 @@ function generateSentimentFactors(sentiment) {
   const factors = [];
   const allFactors = {
     bullish: [
-      'Strong price momentum',
-      'Volume surge detected',
-      'Breaking resistance',
-      'Bullish divergence',
-      'Positive market correlation'
-    ],
+    'Strong price momentum',
+    'Volume surge detected',
+    'Breaking resistance',
+    'Bullish divergence',
+    'Positive market correlation'],
+
     bearish: [
-      'Weakening momentum',
-      'Low volume concern',
-      'Testing support levels',
-      'Bearish divergence',
-      'Negative market correlation'
-    ],
+    'Weakening momentum',
+    'Low volume concern',
+    'Testing support levels',
+    'Bearish divergence',
+    'Negative market correlation'],
+
     neutral: [
-      'Consolidating',
-      'Mixed signals',
-      'Range-bound trading',
-      'Awaiting catalyst',
-      'Balanced indicators'
-    ]
+    'Consolidating',
+    'Mixed signals',
+    'Range-bound trading',
+    'Awaiting catalyst',
+    'Balanced indicators']
+
   };
-  
+
   const relevantFactors = allFactors[sentiment] || allFactors.neutral;
   const numFactors = Math.floor(Math.random() * 2) + 2;
-  
+
   for (let i = 0; i < numFactors; i++) {
     const randomIndex = Math.floor(Math.random() * relevantFactors.length);
     if (!factors.includes(relevantFactors[randomIndex])) {
       factors.push(relevantFactors[randomIndex]);
     }
   }
-  
+
   return factors;
 }
 
@@ -356,18 +356,18 @@ function calculateMarketSummary(marketData) {
   let avgChange = 0;
   let bullishCount = 0;
   let bearishCount = 0;
-  
+
   symbols.forEach((symbol) => {
     const data = marketData[symbol];
     totalVolume += data.volume.current;
     avgChange += data.price.changePercent;
-    
-    if (data.sentiment.sentiment === 'bullish') bullishCount++;
-    else if (data.sentiment.sentiment === 'bearish') bearishCount++;
+
+    if (data.sentiment.sentiment === 'bullish') bullishCount++;else
+    if (data.sentiment.sentiment === 'bearish') bearishCount++;
   });
-  
+
   avgChange /= symbols.length;
-  
+
   return {
     totalSymbols: symbols.length,
     marketTrend: avgChange > 0.5 ? 'bullish' : avgChange < -0.5 ? 'bearish' : 'neutral',
@@ -382,7 +382,7 @@ function calculateMarketSummary(marketData) {
 
 function calculateCorrelationMatrix(symbols, marketData) {
   const correlations = {};
-  
+
   symbols.forEach((symbol1) => {
     correlations[symbol1] = {};
     symbols.forEach((symbol2) => {
@@ -391,12 +391,12 @@ function calculateCorrelationMatrix(symbols, marketData) {
       } else {
         const price1 = marketData[symbol1].price.changePercent;
         const price2 = marketData[symbol2].price.changePercent;
-        
+
         const priceCorrelation = Math.abs(price1 - price2) < 1 ? 0.7 : 0.3;
         correlations[symbol1][symbol2] = parseFloat(priceCorrelation.toFixed(3));
       }
     });
   });
-  
+
   return correlations;
 }

@@ -74,7 +74,7 @@ export default function CFDStrategyPage() {
         const volatility = 30 + Math.random() * 40;
         const high = open + Math.random() * volatility;
         const low = open - Math.random() * volatility;
-        const close = i === 0 ? currentPrice : (low + Math.random() * (high - low));
+        const close = i === 0 ? currentPrice : low + Math.random() * (high - low);
         const volume = Math.floor(5000 + Math.random() * 15000);
 
         data.push({
