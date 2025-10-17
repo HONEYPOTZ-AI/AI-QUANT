@@ -50,6 +50,7 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   { id: 'settings', label: 'IBRK Settings', icon: <Settings className="h-5 w-5" /> }];
 
   const externalLinks = [
+  { path: '/anomaly-detection', label: 'Anomaly Detection', icon: <AlertTriangle className="h-5 w-5" /> },
   { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
 
 

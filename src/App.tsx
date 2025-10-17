@@ -11,6 +11,7 @@ import AuthSuccess from '@/pages/AuthSuccess';
 import ResetPassword from '@/pages/ResetPassword';
 import NotFound from '@/pages/NotFound';
 import CFDStrategyPage from '@/pages/CFDStrategyPage';
+import AnomalyDetectionPage from '@/pages/AnomalyDetectionPage';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/anomaly-detection" element={<AnomalyDetectionPage />} />
                 <Route path="/cfd-strategy" element={<CFDStrategyPage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />

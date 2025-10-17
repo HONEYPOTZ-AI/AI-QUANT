@@ -13,8 +13,8 @@ const MarketOverview = () => {
   if (loading || !marketSummary) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="border-border/50">
+        {[1, 2, 3, 4].map((i) =>
+        <Card key={i} className="border-border/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
               <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
@@ -24,9 +24,9 @@ const MarketOverview = () => {
               <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-    );
+        )}
+      </div>);
+
   }
 
   const totalVolume = marketSummary.totalVolume;
@@ -165,8 +165,8 @@ const MarketOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {localMarketData.map((item, index) => (
-              <div key={index} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+            {localMarketData.map((item, index) =>
+            <div key={index} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-white">{item.symbol}</span>
                   <Badge variant="outline" className="border-blue-500/20 text-blue-400 text-xs">
@@ -180,11 +180,11 @@ const MarketOverview = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      {item.change >= 0 ? (
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4 text-red-500" />
-                      )}
+                      {item.change >= 0 ?
+                    <TrendingUp className="h-4 w-4 text-green-500" /> :
+
+                    <TrendingDown className="h-4 w-4 text-red-500" />
+                    }
                       <span className={item.change >= 0 ? "text-green-500" : "text-red-500"}>
                         {item.change >= 0 ? "+" : ""}{item.change.toFixed(2)}
                       </span>
@@ -199,7 +199,7 @@ const MarketOverview = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -221,8 +221,8 @@ const MarketOverview = () => {
                   {stat.change}
                 </p>
               </CardContent>
-            </Card>
-          );
+            </Card>);
+
         })}
       </div>
 
@@ -237,8 +237,8 @@ const MarketOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {sectorData.map((sector, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+            {sectorData.map((sector, index) =>
+            <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-slate-700">
                 <div className="flex items-center gap-3">
                   <div className="text-white font-medium">{sector.sector}</div>
                   <Badge variant="secondary" className="text-xs">
@@ -246,22 +246,22 @@ const MarketOverview = () => {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  {sector.performance >= 0 ? (
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                  )}
+                  {sector.performance >= 0 ?
+                <TrendingUp className="h-4 w-4 text-green-500" /> :
+
+                <TrendingDown className="h-4 w-4 text-red-500" />
+                }
                   <span className={`font-medium ${sector.performance >= 0 ? "text-green-500" : "text-red-500"}`}>
                     {sector.performance >= 0 ? "+" : ""}{sector.performance.toFixed(2)}%
                   </span>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MarketOverview;

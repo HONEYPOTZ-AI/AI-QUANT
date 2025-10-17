@@ -1,9 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Clock, TrendingUp, Volume2, Bell, X } from 'lucide-react';
+import { AlertTriangle, Clock, TrendingUp, Volume2, Bell, X, ExternalLink } from 'lucide-react';
+import { useMarketData } from './MarketDataService';
+import { useToast } from '@/hooks/use-toast';
 
 interface Alert {
   id: string;
@@ -162,11 +165,21 @@ const AnomalyAlerts = () => {
       {/* Active Alerts */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-orange-500" />
-            Active Anomaly Alerts
-          </CardTitle>
-          <CardDescription>AI-detected market anomalies requiring attention</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-white flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                Active Anomaly Alerts
+              </CardTitle>
+              <CardDescription>AI-detected market anomalies requiring attention</CardDescription>
+            </div>
+            <Link to="/anomaly-detection">
+              <Button variant="outline" size="sm" className="gap-2">
+                View All
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
