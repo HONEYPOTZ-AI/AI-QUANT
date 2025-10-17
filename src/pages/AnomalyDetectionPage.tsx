@@ -28,8 +28,8 @@ import {
   Info,
   Home,
   Download,
-  Eye
-} from 'lucide-react';
+  Eye } from
+'lucide-react';
 
 interface Anomaly {
   id: string;
@@ -47,18 +47,18 @@ interface Anomaly {
 const AnomalyDetectionPage = () => {
   const { data: marketData, isConnected, loading } = useMarketData();
   const { toast } = useToast();
-  
+
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [filteredAnomalies, setFilteredAnomalies] = useState<Anomaly[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'timestamp' | 'severity' | 'confidence'>('timestamp');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
+
   // Selected anomaly for details
   const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(null);
 
@@ -97,7 +97,7 @@ const AnomalyDetectionPage = () => {
       }));
 
       setAnomalies(transformedAnomalies);
-      
+
       toast({
         title: "Analysis Complete",
         description: `Found ${transformedAnomalies.length} anomalies`
@@ -127,27 +127,27 @@ const AnomalyDetectionPage = () => {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(a =>
-        a.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter((a) =>
+      a.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Severity filter
     if (severityFilter !== 'all') {
-      filtered = filtered.filter(a => a.severity === severityFilter);
+      filtered = filtered.filter((a) => a.severity === severityFilter);
     }
 
     // Type filter
     if (typeFilter !== 'all') {
-      filtered = filtered.filter(a => a.type === typeFilter);
+      filtered = filtered.filter((a) => a.type === typeFilter);
     }
 
     // Sort
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       if (sortBy === 'timestamp') {
         comparison = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
       } else if (sortBy === 'severity') {
@@ -156,7 +156,7 @@ const AnomalyDetectionPage = () => {
       } else if (sortBy === 'confidence') {
         comparison = a.confidence - b.confidence;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
@@ -165,35 +165,35 @@ const AnomalyDetectionPage = () => {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-100 border-red-300';
-      case 'high': return 'text-orange-600 bg-orange-100 border-orange-300';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 border-yellow-300';
-      case 'low': return 'text-blue-600 bg-blue-100 border-blue-300';
-      default: return 'text-gray-600 bg-gray-100 border-gray-300';
+      case 'critical':return 'text-red-600 bg-red-100 border-red-300';
+      case 'high':return 'text-orange-600 bg-orange-100 border-orange-300';
+      case 'medium':return 'text-yellow-600 bg-yellow-100 border-yellow-300';
+      case 'low':return 'text-blue-600 bg-blue-100 border-blue-300';
+      default:return 'text-gray-600 bg-gray-100 border-gray-300';
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'price_spike': return <TrendingUp className="h-4 w-4" />;
-      case 'volume_spike': return <Volume2 className="h-4 w-4" />;
-      case 'rapid_price_change': return <Activity className="h-4 w-4" />;
-      case 'unusual_trend_pattern': return <Target className="h-4 w-4" />;
-      case 'price_gap': return <AlertTriangle className="h-4 w-4" />;
-      default: return <Bell className="h-4 w-4" />;
+      case 'price_spike':return <TrendingUp className="h-4 w-4" />;
+      case 'volume_spike':return <Volume2 className="h-4 w-4" />;
+      case 'rapid_price_change':return <Activity className="h-4 w-4" />;
+      case 'unusual_trend_pattern':return <Target className="h-4 w-4" />;
+      case 'price_gap':return <AlertTriangle className="h-4 w-4" />;
+      default:return <Bell className="h-4 w-4" />;
     }
   };
 
   const formatTypeLabel = (type: string) => {
-    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return type.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
   const stats = {
     total: anomalies.length,
-    critical: anomalies.filter(a => a.severity === 'critical').length,
-    high: anomalies.filter(a => a.severity === 'high').length,
-    medium: anomalies.filter(a => a.severity === 'medium').length,
-    low: anomalies.filter(a => a.severity === 'low').length
+    critical: anomalies.filter((a) => a.severity === 'critical').length,
+    high: anomalies.filter((a) => a.severity === 'high').length,
+    medium: anomalies.filter((a) => a.severity === 'medium').length,
+    low: anomalies.filter((a) => a.severity === 'low').length
   };
 
   return (
@@ -316,8 +316,8 @@ const AnomalyDetectionPage = () => {
                       placeholder="Search anomalies..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
+                      className="pl-10" />
+
                   </div>
                   
                   <Select value={severityFilter} onValueChange={setSeverityFilter}>
@@ -360,8 +360,8 @@ const AnomalyDetectionPage = () => {
                         setSortBy('timestamp');
                         setSortOrder('desc');
                       }
-                    }}
-                  >
+                    }}>
+
                     <Clock className="h-3 w-3 mr-1" />
                     Time
                     {sortBy === 'timestamp' && (sortOrder === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />)}
@@ -377,8 +377,8 @@ const AnomalyDetectionPage = () => {
                         setSortBy('severity');
                         setSortOrder('desc');
                       }
-                    }}
-                  >
+                    }}>
+
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Severity
                     {sortBy === 'severity' && (sortOrder === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />)}
@@ -394,8 +394,8 @@ const AnomalyDetectionPage = () => {
                         setSortBy('confidence');
                         setSortOrder('desc');
                       }
-                    }}
-                  >
+                    }}>
+
                     <Target className="h-3 w-3 mr-1" />
                     Confidence
                     {sortBy === 'confidence' && (sortOrder === 'asc' ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />)}
@@ -404,27 +404,27 @@ const AnomalyDetectionPage = () => {
 
                 {/* Anomaly List */}
                 <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                  {loading || isAnalyzing ? (
-                    <div className="space-y-3">
-                      {[1, 2, 3].map(i => (
-                        <Skeleton key={i} className="h-24 w-full" />
-                      ))}
-                    </div>
-                  ) : filteredAnomalies.length === 0 ? (
-                    <div className="text-center py-12">
+                  {loading || isAnalyzing ?
+                  <div className="space-y-3">
+                      {[1, 2, 3].map((i) =>
+                    <Skeleton key={i} className="h-24 w-full" />
+                    )}
+                    </div> :
+                  filteredAnomalies.length === 0 ?
+                  <div className="text-center py-12">
                       <Bell className="h-12 w-12 mx-auto text-slate-300 mb-3" />
                       <p className="text-slate-500">No anomalies detected</p>
                       <p className="text-sm text-slate-400">Market conditions are normal</p>
-                    </div>
-                  ) : (
-                    filteredAnomalies.map((anomaly) => (
-                      <div
-                        key={anomaly.id}
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
-                          selectedAnomaly?.id === anomaly.id ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                        onClick={() => setSelectedAnomaly(anomaly)}
-                      >
+                    </div> :
+
+                  filteredAnomalies.map((anomaly) =>
+                  <div
+                    key={anomaly.id}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+                    selectedAnomaly?.id === anomaly.id ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`
+                    }
+                    onClick={() => setSelectedAnomaly(anomaly)}>
+
                         <div className="flex items-start gap-3">
                           <div className={`p-2 rounded-lg ${getSeverityColor(anomaly.severity)}`}>
                             {getTypeIcon(anomaly.type)}
@@ -461,8 +461,8 @@ const AnomalyDetectionPage = () => {
                           </div>
                         </div>
                       </div>
-                    ))
-                  )}
+                  )
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -481,8 +481,8 @@ const AnomalyDetectionPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {selectedAnomaly ? (
-                  <div className="space-y-4">
+                {selectedAnomaly ?
+                <div className="space-y-4">
                     {/* Basic Info */}
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Overview</h4>
@@ -519,53 +519,53 @@ const AnomalyDetectionPage = () => {
                     </div>
 
                     {/* Data Details */}
-                    {selectedAnomaly.data && (
-                      <div>
+                    {selectedAnomaly.data &&
+                  <div>
                         <h4 className="font-semibold text-sm mb-2">Technical Data</h4>
                         <div className="bg-slate-50 rounded-lg p-3 space-y-1 text-xs">
-                          {Object.entries(selectedAnomaly.data).map(([key, value]) => (
-                            <div key={key} className="flex justify-between">
+                          {Object.entries(selectedAnomaly.data).map(([key, value]) =>
+                      <div key={key} className="flex justify-between">
                               <span className="text-slate-600 capitalize">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}:
                               </span>
                               <span className="font-mono">{String(value)}</span>
                             </div>
-                          ))}
+                      )}
                         </div>
                       </div>
-                    )}
+                  }
 
                     {/* Recommendations */}
-                    {selectedAnomaly.recommendations && selectedAnomaly.recommendations.length > 0 && (
-                      <div>
+                    {selectedAnomaly.recommendations && selectedAnomaly.recommendations.length > 0 &&
+                  <div>
                         <h4 className="font-semibold text-sm mb-2">Recommendations</h4>
                         <Alert>
                           <Info className="h-4 w-4" />
                           <AlertTitle>Suggested Actions</AlertTitle>
                           <AlertDescription>
                             <ul className="list-disc list-inside space-y-1 text-xs mt-2">
-                              {selectedAnomaly.recommendations.map((rec, idx) => (
-                                <li key={idx}>{rec}</li>
-                              ))}
+                              {selectedAnomaly.recommendations.map((rec, idx) =>
+                          <li key={idx}>{rec}</li>
+                          )}
                             </ul>
                           </AlertDescription>
                         </Alert>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
+                  }
+                  </div> :
+
+                <div className="text-center py-12">
                     <Eye className="h-12 w-12 mx-auto text-slate-300 mb-3" />
                     <p className="text-slate-500 text-sm">Select an anomaly from the list to view detailed information</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AnomalyDetectionPage;
