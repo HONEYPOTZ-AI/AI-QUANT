@@ -17,7 +17,7 @@ function PredictiveInsights() {
 
   const generatePredictions = async () => {
     if (!marketData || Object.keys(marketData).length === 0) return;
-    
+
     setIsAnalyzing(true);
     try {
       const { data: result, error } = await window.ezsite.apis.run({
@@ -26,13 +26,13 @@ function PredictiveInsights() {
       });
 
       if (error) throw new Error(error);
-      
+
       setPredictions(result.topPredictions || []);
       setSummary(result.summary || null);
-      
+
       toast({
         title: "Predictions Generated",
-        description: `AI analysis complete with ${result.summary?.averageConfidence || 0}% avg confidence`,
+        description: `AI analysis complete with ${result.summary?.averageConfidence || 0}% avg confidence`
       });
     } catch (error) {
       console.error('Prediction error:', error);

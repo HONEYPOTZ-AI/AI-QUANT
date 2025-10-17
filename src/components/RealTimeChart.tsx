@@ -27,24 +27,24 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
   const chartData = useMemo(() => {
     const data = marketData;
     if (!data || !data.price) return [];
-    
+
     // Use real price data if available, otherwise generate realistic data
     const currentPrice = data.price;
     const points = [];
-    
+
     // Generate 30 data points representing the last 30 minutes
     for (let i = 30; i >= 0; i--) {
       const timestamp = Date.now() - i * 60 * 1000; // 1 minute intervals
-      
+
       // Create realistic price movement based on volatility
       const volatility = 2; // Default volatility if not available
       const variation = (Math.random() - 0.5) * (volatility / 100) * 0.1; // Small variations
       const price = currentPrice * (1 + variation);
-      
+
       // Use real volume data with some variation
       const baseVolume = data.volume;
       const volumeVariation = 0.8 + Math.random() * 0.4;
-      
+
       points.push({
         timestamp,
         price: parseFloat(price.toFixed(4)),
@@ -52,12 +52,12 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
         time: new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
     }
-    
+
     // Ensure the last point matches current price
     if (points.length > 0) {
       points[points.length - 1].price = currentPrice;
     }
-    
+
     return points;
   }, [marketData]);
 

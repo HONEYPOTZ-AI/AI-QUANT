@@ -10,6 +10,7 @@ import Dashboard from '@/pages/Dashboard';
 import AuthSuccess from '@/pages/AuthSuccess';
 import ResetPassword from '@/pages/ResetPassword';
 import NotFound from '@/pages/NotFound';
+import CFDStrategyPage from '@/pages/CFDStrategyPage';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/cfd-strategy" element={<CFDStrategyPage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />

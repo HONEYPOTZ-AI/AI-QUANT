@@ -25,7 +25,7 @@ const AnomalyAlerts = () => {
 
   const detectAnomalies = async () => {
     if (!marketData || Object.keys(marketData).length === 0) return;
-    
+
     setIsAnalyzing(true);
     try {
       const { data: result, error } = await window.ezsite.apis.run({
@@ -34,13 +34,13 @@ const AnomalyAlerts = () => {
       });
 
       if (error) throw new Error(error);
-      
+
       setAlerts(result.alerts || []);
-      
+
       if (result.alerts?.length > 0) {
         toast({
           title: "Anomalies Detected",
-          description: `Found ${result.alerts.length} market anomalies`,
+          description: `Found ${result.alerts.length} market anomalies`
         });
       }
     } catch (error) {
@@ -61,9 +61,9 @@ const AnomalyAlerts = () => {
 
   const dismissAlert = (alertId: string) => {
     setAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === alertId ? { ...alert, dismissed: true } : alert
-      )
+    prev.map((alert) =>
+    alert.id === alertId ? { ...alert, dismissed: true } : alert
+    )
     );
   };
 

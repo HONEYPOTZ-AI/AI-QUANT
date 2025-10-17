@@ -13,8 +13,9 @@ import {
   Settings,
   User,
   Database,
-  LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+  LogOut,
+  TrendingUp } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   const { user, profile, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
@@ -45,6 +47,9 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
   { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
   { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
   { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> }];
+
+  const externalLinks = [
+  { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
 
 
   return (
@@ -89,6 +94,26 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
               </div>
             </Button>
           )}
+        </div>
+
+        {/* External Links Section */}
+        <div className="mt-6 pt-6 border-t border-slate-700">
+          <p className="text-xs text-slate-500 uppercase font-semibold mb-2 px-3">Trading Tools</p>
+          <div className="space-y-2">
+            {externalLinks.map((link) => (
+              <Link key={link.path} to={link.path}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700"
+                >
+                  <div className="flex items-center gap-3">
+                    {link.icon}
+                    <span>{link.label}</span>
+                  </div>
+                </Button>
+              </Link>
+            ))}
+          </div>
         </div>
       </nav>
 

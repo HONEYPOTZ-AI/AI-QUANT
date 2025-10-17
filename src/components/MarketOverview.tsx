@@ -11,8 +11,8 @@ const MarketOverview = () => {
   if (isLoading || !marketSummary) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[1,2,3,4].map(i => (
-          <Card key={i} className="border-border/50">
+        {[1, 2, 3, 4].map((i) =>
+        <Card key={i} className="border-border/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
               <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
@@ -22,9 +22,9 @@ const MarketOverview = () => {
               <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-    );
+        )}
+      </div>);
+
   }
 
   const totalVolume = marketSummary.totalVolume;
@@ -33,35 +33,35 @@ const MarketOverview = () => {
   const totalSymbols = marketSummary.totalSymbols;
 
   const marketStats = [
-    {
-      title: 'Market Trend',
-      value: marketSummary.marketTrend.toUpperCase(),
-      change: `${avgChange > 0 ? '+' : ''}${avgChange}%`,
-      trend: avgChange > 0 ? 'up' : 'down',
-      icon: avgChange > 0 ? TrendingUp : TrendingDown
-    },
-    {
-      title: 'Active Symbols',
-      value: totalSymbols.toString(),
-      change: `${marketSummary.bullishStocks} bullish`,
-      trend: marketSummary.bullishStocks > marketSummary.bearishStocks ? 'up' : 'down',
-      icon: Users
-    },
-    {
-      title: 'Total Volume',
-      value: `${(totalVolume / 1000000).toFixed(1)}M`,
-      change: `${marketSummary.bearishStocks} bearish`,
-      trend: marketSummary.bearishStocks < marketSummary.bullishStocks ? 'up' : 'down',
-      icon: BarChart3
-    },
-    {
-      title: 'Market Momentum',
-      value: `${marketMomentum > 0 ? '+' : ''}${marketMomentum}%`,
-      change: marketSummary.neutralStocks > 0 ? `${marketSummary.neutralStocks} neutral` : 'Strong direction',
-      trend: marketMomentum > 0 ? 'up' : 'down',
-      icon: Activity
-    }
-  ];
+  {
+    title: 'Market Trend',
+    value: marketSummary.marketTrend.toUpperCase(),
+    change: `${avgChange > 0 ? '+' : ''}${avgChange}%`,
+    trend: avgChange > 0 ? 'up' : 'down',
+    icon: avgChange > 0 ? TrendingUp : TrendingDown
+  },
+  {
+    title: 'Active Symbols',
+    value: totalSymbols.toString(),
+    change: `${marketSummary.bullishStocks} bullish`,
+    trend: marketSummary.bullishStocks > marketSummary.bearishStocks ? 'up' : 'down',
+    icon: Users
+  },
+  {
+    title: 'Total Volume',
+    value: `${(totalVolume / 1000000).toFixed(1)}M`,
+    change: `${marketSummary.bearishStocks} bearish`,
+    trend: marketSummary.bearishStocks < marketSummary.bullishStocks ? 'up' : 'down',
+    icon: BarChart3
+  },
+  {
+    title: 'Market Momentum',
+    value: `${marketMomentum > 0 ? '+' : ''}${marketMomentum}%`,
+    change: marketSummary.neutralStocks > 0 ? `${marketSummary.neutralStocks} neutral` : 'Strong direction',
+    trend: marketMomentum > 0 ? 'up' : 'down',
+    icon: Activity
+  }];
+
   const [localMarketData, setLocalMarketData] = useState([
   {
     symbol: 'SPX',
