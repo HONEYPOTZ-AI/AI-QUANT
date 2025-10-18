@@ -200,27 +200,26 @@ const AnomalyDetectionPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col gap-3">
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm">
                   <Home className="h-4 w-4 mr-2" />
                   Dashboard
                 </Button>
               </Link>
-              <div className="h-6 w-px bg-slate-300" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Anomaly Detection</h1>
-                <p className="text-sm text-slate-600">AI-powered market anomaly analysis</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Anomaly Detection</h1>
+                <p className="text-xs sm:text-sm text-slate-600">AI-powered market anomaly analysis</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Badge variant={isConnected ? "default" : "secondary"} className="gap-1">
                 <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
                 {isConnected ? 'Live' : 'Offline'}
               </Badge>
-              <Button onClick={detectAnomalies} disabled={isAnalyzing || loading} size="sm">
+              <Button onClick={detectAnomalies} disabled={isAnalyzing || loading} size="sm" className="w-full sm:w-auto">
                 <RefreshCw className={`h-4 w-4 mr-2 ${isAnalyzing ? 'animate-spin' : ''}`} />
                 {isAnalyzing ? 'Analyzing...' : 'Refresh'}
               </Button>
@@ -229,17 +228,17 @@ const AnomalyDetectionPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-6">
+      <div className="container mx-auto px-4 sm:px-6 py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600">Total</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
+                  <p className="text-xs sm:text-sm text-slate-600">Total</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.total}</p>
                 </div>
-                <Bell className="h-8 w-8 text-slate-400" />
+                <Bell className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
               </div>
             </CardContent>
           </Card>
@@ -294,7 +293,7 @@ const AnomalyDetectionPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Anomaly List */}
           <div className="lg:col-span-2">
             <Card>
@@ -309,7 +308,7 @@ const AnomalyDetectionPage = () => {
               </CardHeader>
               <CardContent>
                 {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-3 mb-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
@@ -321,7 +320,7 @@ const AnomalyDetectionPage = () => {
                   </div>
                   
                   <Select value={severityFilter} onValueChange={setSeverityFilter}>
-                    <SelectTrigger className="w-full md:w-[150px]">
+                    <SelectTrigger className="w-full sm:w-[150px]">
                       <SelectValue placeholder="Severity" />
                     </SelectTrigger>
                     <SelectContent>
@@ -334,7 +333,7 @@ const AnomalyDetectionPage = () => {
                   </Select>
 
                   <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -349,10 +348,11 @@ const AnomalyDetectionPage = () => {
                 </div>
 
                 {/* Sort Controls */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="text-xs sm:text-sm"
                     onClick={() => {
                       if (sortBy === 'timestamp') {
                         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');

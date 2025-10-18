@@ -66,22 +66,22 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
       <Card className="w-full max-w-md shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="text-center pb-4">
+        <CardHeader className="text-center pb-4 px-4 sm:px-6">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-blue-600 rounded-full">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="p-2 sm:p-3 bg-blue-600 rounded-full">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">Financial Trading Platform</CardTitle>
-          <CardDescription className="text-gray-600">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">Financial Trading Platform</CardTitle>
+          <CardDescription className="text-sm sm:text-base text-gray-600">
             Secure access to real-time market data and analytics
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="register">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+              <TabsTrigger value="login" className="text-sm sm:text-base">Sign In</TabsTrigger>
+              <TabsTrigger value="register" className="text-sm sm:text-base">Sign Up</TabsTrigger>
             </TabsList>
 
             {error &&

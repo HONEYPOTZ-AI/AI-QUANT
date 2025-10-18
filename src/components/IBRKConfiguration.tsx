@@ -297,12 +297,12 @@ const IBRKConfiguration = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <Button
             onClick={handleTestConnection}
             disabled={isTesting || !settings.gateway_url}
             variant="outline"
-            className="border-slate-600 text-white hover:bg-slate-700 bg-[#2563eb] text-white">
+            className="border-slate-600 text-white hover:bg-slate-700 bg-[#2563eb] text-white w-full sm:w-auto">
 
             {isTesting ?
             <>
@@ -320,7 +320,7 @@ const IBRKConfiguration = () => {
           <Button
             onClick={handleSave}
             disabled={isSaving || !settings.api_key || !settings.account_id || !settings.gateway_url}
-            className="bg-blue-600 hover:bg-blue-700 text-white">
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
 
             {isSaving ?
             <>

@@ -91,18 +91,18 @@ export default function UserProfile() {
             Manage your account settings and preferences
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-start gap-6">
-            <Avatar className="w-20 h-20">
+        <CardContent className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+            <Avatar className="w-16 h-16 sm:w-20 sm:h-20">
               <AvatarImage src={profile.profile_image} alt={user.Name} />
-              <AvatarFallback className="text-lg">
+              <AvatarFallback className="text-base sm:text-lg">
                 {(profile.first_name?.[0] || user.Name[0] || 'U').toUpperCase()}
                 {(profile.last_name?.[0] || '').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             
-            <div className="flex-1 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex-1 w-full space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>First Name</Label>
                   {isEditing ?
@@ -148,19 +148,19 @@ export default function UserProfile() {
                 </div>
               </div>
               
-              <div className="flex gap-2 mt-4">
+              <div className="flex flex-col sm:flex-row gap-2 mt-4">
                 {isEditing ?
                 <>
-                    <Button onClick={handleSave} size="sm">
+                    <Button onClick={handleSave} size="sm" className="w-full sm:w-auto">
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Save Changes
                     </Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)} size="sm">
+                    <Button variant="outline" onClick={() => setIsEditing(false)} size="sm" className="w-full sm:w-auto">
                       Cancel
                     </Button>
                   </> :
 
-                <Button onClick={() => setIsEditing(true)} size="sm" variant="outline">
+                <Button onClick={() => setIsEditing(true)} size="sm" variant="outline" className="w-full sm:w-auto">
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
@@ -179,7 +179,7 @@ export default function UserProfile() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <Label className="text-sm font-medium text-gray-600">Role</Label>
               <Badge className={`mt-1 ${getRoleColor(profile.role)}`}>
@@ -224,7 +224,7 @@ export default function UserProfile() {
           
           <div>
             <Label className="text-sm font-medium text-gray-600 mb-2 block">Permissions</Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {Object.entries(profile.permissions).map(([permission, enabled]) =>
               <Badge
                 key={permission}

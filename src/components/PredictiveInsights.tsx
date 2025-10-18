@@ -141,20 +141,20 @@ function PredictiveInsights() {
   };
 
   return (
-    <div className="space-y-6" data-tour="predictive-insights">
+    <div className="space-y-4 sm:space-y-6" data-tour="predictive-insights">
       {/* AI Prediction Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-blue-500" />
-                <span className="font-medium text-white">Next Day</span>
+                <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                <span className="text-sm sm:text-base font-medium text-white">Next Day</span>
               </div>
               {predictions.nextDay && getDirectionIcon(predictions.nextDay.direction)}
             </div>
             <div className="space-y-2">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-xl sm:text-2xl font-bold text-white">
                 ${predictions.nextDay ? predictions.nextDay.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
@@ -297,7 +297,7 @@ function PredictiveInsights() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* AI Models Status */}
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader>

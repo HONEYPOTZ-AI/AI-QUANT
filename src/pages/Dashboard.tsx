@@ -114,25 +114,25 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-900 flex" data-tour="dashboard-overview">
+    <div className="min-h-screen bg-slate-900 flex flex-col lg:flex-row" data-tour="dashboard-overview">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onStartTour={handleStartTour} />
       <Walkthrough run={runTour} onClose={handleCloseTour} />
       
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">AI QUANT Dashboard</h1>
-            <p className="text-slate-400">Real-time analytics and AI-powered insights</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">AI QUANT Dashboard</h1>
+            <p className="text-sm sm:text-base text-slate-400">Real-time analytics and AI-powered insights</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div className="text-left sm:text-right">
               <div className="text-sm text-slate-400">Last Update</div>
               <div className="text-white font-mono text-sm">
                 {lastUpdate.toLocaleTimeString()}
               </div>
             </div>
-            <Button variant="outline" size="sm" className="border-slate-600">
+            <Button variant="outline" size="sm" className="border-slate-600 w-full sm:w-auto">
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>

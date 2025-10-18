@@ -662,12 +662,12 @@ const CTraderConfiguration = () => {
           }
         </div>
 
-        <div className="flex flex-wrap gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
           <Button
             onClick={handleTestConnection}
             disabled={isTesting || !settings.id}
             variant="outline"
-            className="border-blue-600 text-blue-400 hover:bg-blue-900/20">
+            className="border-blue-600 text-blue-400 hover:bg-blue-900/20 w-full sm:w-auto">
 
             {isTesting ?
             <>
@@ -687,7 +687,7 @@ const CTraderConfiguration = () => {
             onClick={handleDisconnect}
             disabled={isConnecting}
             variant="outline"
-            className="border-red-600 text-red-400 hover:bg-red-900/20">
+            className="border-red-600 text-red-400 hover:bg-red-900/20 w-full sm:w-auto">
 
               {isConnecting ?
             <>
@@ -706,7 +706,7 @@ const CTraderConfiguration = () => {
             onClick={handleConnect}
             disabled={isConnecting || !settings.client_id || !settings.client_secret}
             variant="outline"
-            className="border-green-600 text-green-400 hover:bg-green-900/20">
+            className="border-green-600 text-green-400 hover:bg-green-900/20 w-full sm:w-auto">
 
               {isConnecting ?
             <>
@@ -725,7 +725,7 @@ const CTraderConfiguration = () => {
           <Button
             onClick={handleSave}
             disabled={isSaving || !settings.client_id || !settings.client_secret || !settings.access_token || !settings.refresh_token}
-            className="bg-blue-600 hover:bg-blue-700 text-white">
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
 
             {isSaving ?
             <>

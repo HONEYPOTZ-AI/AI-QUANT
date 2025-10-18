@@ -127,17 +127,17 @@ const MarketOverview = () => {
       {/* Data Source Selector */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Database className="w-5 h-5 text-blue-400" />
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <Database className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                 Market Data Source
               </CardTitle>
-              <CardDescription>Choose your real-time data provider</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Choose your real-time data provider</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Select value={dataSource} onValueChange={(value) => setDataSource(value as DataSource)}>
-                <SelectTrigger className="w-[180px] bg-slate-700 border-slate-600">
+                <SelectTrigger className="w-full sm:w-[180px] bg-slate-700 border-slate-600">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,18 +164,18 @@ const MarketOverview = () => {
           <CardDescription>Real-time market data and indices</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {localMarketData.map((item, index) =>
-            <div key={index} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+            <div key={index} className="bg-slate-900/50 p-3 sm:p-4 rounded-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-white">{item.symbol}</span>
+                  <span className="text-sm sm:text-base font-bold text-white">{item.symbol}</span>
                   <Badge variant="outline" className="border-blue-500/20 text-blue-400 text-xs">
                     Live
                   </Badge>
                 </div>
-                <div className="text-sm text-slate-400 mb-3">{item.name}</div>
+                <div className="text-xs sm:text-sm text-slate-400 mb-3">{item.name}</div>
                 <div className="space-y-2">
-                  <div className="text-2xl font-bold text-white">
+                  <div className="text-xl sm:text-2xl font-bold text-white">
                     ${item.price.toFixed(2)}
                   </div>
                   <div className="flex items-center justify-between">

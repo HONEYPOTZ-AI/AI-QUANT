@@ -102,19 +102,19 @@ const AnomalyAlerts = () => {
   const dismissedAlerts = alerts.filter((alert) => alert.dismissed);
 
   return (
-    <div className="space-y-6" data-tour="anomaly-alerts">
+    <div className="space-y-4 sm:space-y-6" data-tour="anomaly-alerts">
       {/* Alert Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-red-500/10 border-red-500/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-red-400">
+                <div className="text-xl sm:text-2xl font-bold text-red-400">
                   {activeAlerts.filter((a) => a.severity === 'high').length}
                 </div>
-                <div className="text-sm text-red-400">High Severity</div>
+                <div className="text-xs sm:text-sm text-red-400">High Severity</div>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-400" />
+              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>

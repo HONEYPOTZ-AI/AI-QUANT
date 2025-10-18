@@ -173,16 +173,16 @@ export default function ApiIntegration() {
               {/* IBKR Integration */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
                     Interactive Brokers (IBKR)
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Connect to IBKR for real-time market data and trading capabilities
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="ibkr-username">Username</Label>
                       <Input
@@ -203,7 +203,7 @@ export default function ApiIntegration() {
 
                     </div>
                   </div>
-                  <Button onClick={connectIBKR} disabled={isLoading} className="w-full md:w-auto">
+                  <Button onClick={connectIBKR} disabled={isLoading} className="w-full">
                     {connectionStatus.ibkr ?
                     <>
                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -222,11 +222,11 @@ export default function ApiIntegration() {
               {/* S&P Global Integration */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Database className="w-5 h-5" />
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Database className="w-4 h-4 sm:w-5 sm:h-5" />
                     S&P Global Market Intelligence
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Access premium market data and analytics from S&P Global
                   </CardDescription>
                 </CardHeader>
@@ -241,7 +241,7 @@ export default function ApiIntegration() {
                       placeholder="Enter S&P Global API key" />
 
                   </div>
-                  <Button onClick={connectSPGlobal} disabled={isLoading} className="w-full md:w-auto">
+                  <Button onClick={connectSPGlobal} disabled={isLoading} className="w-full">
                     {connectionStatus.spglobal ?
                     <>
                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -289,7 +289,7 @@ export default function ApiIntegration() {
                         </div>
                       </div>
                       
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                         <div>
                           <span className="text-gray-600">Rate Limit:</span>
                           <span className="ml-2 font-medium">{source.rate_limit}/min</span>
@@ -298,7 +298,7 @@ export default function ApiIntegration() {
                           <span className="text-gray-600">Auth Type:</span>
                           <span className="ml-2 font-medium">{source.auth_type}</span>
                         </div>
-                        <div>
+                        <div className="sm:col-span-2 lg:col-span-1">
                           <span className="text-gray-600">Last Sync:</span>
                           <span className="ml-2 font-medium">
                             {source.last_sync ? new Date(source.last_sync).toLocaleString() : 'Never'}

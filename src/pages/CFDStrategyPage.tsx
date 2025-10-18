@@ -359,25 +359,25 @@ export default function CFDStrategyPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
       <div className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col gap-3">
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
                   ← Back to Dashboard
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Target className="w-7 h-7 text-blue-400" />
+                <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                  <Target className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
                   US30 CFD Trading Strategy
                 </h1>
-                <p className="text-slate-400 text-sm mt-1">
+                <p className="text-slate-400 text-xs sm:text-sm mt-1">
                   AI-powered momentum breakout and reversal detection
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               {getConnectionBadge(connectionStatus.ibrk, 'IBRK')}
               {getConnectionBadge(connectionStatus.ctrader, 'cTrader')}
               <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
@@ -388,7 +388,7 @@ export default function CFDStrategyPage() {
                 value={activeDataSource}
                 onValueChange={(v: 'ibrk' | 'ctrader' | 'generated') => setActiveDataSource(v)}>
 
-                <SelectTrigger className="w-[160px] bg-slate-700 border-slate-600 text-sm">
+                <SelectTrigger className="w-full sm:w-[160px] bg-slate-700 border-slate-600 text-sm">
                   <Database className="w-3 h-3 mr-1" />
                   <SelectValue />
                 </SelectTrigger>
@@ -402,7 +402,7 @@ export default function CFDStrategyPage() {
                 onClick={fetchDataAndSignals}
                 disabled={loading}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700">
+                className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -411,15 +411,15 @@ export default function CFDStrategyPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Summary Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <Card className="bg-slate-800/50 border-slate-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-400">Total Signals</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-xs sm:text-sm font-medium text-slate-400">Total Signals</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{totalSignals}</div>
+            <CardContent className="pt-0">
+              <div className="text-2xl sm:text-3xl font-bold text-white">{totalSignals}</div>
               <p className="text-xs text-slate-500 mt-1">In current dataset</p>
             </CardContent>
           </Card>

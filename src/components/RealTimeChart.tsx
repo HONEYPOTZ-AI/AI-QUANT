@@ -67,10 +67,10 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              {symbol}
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+              <span>{symbol}</span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   {isConnected ?
@@ -91,7 +91,7 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
             <CardDescription>Real-time market data</CardDescription>
           </div>
           <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-24">
+            <SelectTrigger className="w-20 sm:w-24">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -103,12 +103,12 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
           </Select>
         </div>
         
-        {marketData &&
-        <div className="flex items-center gap-4 pt-2">
-            <div className="text-2xl font-bold">
+        {marketData && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-2">
+            <div className="text-xl sm:text-2xl font-bold">
               ${marketData.price.toFixed(2)}
             </div>
-            <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`flex items-center gap-1 text-sm sm:text-base ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span className="font-medium">
                 {isPositive ? '+' : ''}{marketData.change.toFixed(2)} 
@@ -116,7 +116,7 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
               </span>
             </div>
           </div>
-        }
+        )}
       </CardHeader>
       
       <CardContent>
@@ -150,11 +150,11 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
           </ResponsiveContainer>
         </div>
         
-        {marketData &&
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t">
+        {marketData && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4 pt-4 border-t">
             <div>
-              <div className="text-sm text-gray-600">Open</div>
-              <div className="font-medium">${marketData.open.toFixed(2)}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Open</div>
+              <div className="text-sm sm:text-base font-medium">${marketData.open.toFixed(2)}</div>
             </div>
             <div>
               <div className="text-sm text-gray-600">High</div>

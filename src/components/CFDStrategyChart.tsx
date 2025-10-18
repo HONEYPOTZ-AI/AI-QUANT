@@ -273,19 +273,19 @@ export default function CFDStrategyChart({ data, signals, height = 500 }: CFDStr
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Main Chart */}
-      <Card className="p-4 bg-slate-800/50 border-slate-700">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            CFD Strategy Chart
+      <Card className="p-3 sm:p-4 bg-slate-800/50 border-slate-700">
+        <div className="mb-3 sm:mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-white flex flex-wrap items-center gap-2">
+            <span>CFD Strategy Chart</span>
             <span className="text-xs font-normal text-slate-400">
               ({signals.length} signal{signals.length !== 1 ? 's' : ''} detected)
             </span>
           </h3>
         </div>
 
-        <div style={{ height: `${height}px` }} className="w-full">
+        <div style={{ height: `${Math.min(height, 400)}px` }} className="w-full overflow-x-auto">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 40, right: 30, bottom: 30, left: 10 }}>
               <defs>
