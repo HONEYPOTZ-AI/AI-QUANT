@@ -19,7 +19,7 @@ async function fetchCTraderEquity() {
   // Note: Mock implementation
   // In production, use cTrader Open API
   // Example: ProtoOAGetAccountListReq
-  
+
   try {
     // Mock equity data - replace with actual API call
     const equityData = {

@@ -84,9 +84,12 @@ export default function CFDStrategyPage() {
     try {
       const userId = 1;
 
-      const result = await (window as any).ezsite.nodejs.velocityRangeBreakoutStrategy('analyzeMarket', {
-        userId,
-        accountId: null
+      const result = await (window as any).ezsite.apis.run({
+        path: 'velocityRangeBreakoutStrategy',
+        param: ['analyzeMarket', {
+          userId,
+          accountId: null
+        }]
       });
 
       if (result.error) throw new Error(result.error);
@@ -158,20 +161,23 @@ export default function CFDStrategyPage() {
     try {
       addCommentary('analysis', `Preparing to execute ${signal.toUpperCase()} trade...`);
 
-      const result = await (window as any).ezsite.nodejs.velocityRangeBreakoutStrategy('executeTrade', {
-        userId: 1,
-        accountId: null,
-        signal,
-        analysisData: {
-          currentCandle: {
-            low: analysisData.currentPrice - 10,
-            high: analysisData.currentPrice + 10
-          },
-          structure: {
-            ema9_5m: [analysisData.currentPrice],
-            currentIndex: 0
+      const result = await (window as any).ezsite.apis.run({
+        path: 'velocityRangeBreakoutStrategy',
+        param: ['executeTrade', {
+          userId: 1,
+          accountId: null,
+          signal,
+          analysisData: {
+            currentCandle: {
+              low: analysisData.currentPrice - 10,
+              high: analysisData.currentPrice + 10
+            },
+            structure: {
+              ema9_5m: [analysisData.currentPrice],
+              currentIndex: 0
+            }
           }
-        }
+        }]
       });
 
       if (result.error) throw new Error(result.error);

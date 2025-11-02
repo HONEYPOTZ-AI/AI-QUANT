@@ -39,8 +39,8 @@ export default function VelocityDashboard() {
         <p>Velocity Range Breakout Strategy Dashboard</p>
         <p className="text-sm mt-2">Configure your strategy parameters and monitor performance here.</p>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function Label({ className, children }: {className?: string;children: React.ReactNode;}) {

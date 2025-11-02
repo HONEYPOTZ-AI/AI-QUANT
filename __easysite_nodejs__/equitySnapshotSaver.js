@@ -15,7 +15,7 @@ async function saveEquitySnapshot(broker = "ALL") {
         path: "__easysite_nodejs__/ibrkEquityFetcher.js",
         param: []
       });
-      
+
       if (!ibrkEquity.error && ibrkEquity.data) {
         equityData.equityBalance += ibrkEquity.data.equityBalance;
         equityData.cashBalance += ibrkEquity.data.cashBalance;
@@ -34,7 +34,7 @@ async function saveEquitySnapshot(broker = "ALL") {
         path: "__easysite_nodejs__/ctraderEquityFetcher.js",
         param: []
       });
-      
+
       if (!ctraderEquity.error && ctraderEquity.data) {
         equityData.equityBalance += ctraderEquity.data.equityBalance;
         equityData.cashBalance += ctraderEquity.data.cashBalance;
@@ -54,8 +54,8 @@ async function saveEquitySnapshot(broker = "ALL") {
     OrderByField: "high_watermark",
     IsAsc: false,
     Filters: [
-      { name: "broker", op: "Equal", value: broker }
-    ]
+    { name: "broker", op: "Equal", value: broker }]
+
   });
 
   const prevHighWatermark = prevSnapshot?.List?.[0]?.high_watermark || 0;
@@ -74,7 +74,7 @@ async function saveEquitySnapshot(broker = "ALL") {
   };
 
   const { error } = await easysite.table.create(56080, snapshotData);
-  
+
   if (error) {
     throw new Error("Failed to save equity snapshot: " + error);
   }

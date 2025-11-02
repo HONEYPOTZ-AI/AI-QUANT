@@ -19,7 +19,7 @@ async function fetchIBRKEquity() {
   // Note: Mock implementation
   // In production, use IBRK Client Portal API
   // Example endpoint: GET /portfolio/{accountId}/summary
-  
+
   try {
     // Mock equity data - replace with actual API call
     const equityData = {

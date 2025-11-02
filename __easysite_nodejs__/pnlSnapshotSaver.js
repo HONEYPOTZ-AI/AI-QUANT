@@ -1,6 +1,6 @@
 
 async function savePnLSnapshot(broker = "ALL") {
-// Calculate P&L for all periods
+  // Calculate P&L for all periods
   const dailyPnL = await easysite.run({
     path: "__easysite_nodejs__/pnlCalculator.js",
     param: [broker, "daily"]
@@ -51,7 +51,7 @@ async function savePnLSnapshot(broker = "ALL") {
   };
 
   const { error } = await easysite.table.create(56079, snapshotData);
-  
+
   if (error) {
     throw new Error("Failed to save P&L snapshot: " + error);
   }

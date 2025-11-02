@@ -1,10 +1,10 @@
 
 async function getEquityHistoricalData(broker = "ALL", days = 30) {
-const startDate = dayjs().subtract(days, 'day').toISOString();
+  const startDate = dayjs().subtract(days, 'day').toISOString();
 
   const filters = [
-    { name: "snapshot_date", op: "GreaterThanOrEqual", value: startDate }
-  ];
+  { name: "snapshot_date", op: "GreaterThanOrEqual", value: startDate }];
+
 
   if (broker !== "ALL") {
     filters.push({ name: "broker", op: "Equal", value: broker });
@@ -23,13 +23,13 @@ const startDate = dayjs().subtract(days, 'day').toISOString();
   }
 
   const snapshots = data?.List || [];
-  
+
   // Calculate starting equity and change
   const startingEquity = snapshots.length > 0 ? snapshots[0].equity_balance : 0;
   const currentEquity = snapshots.length > 0 ? snapshots[snapshots.length - 1].equity_balance : 0;
   const change = currentEquity - startingEquity;
-  const changePercent = startingEquity > 0 ? (change / startingEquity) * 100 : 0;
-  const highWatermark = Math.max(...snapshots.map(s => s.equity_balance || 0), 0);
+  const changePercent = startingEquity > 0 ? change / startingEquity * 100 : 0;
+  const highWatermark = Math.max(...snapshots.map((s) => s.equity_balance || 0), 0);
 
   return {
     broker: broker,
@@ -39,7 +39,7 @@ const startDate = dayjs().subtract(days, 'day').toISOString();
     change: change,
     changePercent: changePercent,
     highWatermark: highWatermark,
-    snapshots: snapshots.map(s => ({
+    snapshots: snapshots.map((s) => ({
       date: s.snapshot_date,
       equityBalance: s.equity_balance,
       cashBalance: s.cash_balance,

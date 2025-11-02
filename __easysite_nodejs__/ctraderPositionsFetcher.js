@@ -21,22 +21,22 @@ async function fetchCTraderPositions() {
   // Note: This is a mock implementation
   // In production, use cTrader Open API to fetch positions
   // Example: ProtoOAGetPositionsReq
-  
+
   try {
     // Mock positions data - replace with actual API call
     const positions = [
-      {
-        positionId: "CT_POS_001",
-        symbol: "USD/JPY",
-        positionType: "LONG",
-        quantity: 75000,
-        entryPrice: 149.50,
-        currentPrice: 149.75,
-        unrealizedPnL: 187.5,
-        commission: 4.0,
-        openTime: new Date(Date.now() - 5400000).toISOString()
-      }
-    ];
+    {
+      positionId: "CT_POS_001",
+      symbol: "USD/JPY",
+      positionType: "LONG",
+      quantity: 75000,
+      entryPrice: 149.50,
+      currentPrice: 149.75,
+      unrealizedPnL: 187.5,
+      commission: 4.0,
+      openTime: new Date(Date.now() - 5400000).toISOString()
+    }];
+
 
     return {
       broker: "cTrader",

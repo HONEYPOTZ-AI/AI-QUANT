@@ -30,13 +30,13 @@ export default function EquityBalance({ data }: EquityBalanceProps) {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
 
-  const marginUsagePercent = data.cashBalance > 0 
-    ? (data.marginUsed / data.cashBalance) * 100 
-    : 0;
+  const marginUsagePercent = data.cashBalance > 0 ?
+  data.marginUsed / data.cashBalance * 100 :
+  0;
 
-  const drawdownPercent = data.highWatermark > 0
-    ? ((data.highWatermark - data.currentEquity) / data.highWatermark) * 100
-    : 0;
+  const drawdownPercent = data.highWatermark > 0 ?
+  (data.highWatermark - data.currentEquity) / data.highWatermark * 100 :
+  0;
 
   return (
     <div className="space-y-4">
@@ -74,19 +74,19 @@ export default function EquityBalance({ data }: EquityBalanceProps) {
               {formatCurrency(data.highWatermark)}
             </div>
             <div className="mt-2">
-              {drawdownPercent > 0 && (
-                <div className="flex items-center space-x-2">
+              {drawdownPercent > 0 &&
+              <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                   <span className="text-sm text-amber-600 font-medium">
                     Drawdown: {drawdownPercent.toFixed(2)}%
                   </span>
                 </div>
-              )}
-              {drawdownPercent === 0 && (
-                <span className="text-sm text-green-600 font-medium">
+              }
+              {drawdownPercent === 0 &&
+              <span className="text-sm text-green-600 font-medium">
                   At All-Time High ✓
                 </span>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
@@ -129,11 +129,11 @@ export default function EquityBalance({ data }: EquityBalanceProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Unrealized P&L</CardTitle>
-            {data.unrealizedPnL >= 0 ? (
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            ) : (
-              <TrendingUp className="h-4 w-4 text-red-600 rotate-180" />
-            )}
+            {data.unrealizedPnL >= 0 ?
+            <TrendingUp className="h-4 w-4 text-green-600" /> :
+
+            <TrendingUp className="h-4 w-4 text-red-600 rotate-180" />
+            }
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${data.unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -145,6 +145,6 @@ export default function EquityBalance({ data }: EquityBalanceProps) {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }

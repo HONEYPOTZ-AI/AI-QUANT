@@ -1,10 +1,10 @@
 
 async function getPnLHistoricalData(broker = "ALL", days = 30) {
-const startDate = dayjs().subtract(days, 'day').toISOString();
+  const startDate = dayjs().subtract(days, 'day').toISOString();
 
   const filters = [
-    { name: "snapshot_date", op: "GreaterThanOrEqual", value: startDate }
-  ];
+  { name: "snapshot_date", op: "GreaterThanOrEqual", value: startDate }];
+
 
   if (broker !== "ALL") {
     filters.push({ name: "broker", op: "Equal", value: broker });
@@ -23,11 +23,11 @@ const startDate = dayjs().subtract(days, 'day').toISOString();
   }
 
   const snapshots = data?.List || [];
-  
+
   return {
     broker: broker,
     days: days,
-    snapshots: snapshots.map(s => ({
+    snapshots: snapshots.map((s) => ({
       date: s.snapshot_date,
       dailyPnL: s.daily_pnl,
       weeklyPnL: s.weekly_pnl,

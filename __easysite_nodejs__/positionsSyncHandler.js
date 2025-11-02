@@ -1,6 +1,6 @@
 
 async function syncAllPositions() {
-const results = {
+  const results = {
     ibrk: { success: false, count: 0, error: null },
     ctrader: { success: false, count: 0, error: null }
   };
@@ -14,17 +14,17 @@ const results = {
 
     if (!ibrkData.error && ibrkData.data?.positions) {
       const positions = ibrkData.data.positions;
-      
+
       for (const pos of positions) {
         // Check if position already exists
         const { data: existingData } = await easysite.table.page(56078, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "broker", op: "Equal", value: "IBRK" },
-            { name: "position_id", op: "Equal", value: pos.positionId },
-            { name: "status", op: "Equal", value: "OPEN" }
-          ]
+          { name: "broker", op: "Equal", value: "IBRK" },
+          { name: "position_id", op: "Equal", value: pos.positionId },
+          { name: "status", op: "Equal", value: "OPEN" }]
+
         });
 
         const positionData = {
@@ -68,17 +68,17 @@ const results = {
 
     if (!ctraderData.error && ctraderData.data?.positions) {
       const positions = ctraderData.data.positions;
-      
+
       for (const pos of positions) {
         // Check if position already exists
         const { data: existingData } = await easysite.table.page(56078, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "broker", op: "Equal", value: "cTrader" },
-            { name: "position_id", op: "Equal", value: pos.positionId },
-            { name: "status", op: "Equal", value: "OPEN" }
-          ]
+          { name: "broker", op: "Equal", value: "cTrader" },
+          { name: "position_id", op: "Equal", value: pos.positionId },
+          { name: "status", op: "Equal", value: "OPEN" }]
+
         });
 
         const positionData = {

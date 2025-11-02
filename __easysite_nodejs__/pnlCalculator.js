@@ -1,7 +1,7 @@
 
 async function calculatePnL(broker = "ALL", period = "daily") {
-const now = dayjs();
-  
+  const now = dayjs();
+
   // Calculate date ranges
   let startDate;
   switch (period) {
@@ -41,9 +41,9 @@ const now = dayjs();
   }
 
   const positions = positionsData?.List || [];
-  
+
   // Filter positions by date range
-  const relevantPositions = positions.filter(pos => {
+  const relevantPositions = positions.filter((pos) => {
     const openTime = dayjs(pos.open_time);
     return openTime.isAfter(startDate);
   });
@@ -63,13 +63,13 @@ const now = dayjs();
   for (const pos of relevantPositions) {
     const pnl = pos.status === "CLOSED" ? pos.realized_pnl : pos.unrealized_pnl;
     const commission = pos.commission || 0;
-    
+
     grossPnL += pnl;
     totalCommission += commission;
-    
+
     if (pos.status === "CLOSED") {
       totalTrades++;
-      
+
       if (pnl > 0) {
         winningTrades++;
         totalWins += pnl;
@@ -100,7 +100,7 @@ const now = dayjs();
   }
 
   const netPnL = grossPnL - totalCommission;
-  const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+  const winRate = totalTrades > 0 ? winningTrades / totalTrades * 100 : 0;
   const avgWin = winningTrades > 0 ? totalWins / winningTrades : 0;
   const avgLoss = losingTrades > 0 ? totalLosses / losingTrades : 0;
 

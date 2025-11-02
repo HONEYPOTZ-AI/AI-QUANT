@@ -93,39 +93,39 @@ export default function PnLReport() {
     if (!pnlData) return;
 
     const csvData = [
-      ["P&L Report"],
-      ["Period", period],
-      ["Broker", broker],
-      ["Generated", new Date().toISOString()],
-      [],
-      ["Metric", "Value"],
-      ["Gross P&L", pnlData.grossPnL],
-      ["Net P&L", pnlData.netPnL],
-      ["Total Commission", pnlData.totalCommission],
-      ["Total Trades", pnlData.totalTrades],
-      ["Winning Trades", pnlData.winningTrades],
-      ["Losing Trades", pnlData.losingTrades],
-      ["Win Rate", pnlData.winRate + "%"],
-      ["Average Win", pnlData.avgWin],
-      ["Average Loss", pnlData.avgLoss],
-      ["Largest Win", pnlData.largestWin],
-      ["Largest Loss", pnlData.largestLoss],
-      [],
-      ["Symbol Breakdown"],
-      ["Symbol", "Total P&L", "Trades", "Wins", "Losses"]
-    ];
+    ["P&L Report"],
+    ["Period", period],
+    ["Broker", broker],
+    ["Generated", new Date().toISOString()],
+    [],
+    ["Metric", "Value"],
+    ["Gross P&L", pnlData.grossPnL],
+    ["Net P&L", pnlData.netPnL],
+    ["Total Commission", pnlData.totalCommission],
+    ["Total Trades", pnlData.totalTrades],
+    ["Winning Trades", pnlData.winningTrades],
+    ["Losing Trades", pnlData.losingTrades],
+    ["Win Rate", pnlData.winRate + "%"],
+    ["Average Win", pnlData.avgWin],
+    ["Average Loss", pnlData.avgLoss],
+    ["Largest Win", pnlData.largestWin],
+    ["Largest Loss", pnlData.largestLoss],
+    [],
+    ["Symbol Breakdown"],
+    ["Symbol", "Total P&L", "Trades", "Wins", "Losses"]];
+
 
     pnlData.symbolBreakdown?.forEach((item: any) => {
       csvData.push([
-        item.symbol,
-        item.totalPnL,
-        item.trades,
-        item.wins,
-        item.losses
-      ]);
+      item.symbol,
+      item.totalPnL,
+      item.trades,
+      item.wins,
+      item.losses]
+      );
     });
 
-    const csvContent = csvData.map(row => row.join(",")).join("\n");
+    const csvContent = csvData.map((row) => row.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -166,8 +166,8 @@ export default function PnLReport() {
                 variant="outline"
                 size="sm"
                 onClick={syncPositions}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Sync
               </Button>
@@ -176,8 +176,8 @@ export default function PnLReport() {
                 variant="outline"
                 size="sm"
                 onClick={exportToCSV}
-                disabled={!pnlData}
-              >
+                disabled={!pnlData}>
+
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
@@ -194,20 +194,20 @@ export default function PnLReport() {
             </TabsList>
 
             <TabsContent value={period} className="space-y-4 mt-4">
-              {loading ? (
-                <div className="flex justify-center items-center h-40">
+              {loading ?
+              <div className="flex justify-center items-center h-40">
                   <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : pnlData ? (
-                <>
+                </div> :
+              pnlData ?
+              <>
                   <PnLMetrics metrics={pnlData} />
                   
-                  {historicalData.length > 0 && (
-                    <PnLChart data={historicalData} />
-                  )}
+                  {historicalData.length > 0 &&
+                <PnLChart data={historicalData} />
+                }
 
-                  {pnlData.symbolBreakdown && pnlData.symbolBreakdown.length > 0 && (
-                    <Card>
+                  {pnlData.symbolBreakdown && pnlData.symbolBreakdown.length > 0 &&
+                <Card>
                       <CardHeader>
                         <CardTitle className="text-lg">Breakdown by Symbol</CardTitle>
                       </CardHeader>
@@ -226,9 +226,9 @@ export default function PnLReport() {
                             </TableHeader>
                             <TableBody>
                               {pnlData.symbolBreakdown.map((item: any, index: number) => {
-                                const winRate = item.trades > 0 ? (item.wins / item.trades) * 100 : 0;
-                                return (
-                                  <TableRow key={index}>
+                            const winRate = item.trades > 0 ? item.wins / item.trades * 100 : 0;
+                            return (
+                              <TableRow key={index}>
                                     <TableCell className="font-medium">{item.symbol}</TableCell>
                                     <TableCell className={`text-right font-medium ${item.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                       ${item.totalPnL.toFixed(2)}
@@ -237,25 +237,25 @@ export default function PnLReport() {
                                     <TableCell className="text-right text-green-600">{item.wins}</TableCell>
                                     <TableCell className="text-right text-red-600">{item.losses}</TableCell>
                                     <TableCell className="text-right">{winRate.toFixed(1)}%</TableCell>
-                                  </TableRow>
-                                );
-                              })}
+                                  </TableRow>);
+
+                          })}
                             </TableBody>
                           </Table>
                         </div>
                       </CardContent>
                     </Card>
-                  )}
-                </>
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
+                }
+                </> :
+
+              <div className="text-center text-muted-foreground py-8">
                   No P&L data available
                 </div>
-              )}
+              }
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

@@ -80,7 +80,7 @@ export default function EquityTracker() {
 
   useEffect(() => {
     fetchEquityData();
-    
+
     // Auto-refresh every 5 minutes
     const interval = setInterval(fetchEquityData, 300000);
     return () => clearInterval(interval);
@@ -108,8 +108,8 @@ export default function EquityTracker() {
                 variant="outline"
                 size="sm"
                 onClick={saveSnapshot}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Save Snapshot
               </Button>
@@ -117,24 +117,24 @@ export default function EquityTracker() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {loading && !equityData ? (
-            <div className="flex justify-center items-center h-40">
+          {loading && !equityData ?
+          <div className="flex justify-center items-center h-40">
               <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : equityData ? (
-            <>
+            </div> :
+          equityData ?
+          <>
               <EquityBalance data={equityData} />
-              {historicalData.length > 0 && (
-                <EquityCurveChart data={historicalData} />
-              )}
-            </>
-          ) : (
-            <div className="text-center text-muted-foreground py-8">
+              {historicalData.length > 0 &&
+            <EquityCurveChart data={historicalData} />
+            }
+            </> :
+
+          <div className="text-center text-muted-foreground py-8">
               No equity data available
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

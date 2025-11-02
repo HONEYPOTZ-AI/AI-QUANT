@@ -17,7 +17,7 @@ interface PnLChartProps {
 
 export default function PnLChart({ data }: PnLChartProps) {
   const chartData = useMemo(() => {
-    return data.map(item => ({
+    return data.map((item) => ({
       date: format(new Date(item.date), 'MM/dd'),
       fullDate: item.date,
       Daily: item.dailyPnL,
@@ -51,42 +51,42 @@ export default function PnLChart({ data }: PnLChartProps) {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  tick={{ fontSize: 12 }} />
+
+                <YAxis
                   className="text-xs"
                   tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={formatCurrency}
-                />
-                <Tooltip 
+                  tickFormatter={formatCurrency} />
+
+                <Tooltip
                   formatter={formatCurrency}
                   labelFormatter={(label, payload) => {
                     if (payload && payload.length > 0) {
                       return format(new Date(payload[0].payload.fullDate), 'MMM dd, yyyy');
                     }
                     return label;
-                  }}
-                />
+                  }} />
+
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="Daily" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="Daily"
+                  stroke="#10b981"
                   strokeWidth={2}
                   dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="Total" 
-                  stroke="#3b82f6" 
+                  activeDot={{ r: 5 }} />
+
+                <Line
+                  type="monotone"
+                  dataKey="Total"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
+                  activeDot={{ r: 5 }} />
+
               </LineChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -95,25 +95,25 @@ export default function PnLChart({ data }: PnLChartProps) {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  tick={{ fontSize: 12 }} />
+
+                <YAxis
                   className="text-xs"
                   tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={formatCurrency}
-                />
-                <Tooltip 
+                  tickFormatter={formatCurrency} />
+
+                <Tooltip
                   formatter={formatCurrency}
                   labelFormatter={(label, payload) => {
                     if (payload && payload.length > 0) {
                       return format(new Date(payload[0].payload.fullDate), 'MMM dd, yyyy');
                     }
                     return label;
-                  }}
-                />
+                  }} />
+
                 <Legend />
                 <Bar dataKey="Daily" fill="#10b981" />
                 <Bar dataKey="Weekly" fill="#3b82f6" />
@@ -123,6 +123,6 @@ export default function PnLChart({ data }: PnLChartProps) {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
