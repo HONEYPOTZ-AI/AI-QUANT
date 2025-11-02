@@ -11,7 +11,7 @@ async function saveEquitySnapshot(broker = "ALL") {
   // Fetch equity from both brokers if ALL, otherwise specific broker
   if (broker === "ALL" || broker === "IBRK") {
     try {
-      const ibrkEquity = await easysite.run({
+      const ibrkEquity = await window.ezsite.apis.run({
         path: "__easysite_nodejs__/ibrkEquityFetcher.js",
         param: []
       });
@@ -30,7 +30,7 @@ async function saveEquitySnapshot(broker = "ALL") {
 
   if (broker === "ALL" || broker === "cTrader") {
     try {
-      const ctraderEquity = await easysite.run({
+      const ctraderEquity = await window.ezsite.apis.run({
         path: "__easysite_nodejs__/ctraderEquityFetcher.js",
         param: []
       });

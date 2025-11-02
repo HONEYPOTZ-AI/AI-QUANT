@@ -86,7 +86,7 @@ async function ctraderConnectionTester(userId) {
 
     // Step 3: Test API connectivity by fetching accounts
     try {
-      const { data: connectionData, error: connectionError } = await easysite.run({
+      const { data: connectionData, error: connectionError } = await window.ezsite.apis.run({
         path: '__easysite_nodejs__/ctraderConnectionManager.js',
         param: ['testConnection', { userId, retries: 2, delayMs: 1000 }]
       });

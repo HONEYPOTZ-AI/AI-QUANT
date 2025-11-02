@@ -1,22 +1,22 @@
 
 async function savePnLSnapshot(broker = "ALL") {
   // Calculate P&L for all periods
-  const dailyPnL = await easysite.run({
+  const dailyPnL = await window.ezsite.apis.run({
     path: "__easysite_nodejs__/pnlCalculator.js",
     param: [broker, "daily"]
   });
 
-  const weeklyPnL = await easysite.run({
+  const weeklyPnL = await window.ezsite.apis.run({
     path: "__easysite_nodejs__/pnlCalculator.js",
     param: [broker, "weekly"]
   });
 
-  const monthlyPnL = await easysite.run({
+  const monthlyPnL = await window.ezsite.apis.run({
     path: "__easysite_nodejs__/pnlCalculator.js",
     param: [broker, "monthly"]
   });
 
-  const totalPnL = await easysite.run({
+  const totalPnL = await window.ezsite.apis.run({
     path: "__easysite_nodejs__/pnlCalculator.js",
     param: [broker, "total"]
   });

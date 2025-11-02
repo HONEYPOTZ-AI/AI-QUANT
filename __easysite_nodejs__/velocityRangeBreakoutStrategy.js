@@ -496,7 +496,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
 
         try {
           // Fetch market data for both timeframes
-          const candles5mResult = await easysite.run({
+          const candles5mResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderMarketDataFetcher.js',
             param: ['getCandles', {
               userId,
@@ -507,7 +507,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
             }]
           });
 
-          const candles1hResult = await easysite.run({
+          const candles1hResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderMarketDataFetcher.js',
             param: ['getCandles', {
               userId,
@@ -607,7 +607,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
 
         try {
           // Get account equity for position sizing
-          const accountResult = await easysite.run({
+          const accountResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderConnectionManager.js',
             param: ['getAccounts', { userId }]
           });
@@ -618,7 +618,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
           const accountEquity = account.equity || account.balance || 10000; // Default fallback
 
           // Get current market price
-          const quoteResult = await easysite.run({
+          const quoteResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderMarketDataFetcher.js',
             param: ['getQuote', { userId, symbol: SYMBOL, accountId }]
           });
@@ -649,7 +649,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
           }));
 
           // Execute the order via cTrader
-          const orderResult = await easysite.run({
+          const orderResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderOrderExecutor.js',
             param: ['placeMarketOrder', {
               userId,
@@ -703,7 +703,7 @@ async function velocityRangeBreakoutStrategy(action, params = {}) {
 
         try {
           // Get all open positions
-          const positionsResult = await easysite.run({
+          const positionsResult = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderOrderExecutor.js',
             param: ['getPositions', { userId, accountId }]
           });

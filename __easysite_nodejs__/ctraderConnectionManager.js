@@ -103,7 +103,7 @@ async function ctraderConnectionManager(action, params = {}) {
 
         try {
           // Check if we have valid credentials
-          const { data: authData } = await easysite.run({
+          const { data: authData } = await window.ezsite.apis.run({
             path: '__easysite_nodejs__/ctraderAuthHandler.js',
             param: ['validateConnection', { userId }]
           });
@@ -183,7 +183,7 @@ async function ctraderConnectionManager(action, params = {}) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
             // Try to refresh token first
-            await easysite.run({
+            await window.ezsite.apis.run({
               path: '__easysite_nodejs__/ctraderAuthHandler.js',
               param: ['refreshToken', { userId }]
             });

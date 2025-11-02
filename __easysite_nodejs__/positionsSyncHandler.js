@@ -7,7 +7,7 @@ async function syncAllPositions() {
 
   // Fetch positions from IBRK
   try {
-    const ibrkData = await easysite.run({
+    const ibrkData = await window.ezsite.apis.run({
       path: "__easysite_nodejs__/ibrkPositionsFetcher.js",
       param: []
     });
@@ -61,7 +61,7 @@ async function syncAllPositions() {
 
   // Fetch positions from cTrader
   try {
-    const ctraderData = await easysite.run({
+    const ctraderData = await window.ezsite.apis.run({
       path: "__easysite_nodejs__/ctraderPositionsFetcher.js",
       param: []
     });
