@@ -18,7 +18,7 @@ export default function PerformanceMetrics({
   winRate,
   avgRiskReward,
   totalTrades,
-  velocityAccuracy,
+  velocityAccuracy
 }: PerformanceMetricsProps) {
   return (
     <Card className="bg-slate-800/50 border-slate-700">
@@ -76,6 +76,6 @@ export default function PerformanceMetrics({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

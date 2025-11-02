@@ -11,13 +11,15 @@ import VelocityDashboard from '@/components/VelocityDashboard';
 import AgentCommentaryFeed from '@/components/AgentCommentaryFeed';
 import PositionStatus from '@/components/PositionStatus';
 import PerformanceMetrics from '@/components/PerformanceMetrics';
+import PnLReport from '@/components/PnLReport';
+import EquityTracker from '@/components/EquityTracker';
 import {
   Target,
   RefreshCw,
   AlertCircle,
   PlayCircle,
-  PauseCircle,
-} from 'lucide-react';
+  PauseCircle } from
+'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,7 +37,7 @@ export default function CFDStrategyPage() {
   const [volumeMultiplier, setVolumeMultiplier] = useState(1.5);
   const [rsiUpperThreshold, setRsiUpperThreshold] = useState(55);
   const [rsiLowerThreshold, setRsiLowerThreshold] = useState(45);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentary, setCommentary] = useState<CommentaryMessage[]>([]);
@@ -52,7 +54,7 @@ export default function CFDStrategyPage() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (strategyEnabled) {
       analyzeMarket();
       interval = setInterval(() => {
@@ -70,7 +72,7 @@ export default function CFDStrategyPage() {
       id: Date.now().toString(),
       type,
       message,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
     setCommentary((prev) => [...prev, newMessage]);
   };
@@ -81,16 +83,16 @@ export default function CFDStrategyPage() {
 
     try {
       const userId = 1;
-      
+
       const result = await (window as any).ezsite.nodejs.velocityRangeBreakoutStrategy('analyzeMarket', {
         userId,
-        accountId: null,
+        accountId: null
       });
 
       if (result.error) throw new Error(result.error);
 
       const analysis = result.analysis || {};
-      
+
       setDashboardData({
         trendBias5m: analysis.trendBias5m,
         trendBias1h: analysis.trendBias1h,
@@ -99,20 +101,20 @@ export default function CFDStrategyPage() {
         cdcVelocity: {
           current: parseFloat(analysis.velocity?.currentVelocity || 0),
           average: parseFloat(analysis.velocity?.avgVelocity || 0),
-          ratio: parseFloat(analysis.velocity?.velocityRatio || 0),
+          ratio: parseFloat(analysis.velocity?.velocityRatio || 0)
         },
         volume: {
           current: 0,
           average: 0,
-          ratio: parseFloat(analysis.velocity?.volumeRatio || 0),
+          ratio: parseFloat(analysis.velocity?.volumeRatio || 0)
         },
         activeSignals: result.signal ? [{
           type: result.signal,
           price: analysis.currentPrice,
-          timestamp: result.timestamp,
+          timestamp: result.timestamp
         }] : [],
         currentPrice: analysis.currentPrice,
-        rsi: parseFloat(analysis.rsi || 50),
+        rsi: parseFloat(analysis.rsi || 50)
       });
 
       if (result.commentary && Array.isArray(result.commentary)) {
@@ -130,9 +132,9 @@ export default function CFDStrategyPage() {
       if (result.signal && strategyEnabled) {
         toast({
           title: `${result.signal.toUpperCase()} Signal Detected`,
-          description: `Strategy analyzing breakout at ${analysis.currentPrice}`,
+          description: `Strategy analyzing breakout at ${analysis.currentPrice}`
         });
-        
+
         if (accountEquity > 0) {
           await executeTrade(result.signal, analysis);
         }
@@ -145,7 +147,7 @@ export default function CFDStrategyPage() {
       toast({
         title: 'Analysis Error',
         description: errorMsg,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -163,11 +165,11 @@ export default function CFDStrategyPage() {
         analysisData: {
           currentCandle: {
             low: analysisData.currentPrice - 10,
-            high: analysisData.currentPrice + 10,
+            high: analysisData.currentPrice + 10
           },
           structure: {
             ema9_5m: [analysisData.currentPrice],
-            currentIndex: 0,
+            currentIndex: 0
           }
         }
       });
@@ -184,7 +186,7 @@ export default function CFDStrategyPage() {
         lotSize: result.entry.lotSize,
         pnlPoints: 0,
         pnlPercent: 0,
-        pnlAmount: 0,
+        pnlAmount: 0
       };
 
       setPositions((prev) => [...prev, newPosition]);
@@ -197,12 +199,12 @@ export default function CFDStrategyPage() {
 
       setPerformanceMetrics((prev) => ({
         ...prev,
-        totalTrades: prev.totalTrades + 1,
+        totalTrades: prev.totalTrades + 1
       }));
 
       toast({
         title: 'Trade Executed',
-        description: `${signal.toUpperCase()} position opened at ${result.entry.price.toFixed(2)}`,
+        description: `${signal.toUpperCase()} position opened at ${result.entry.price.toFixed(2)}`
       });
 
     } catch (err: any) {
@@ -210,7 +212,7 @@ export default function CFDStrategyPage() {
       toast({
         title: 'Execution Failed',
         description: err.message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     }
   };
@@ -221,19 +223,19 @@ export default function CFDStrategyPage() {
       addCommentary('analysis', '🟢 Strategy activated - Monitoring for velocity breakout signals');
       toast({
         title: 'Strategy Enabled',
-        description: 'Velocity-Triggered Range Breakout strategy is now active',
+        description: 'Velocity-Triggered Range Breakout strategy is now active'
       });
     } else {
       addCommentary('analysis', '🔴 Strategy deactivated - No new positions will be opened');
       toast({
         title: 'Strategy Disabled',
-        description: 'Strategy monitoring paused',
+        description: 'Strategy monitoring paused'
       });
     }
   };
 
   const totalRiskUsed = positions.reduce((sum, pos) => {
-    const riskPercent = (Math.abs(pos.entryPrice - pos.stopLoss) * pos.lotSize / accountEquity) * 100;
+    const riskPercent = Math.abs(pos.entryPrice - pos.stopLoss) * pos.lotSize / accountEquity * 100;
     return sum + riskPercent;
   }, 0);
 
@@ -261,30 +263,30 @@ export default function CFDStrategyPage() {
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => toggleStrategy(!strategyEnabled)}
-                className={strategyEnabled 
-                  ? 'bg-red-600 hover:bg-red-700' 
-                  : 'bg-green-600 hover:bg-green-700'
-                }
-              >
-                {strategyEnabled ? (
-                  <>
+                className={strategyEnabled ?
+                'bg-red-600 hover:bg-red-700' :
+                'bg-green-600 hover:bg-green-700'
+                }>
+
+                {strategyEnabled ?
+                <>
                     <PauseCircle className="w-4 h-4 mr-2" />
                     Stop Strategy
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <PlayCircle className="w-4 h-4 mr-2" />
                     Start Strategy
                   </>
-                )}
+                }
               </Button>
               <Button
                 onClick={analyzeMarket}
                 disabled={loading}
                 size="sm"
                 variant="outline"
-                className="border-slate-600"
-              >
+                className="border-slate-600">
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -294,35 +296,66 @@ export default function CFDStrategyPage() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {error && (
-          <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900/50">
+        {error &&
+        <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900/50">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <VelocityStrategyConfig
-              enabled={strategyEnabled}
-              onEnabledChange={toggleStrategy}
-              accountEquity={accountEquity}
-              onAccountEquityChange={setAccountEquity}
-              velocityMultiplier={velocityMultiplier}
-              onVelocityMultiplierChange={setVelocityMultiplier}
-              volumeMultiplier={volumeMultiplier}
-              onVolumeMultiplierChange={setVolumeMultiplier}
-              rsiUpperThreshold={rsiUpperThreshold}
-              onRsiUpperThresholdChange={setRsiUpperThreshold}
-              rsiLowerThreshold={rsiLowerThreshold}
-              onRsiLowerThresholdChange={setRsiLowerThreshold}
-            />
+            <Tabs defaultValue="dashboard" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-7">
+                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                <TabsTrigger value="pnl">P&L</TabsTrigger>
+                <TabsTrigger value="equity">Equity</TabsTrigger>
+                <TabsTrigger value="config">Config</TabsTrigger>
+                <TabsTrigger value="positions">Positions</TabsTrigger>
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="commentary">Commentary</TabsTrigger>
+              </TabsList>
 
-            <VelocityDashboard {...dashboardData} />
+              <TabsContent value="dashboard">
+                <VelocityDashboard {...dashboardData} />
+              </TabsContent>
 
-            <PositionStatus positions={positions} totalRiskUsed={totalRiskUsed} />
+              <TabsContent value="pnl">
+                <PnLReport />
+              </TabsContent>
 
-            <PerformanceMetrics {...performanceMetrics} />
+              <TabsContent value="equity">
+                <EquityTracker />
+              </TabsContent>
+
+              <TabsContent value="config">
+                <VelocityStrategyConfig
+                  enabled={strategyEnabled}
+                  onEnabledChange={toggleStrategy}
+                  accountEquity={accountEquity}
+                  onAccountEquityChange={setAccountEquity}
+                  velocityMultiplier={velocityMultiplier}
+                  onVelocityMultiplierChange={setVelocityMultiplier}
+                  volumeMultiplier={volumeMultiplier}
+                  onVolumeMultiplierChange={setVolumeMultiplier}
+                  rsiUpperThreshold={rsiUpperThreshold}
+                  onRsiUpperThresholdChange={setRsiUpperThreshold}
+                  rsiLowerThreshold={rsiLowerThreshold}
+                  onRsiLowerThresholdChange={setRsiLowerThreshold} />
+              </TabsContent>
+
+              <TabsContent value="positions">
+                <PositionStatus positions={positions} totalRiskUsed={totalRiskUsed} />
+              </TabsContent>
+
+              <TabsContent value="performance">
+                <PerformanceMetrics {...performanceMetrics} />
+              </TabsContent>
+
+              <TabsContent value="commentary">
+                <AgentCommentaryFeed messages={commentary} />
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="space-y-6">
@@ -330,6 +363,6 @@ export default function CFDStrategyPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

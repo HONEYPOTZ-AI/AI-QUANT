@@ -35,42 +35,42 @@ export default function PositionStatus({ positions, totalRiskUsed }: PositionSta
             <Shield className="w-4 h-4 text-blue-400" />
             <span className="text-sm text-slate-400">Risk Used:</span>
             <Badge className={`${
-              totalRiskUsed > 1.5
-                ? 'bg-red-500/20 text-red-400 border-red-500/30'
-                : 'bg-green-500/20 text-green-400 border-green-500/30'
-            }`}>
+            totalRiskUsed > 1.5 ?
+            'bg-red-500/20 text-red-400 border-red-500/30' :
+            'bg-green-500/20 text-green-400 border-green-500/30'}`
+            }>
               {totalRiskUsed.toFixed(2)}%
             </Badge>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {positions.length === 0 ? (
-          <div className="text-center py-8 text-slate-400">
+        {positions.length === 0 ?
+        <div className="text-center py-8 text-slate-400">
             <Target className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No open positions</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {positions.map((position) => (
-              <div
-                key={position.id}
-                className={`p-4 rounded-lg border ${
-                  position.side === 'long'
-                    ? 'bg-green-900/10 border-green-500/30'
-                    : 'bg-red-900/10 border-red-500/30'
-                }`}
-              >
+          </div> :
+
+        <div className="space-y-4">
+            {positions.map((position) =>
+          <div
+            key={position.id}
+            className={`p-4 rounded-lg border ${
+            position.side === 'long' ?
+            'bg-green-900/10 border-green-500/30' :
+            'bg-red-900/10 border-red-500/30'}`
+            }>
+
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    {position.side === 'long' ? (
-                      <TrendingUp className="w-5 h-5 text-green-400" />
-                    ) : (
-                      <TrendingDown className="w-5 h-5 text-red-400" />
-                    )}
+                    {position.side === 'long' ?
+                <TrendingUp className="w-5 h-5 text-green-400" /> :
+
+                <TrendingDown className="w-5 h-5 text-red-400" />
+                }
                     <span className={`font-bold uppercase text-sm ${
-                      position.side === 'long' ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                position.side === 'long' ? 'text-green-400' : 'text-red-400'}`
+                }>
                       {position.side} Position
                     </span>
                     <Badge variant="outline" className="text-xs">
@@ -79,8 +79,8 @@ export default function PositionStatus({ positions, totalRiskUsed }: PositionSta
                   </div>
                   <div className="text-right">
                     <div className={`text-lg font-bold ${
-                      position.pnlAmount >= 0 ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                position.pnlAmount >= 0 ? 'text-green-400' : 'text-red-400'}`
+                }>
                       {position.pnlAmount >= 0 ? '+' : ''}${position.pnlAmount.toFixed(2)}
                     </div>
                     <div className="text-xs text-slate-400">
@@ -120,10 +120,10 @@ export default function PositionStatus({ positions, totalRiskUsed }: PositionSta
                   </div>
                 </div>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

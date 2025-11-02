@@ -31,7 +31,7 @@ export default function AgentCommentaryFeed({ messages }: AgentCommentaryFeedPro
           bg: 'bg-green-900/20',
           border: 'border-green-500/30',
           text: 'text-green-400',
-          icon: <TrendingUp className="w-4 h-4" />,
+          icon: <TrendingUp className="w-4 h-4" />
         };
       case 'exit':
       case 'risk':
@@ -39,21 +39,21 @@ export default function AgentCommentaryFeed({ messages }: AgentCommentaryFeedPro
           bg: 'bg-red-900/20',
           border: 'border-red-500/30',
           text: 'text-red-400',
-          icon: <AlertTriangle className="w-4 h-4" />,
+          icon: <AlertTriangle className="w-4 h-4" />
         };
       case 'analysis':
         return {
           bg: 'bg-blue-900/20',
           border: 'border-blue-500/30',
           text: 'text-blue-400',
-          icon: <Info className="w-4 h-4" />,
+          icon: <Info className="w-4 h-4" />
         };
       default:
         return {
           bg: 'bg-slate-800/50',
           border: 'border-slate-700',
           text: 'text-slate-400',
-          icon: <MessageSquare className="w-4 h-4" />,
+          icon: <MessageSquare className="w-4 h-4" />
         };
     }
   };
@@ -69,19 +69,19 @@ export default function AgentCommentaryFeed({ messages }: AgentCommentaryFeedPro
       <CardContent>
         <ScrollArea className="h-80">
           <div ref={scrollRef} className="space-y-3 pr-4">
-            {messages.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+            {messages.length === 0 ?
+            <div className="text-center py-8 text-slate-400">
                 <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Waiting for strategy activity...</p>
-              </div>
-            ) : (
-              messages.map((msg) => {
-                const style = getMessageStyle(msg.type);
-                return (
-                  <div
-                    key={msg.id}
-                    className={`p-3 rounded-lg border ${style.bg} ${style.border} animate-in slide-in-from-bottom duration-300`}
-                  >
+              </div> :
+
+            messages.map((msg) => {
+              const style = getMessageStyle(msg.type);
+              return (
+                <div
+                  key={msg.id}
+                  className={`p-3 rounded-lg border ${style.bg} ${style.border} animate-in slide-in-from-bottom duration-300`}>
+
                     <div className="flex items-start gap-3">
                       <div className={style.text}>{style.icon}</div>
                       <div className="flex-1 min-w-0">
@@ -98,13 +98,13 @@ export default function AgentCommentaryFeed({ messages }: AgentCommentaryFeedPro
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })
-            )}
+                  </div>);
+
+            })
+            }
           </div>
         </ScrollArea>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

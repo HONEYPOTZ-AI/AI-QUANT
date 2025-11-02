@@ -33,7 +33,7 @@ export default function VelocityStrategyConfig({
   rsiUpperThreshold,
   onRsiUpperThresholdChange,
   rsiLowerThreshold,
-  onRsiLowerThresholdChange,
+  onRsiLowerThresholdChange
 }: VelocityStrategyConfigProps) {
   return (
     <Card className="bg-slate-800/50 border-slate-700">
@@ -63,8 +63,8 @@ export default function VelocityStrategyConfig({
               value={accountEquity}
               onChange={(e) => onAccountEquityChange(parseFloat(e.target.value) || 0)}
               className="bg-slate-700 border-slate-600 text-white"
-              placeholder="10000"
-            />
+              placeholder="10000" />
+
           </div>
 
           <div className="space-y-2">
@@ -76,8 +76,8 @@ export default function VelocityStrategyConfig({
               <Input
                 value="2%"
                 disabled
-                className="bg-slate-900/50 border-slate-700 text-slate-300"
-              />
+                className="bg-slate-900/50 border-slate-700 text-slate-300" />
+
               <Badge className="absolute right-2 top-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
                 Locked
               </Badge>
@@ -114,8 +114,8 @@ export default function VelocityStrategyConfig({
               step="0.1"
               value={velocityMultiplier}
               onChange={(e) => onVelocityMultiplierChange(parseFloat(e.target.value))}
-              className="w-full"
-            />
+              className="w-full" />
+
           </div>
 
           <div className="space-y-2">
@@ -130,8 +130,8 @@ export default function VelocityStrategyConfig({
               step="0.1"
               value={volumeMultiplier}
               onChange={(e) => onVolumeMultiplierChange(parseFloat(e.target.value))}
-              className="w-full"
-            />
+              className="w-full" />
+
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -143,8 +143,8 @@ export default function VelocityStrategyConfig({
                 onChange={(e) => onRsiUpperThresholdChange(parseFloat(e.target.value) || 55)}
                 className="bg-slate-700 border-slate-600 text-white"
                 min="50"
-                max="70"
-              />
+                max="70" />
+
             </div>
 
             <div className="space-y-2">
@@ -155,12 +155,12 @@ export default function VelocityStrategyConfig({
                 onChange={(e) => onRsiLowerThresholdChange(parseFloat(e.target.value) || 45)}
                 className="bg-slate-700 border-slate-600 text-white"
                 min="30"
-                max="50"
-              />
+                max="50" />
+
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
