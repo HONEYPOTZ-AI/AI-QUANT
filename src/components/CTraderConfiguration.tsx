@@ -215,10 +215,13 @@ const CTraderConfiguration = () => {
 
     try {
       // Call cTrader connection manager
-      const connectResult = await (window as any).ezsite.apis.run('ctraderConnectionManager', {
-        action: 'connect',
-        clientId: settings.client_id,
-        clientSecret: settings.client_secret
+      const connectResult = await (window as any).ezsite.apis.run({
+        path: 'ctraderConnectionManager',
+        param: [{
+          action: 'connect',
+          clientId: settings.client_id,
+          clientSecret: settings.client_secret
+        }]
       });
 
       if (connectResult.error) throw new Error(connectResult.error);
@@ -266,9 +269,12 @@ const CTraderConfiguration = () => {
 
     try {
       // Call cTrader connection manager to disconnect
-      const disconnectResult = await (window as any).ezsite.apis.run('ctraderConnectionManager', {
-        action: 'disconnect',
-        clientId: settings.client_id
+      const disconnectResult = await (window as any).ezsite.apis.run({
+        path: 'ctraderConnectionManager',
+        param: [{
+          action: 'disconnect',
+          clientId: settings.client_id
+        }]
       });
 
       if (disconnectResult.error) throw new Error(disconnectResult.error);
