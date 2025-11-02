@@ -107,8 +107,8 @@ const HomePage = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-12 sm:mb-20">
-          {stats.map((stat, index) => (
-            <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          {stats.map((stat, index) =>
+          <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
               <CardContent className="p-3 sm:p-6 text-center">
                 <div className="text-xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">{stat.value}</div>
                 <div className="text-slate-400 text-xs sm:text-sm mb-1 sm:mb-2">{stat.label}</div>
@@ -117,13 +117,13 @@ const HomePage = () => {
                 </Badge>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
 
         {/* Features */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-          {features.map((feature, index) => (
-            <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-colors">
+          {features.map((feature, index) =>
+          <Card key={index} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-colors">
               <CardHeader>
                 <div className="mb-4">{feature.icon}</div>
                 <CardTitle className="text-white text-lg sm:text-xl">{feature.title}</CardTitle>
@@ -132,7 +132,7 @@ const HomePage = () => {
                 </CardDescription>
               </CardHeader>
             </Card>
-          ))}
+          )}
         </div>
       </section>
 
