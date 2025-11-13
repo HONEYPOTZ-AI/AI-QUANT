@@ -16,9 +16,9 @@ async function fetchSPXVIXData(userId) {
       PageNo: 1,
       PageSize: 1,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "is_active", op: "Equal", value: true }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "is_active", op: "Equal", value: true }]
+
     });
 
     if (tosSettings?.List?.[0]) {
@@ -81,9 +81,9 @@ async function fetchSPXVIXData(userId) {
       PageNo: 1,
       PageSize: 1,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "is_active", op: "Equal", value: true }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "is_active", op: "Equal", value: true }]
+
     });
 
     if (fastapiSettings?.List?.[0]) {

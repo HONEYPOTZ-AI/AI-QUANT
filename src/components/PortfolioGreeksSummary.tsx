@@ -1,20 +1,29 @@
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
-interface GreeksData {
-  delta: number;
-  gamma: number;
-  theta: number;
-  vega: number;
-  rho: number;
-}
+export default function PortfolioGreeksSummary() {
+  const { user } = useAuth();
 
-interface PortfolioGreeksSummaryProps {
-  greeks: GreeksData;
-  portfolioValue: number;
-}
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['portfolio-greeks', user?.ID],
+    queryFn: async () => {
+      const { data, error } = await window.ezsite.apis.run({
+        path: 'optionsGreeksCalculator',
+        param: [user?.ID]
+      });
+      if (error) throw new Error(error);
+      return data;
+    },
+    enabled: !!user?.ID,
+    refetchInterval: 30000,
+    staleTime: 15000
+  });
 
-export default function PortfolioGreeksSummary({ greeks, portfolioValue }: PortfolioGreeksSummaryProps) {
   const formatNumber = (num: number, decimals = 2) => {
     return num.toFixed(decimals);
   };
@@ -26,52 +35,89 @@ export default function PortfolioGreeksSummary({ greeks, portfolioValue }: Portf
     }).format(num);
   };
 
-  const greeksCards = [
-  {
-    title: "Portfolio Delta",
-    value: greeks.delta,
-    description: "Directional exposure",
-    format: formatNumber(greeks.delta, 3),
-    color: greeks.delta >= 0 ? "text-green-600" : "text-red-600",
-    icon: greeks.delta >= 0 ? TrendingUp : TrendingDown
-  },
-  {
-    title: "Portfolio Gamma",
-    value: greeks.gamma,
-    description: "Delta sensitivity",
-    format: formatNumber(greeks.gamma, 4),
-    color: "text-blue-600"
-  },
-  {
-    title: "Portfolio Theta",
-    value: greeks.theta,
-    description: "Daily time decay",
-    format: formatCurrency(greeks.theta),
-    color: greeks.theta >= 0 ? "text-green-600" : "text-red-600",
-    icon: greeks.theta >= 0 ? TrendingUp : TrendingDown
-  },
-  {
-    title: "Portfolio Vega",
-    value: greeks.vega,
-    description: "Volatility exposure",
-    format: formatNumber(greeks.vega, 2),
-    color: "text-purple-600"
-  },
-  {
-    title: "Portfolio Rho",
-    value: greeks.rho,
-    description: "Interest rate sensitivity",
-    format: formatNumber(greeks.rho, 2),
-    color: "text-orange-600"
-  },
-  {
-    title: "Portfolio Value",
-    value: portfolioValue,
-    description: "Total position value",
-    format: formatCurrency(portfolioValue),
-    color: "text-blue-600"
-  }];
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-4 w-32" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-24" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error instanceof Error ? error.message : 'Failed to load portfolio Greeks'}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  const greeks = data?.portfolioGreeks || {
+    delta: 0,
+    gamma: 0,
+    theta: 0,
+    vega: 0,
+    rho: 0
+  };
+  const portfolioValue = data?.portfolioValue || 0;
+
+  const greeksCards = [
+    {
+      title: "Portfolio Delta",
+      value: greeks.delta,
+      description: "Directional exposure",
+      format: formatNumber(greeks.delta, 3),
+      color: greeks.delta >= 0 ? "text-green-600" : "text-red-600",
+      icon: greeks.delta >= 0 ? TrendingUp : TrendingDown
+    },
+    {
+      title: "Portfolio Gamma",
+      value: greeks.gamma,
+      description: "Delta sensitivity",
+      format: formatNumber(greeks.gamma, 4),
+      color: "text-blue-600"
+    },
+    {
+      title: "Portfolio Theta",
+      value: greeks.theta,
+      description: "Daily time decay",
+      format: formatCurrency(greeks.theta),
+      color: greeks.theta >= 0 ? "text-green-600" : "text-red-600",
+      icon: greeks.theta >= 0 ? TrendingUp : TrendingDown
+    },
+    {
+      title: "Portfolio Vega",
+      value: greeks.vega,
+      description: "Volatility exposure",
+      format: formatNumber(greeks.vega, 2),
+      color: "text-purple-600"
+    },
+    {
+      title: "Portfolio Rho",
+      value: greeks.rho,
+      description: "Interest rate sensitivity",
+      format: formatNumber(greeks.rho, 2),
+      color: "text-orange-600"
+    },
+    {
+      title: "Portfolio Value",
+      value: portfolioValue,
+      description: "Total position value",
+      format: formatCurrency(portfolioValue),
+      color: "text-blue-600"
+    }
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -93,9 +139,9 @@ export default function PortfolioGreeksSummary({ greeks, portfolioValue }: Portf
                 {card.description}
               </p>
             </CardContent>
-          </Card>);
-
+          </Card>
+        );
       })}
-    </div>);
-
+    </div>
+  );
 }

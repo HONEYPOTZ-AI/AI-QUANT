@@ -35,15 +35,15 @@ export default function SPXVIXDisplay() {
     },
     enabled: !!user?.ID,
     refetchInterval: 10000, // Refresh every 10 seconds
-    staleTime: 5000,
+    staleTime: 5000
   });
 
   const renderIndexCard = (
-    title: string,
-    symbol: string,
-    data: IndexData | null | undefined,
-    icon: React.ReactNode
-  ) => {
+  title: string,
+  symbol: string,
+  data: IndexData | null | undefined,
+  icon: React.ReactNode) =>
+  {
     if (!data) {
       return (
         <Card className="flex-1 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
@@ -57,18 +57,18 @@ export default function SPXVIXDisplay() {
           <div className="text-center py-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">No data available</p>
           </div>
-        </Card>
-      );
+        </Card>);
+
     }
 
     const isPositive = data.change >= 0;
     const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-    const bgColor = isPositive 
-      ? 'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' 
-      : 'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
-    const borderColor = isPositive 
-      ? 'border-green-200 dark:border-green-800' 
-      : 'border-red-200 dark:border-red-800';
+    const bgColor = isPositive ?
+    'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' :
+    'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
+    const borderColor = isPositive ?
+    'border-green-200 dark:border-green-800' :
+    'border-red-200 dark:border-red-800';
 
     return (
       <Card className={`flex-1 p-6 bg-gradient-to-br ${bgColor} ${borderColor} border-2 transition-all duration-300 hover:shadow-lg`}>
@@ -102,8 +102,8 @@ export default function SPXVIXDisplay() {
             </div>
           </div>
         </div>
-      </Card>
-    );
+      </Card>);
+
   };
 
   if (isLoading) {
@@ -125,8 +125,8 @@ export default function SPXVIXDisplay() {
             <Skeleton className="h-6 w-24" />
           </Card>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (isError) {
@@ -136,8 +136,8 @@ export default function SPXVIXDisplay() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load market data. Please check your API configuration.'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   return (
@@ -147,11 +147,11 @@ export default function SPXVIXDisplay() {
           <Activity className="w-5 h-5 text-slate-600 dark:text-slate-400" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Market Indices</h2>
         </div>
-        {data?.timestamp && (
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+        {data?.timestamp &&
+        <div className="text-xs text-slate-500 dark:text-slate-400">
             Last updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
           </div>
-        )}
+        }
       </div>
       
       <div className="flex flex-col md:flex-row gap-4">
@@ -169,11 +169,11 @@ export default function SPXVIXDisplay() {
         )}
       </div>
       
-      {data?.source && (
-        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-right">
+      {data?.source &&
+      <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-right">
           Data source: {data.source === 'thinkorswim' ? 'ThinkorSwim' : 'FastAPI'}
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
