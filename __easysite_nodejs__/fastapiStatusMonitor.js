@@ -1,10 +1,10 @@
 /**
- * Monitor and check IBRK connection status
+ * Monitor and check FastAPI connection status
  * @param {number} userId - User ID to check status for
  * @returns {Object} Current connection status and health info
  */
-async function ibrkStatusMonitor(userId) {
-  const IBRK_SETTINGS_TABLE_ID = 51055;
+async function fastapiStatusMonitor(userId) {
+  const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
   // Retrieve current settings
   const filters = userId ? [{
@@ -14,7 +14,7 @@ async function ibrkStatusMonitor(userId) {
   }] : [];
 
   const { data, error } = await easysite.table.page({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     pageFilter: {
       PageNo: 1,
       PageSize: 1,
@@ -31,7 +31,7 @@ async function ibrkStatusMonitor(userId) {
   if (!data?.List || data.List.length === 0) {
     return {
       status: 'not_configured',
-      message: 'No IBRK API settings found'
+      message: 'No FastAPI settings found'
     };
   }
 
@@ -41,7 +41,7 @@ async function ibrkStatusMonitor(userId) {
   if (settings.is_enabled === false) {
     return {
       status: 'disabled',
-      message: 'IBRK API is disabled',
+      message: 'FastAPI is disabled',
       lastConnected: settings.last_connected || null
     };
   }
@@ -69,7 +69,7 @@ async function ibrkStatusMonitor(userId) {
     // Update status if changed
     if (settings.connection_status !== currentStatus) {
       await easysite.table.update({
-        customTableID: IBRK_SETTINGS_TABLE_ID,
+        customTableID: FASTAPI_SETTINGS_TABLE_ID,
         update: {
           id: settings.id,
           connection_status: currentStatus,
@@ -91,7 +91,7 @@ async function ibrkStatusMonitor(userId) {
   } catch (err) {
     // Connection failed
     await easysite.table.update({
-      customTableID: IBRK_SETTINGS_TABLE_ID,
+      customTableID: FASTAPI_SETTINGS_TABLE_ID,
       update: {
         id: settings.id,
         connection_status: 'disconnected',

@@ -1,12 +1,12 @@
 /**
- * Handle reconnection to IBRK API with exponential backoff
+ * Handle reconnection to FastAPI with exponential backoff
  * @param {number} userId - User ID to reconnect for
  * @param {Object} options - Reconnection options { maxRetries: 5, baseDelay: 1000 }
  * @returns {Object} Reconnection result
  */
-async function ibrkReconnectHandler(userId, options = {}) {
+async function fastapiReconnectHandler(userId, options = {}) {
   const { maxRetries = 5, baseDelay = 1000, maxDelay = 30000 } = options;
-  const IBRK_SETTINGS_TABLE_ID = 51055;
+  const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
   // Retrieve credentials
   const filters = userId ? [{
@@ -16,7 +16,7 @@ async function ibrkReconnectHandler(userId, options = {}) {
   }] : [];
 
   const { data, error } = await easysite.table.page({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     pageFilter: {
       PageNo: 1,
       PageSize: 1,
@@ -31,13 +31,13 @@ async function ibrkReconnectHandler(userId, options = {}) {
   }
 
   if (!data?.List || data.List.length === 0) {
-    throw new Error("No IBRK API credentials found");
+    throw new Error("No FastAPI credentials found");
   }
 
   const settings = data.List[0];
 
   if (settings.is_enabled === false) {
-    throw new Error("Cannot reconnect: IBRK API is disabled");
+    throw new Error("Cannot reconnect: FastAPI is disabled");
   }
 
   const connectionUrl = `http://${settings.api_host}:${settings.api_port}`;
@@ -56,7 +56,7 @@ async function ibrkReconnectHandler(userId, options = {}) {
 
       // Update status to reconnecting
       await easysite.table.update({
-        customTableID: IBRK_SETTINGS_TABLE_ID,
+        customTableID: FASTAPI_SETTINGS_TABLE_ID,
         update: {
           id: settings.id,
           connection_status: 'reconnecting',
@@ -81,7 +81,7 @@ async function ibrkReconnectHandler(userId, options = {}) {
       if (response.ok) {
         // Success! Update status
         await easysite.table.update({
-          customTableID: IBRK_SETTINGS_TABLE_ID,
+          customTableID: FASTAPI_SETTINGS_TABLE_ID,
           update: {
             id: settings.id,
             connection_status: 'connected',
@@ -107,7 +107,7 @@ async function ibrkReconnectHandler(userId, options = {}) {
 
       // Update error in database
       await easysite.table.update({
-        customTableID: IBRK_SETTINGS_TABLE_ID,
+        customTableID: FASTAPI_SETTINGS_TABLE_ID,
         update: {
           id: settings.id,
           last_error: lastError,
@@ -124,7 +124,7 @@ async function ibrkReconnectHandler(userId, options = {}) {
 
   // All retries failed
   await easysite.table.update({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     update: {
       id: settings.id,
       connection_status: 'failed',

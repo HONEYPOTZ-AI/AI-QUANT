@@ -1,14 +1,14 @@
 /**
- * Establish connection to IBRK API with authentication
+ * Establish connection to FastAPI with authentication
  * @param {number} userId - User ID to connect for
  * @param {Object} options - Connection options { timeout: 10000, validate: true }
  * @returns {Object} Connection result with status and details
  */
-async function ibrkConnectionManager(userId, options = {}) {
+async function fastapiConnectionManager(userId, options = {}) {
   const { timeout = 10000, validate = true } = options;
 
   // Import credentials handler (simulate by calling it)
-  const IBRK_SETTINGS_TABLE_ID = 51055;
+  const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
   // Retrieve credentials
   const filters = userId ? [{
@@ -18,7 +18,7 @@ async function ibrkConnectionManager(userId, options = {}) {
   }] : [];
 
   const { data: credData, error: credError } = await easysite.table.page({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     pageFilter: {
       PageNo: 1,
       PageSize: 1,
@@ -33,14 +33,14 @@ async function ibrkConnectionManager(userId, options = {}) {
   }
 
   if (!credData?.List || credData.List.length === 0) {
-    throw new Error("No IBRK API credentials found");
+    throw new Error("No FastAPI credentials found");
   }
 
   const credentials = credData.List[0];
 
   // Check if enabled
   if (credentials.is_enabled === false) {
-    throw new Error("IBRK API is disabled for this user");
+    throw new Error("FastAPI is disabled for this user");
   }
 
   // Validate credentials
@@ -52,7 +52,7 @@ async function ibrkConnectionManager(userId, options = {}) {
   const clientId = credentials.client_id || 1;
 
   try {
-    // Attempt connection to IBRK Gateway/TWS API
+    // Attempt connection to FastAPI Gateway
     // Using the /v1/api/tickle endpoint to verify connection
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -75,7 +75,7 @@ async function ibrkConnectionManager(userId, options = {}) {
 
     // Update connection status in database
     await easysite.table.update({
-      customTableID: IBRK_SETTINGS_TABLE_ID,
+      customTableID: FASTAPI_SETTINGS_TABLE_ID,
       update: {
         id: credentials.id,
         connection_status: 'connected',
@@ -96,7 +96,7 @@ async function ibrkConnectionManager(userId, options = {}) {
   } catch (err) {
     // Update failure status
     await easysite.table.update({
-      customTableID: IBRK_SETTINGS_TABLE_ID,
+      customTableID: FASTAPI_SETTINGS_TABLE_ID,
       update: {
         id: credentials.id,
         connection_status: 'failed',

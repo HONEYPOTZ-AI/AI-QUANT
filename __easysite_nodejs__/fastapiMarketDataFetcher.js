@@ -1,17 +1,17 @@
 /**
- * Fetch real-time market data from IBRK API
+ * Fetch real-time market data from FastAPI
  * @param {string[]} symbols - Array of symbols to fetch (e.g., ['US30', 'AAPL', 'GOOGL'])
  * @param {number} userId - User ID for credentials lookup (optional)
  * @returns {Object} Market data with price, volume, and technical indicators
  */
-async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
+async function fastapiMarketDataFetcher(symbols = ['US30'], userId = null) {
   if (!symbols || symbols.length === 0) {
     throw new Error('At least one symbol is required');
   }
 
-  const IBRK_SETTINGS_TABLE_ID = 51055;
+  const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
-  // Retrieve IBRK credentials
+  // Retrieve FastAPI credentials
   const filters = userId ? [{
     name: "user_id",
     op: "Equal",
@@ -19,7 +19,7 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
   }] : [];
 
   const { data: credData, error: credError } = await easysite.table.page({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     pageFilter: {
       PageNo: 1,
       PageSize: 1,
@@ -30,21 +30,21 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
   });
 
   if (credError) {
-    throw new Error(`Failed to retrieve IBRK credentials: ${credError}`);
+    throw new Error(`Failed to retrieve FastAPI credentials: ${credError}`);
   }
 
   if (!credData?.List || credData.List.length === 0) {
-    throw new Error('No IBRK API credentials found. Please configure IBRK connection first.');
+    throw new Error('No FastAPI credentials found. Please configure FastAPI connection first.');
   }
 
   const credentials = credData.List[0];
 
   if (credentials.is_enabled === false) {
-    throw new Error('IBRK API is disabled. Please enable it in settings.');
+    throw new Error('FastAPI is disabled. Please enable it in settings.');
   }
 
   if (!credentials.api_host || !credentials.api_port) {
-    throw new Error('Invalid IBRK credentials: missing host or port');
+    throw new Error('Invalid FastAPI credentials: missing host or port');
   }
 
   const connectionUrl = `http://${credentials.api_host}:${credentials.api_port}`;
@@ -60,19 +60,19 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
     });
 
     if (!tickleResponse.ok) {
-      throw new Error('IBRK connection not available');
+      throw new Error('FastAPI connection not available');
     }
   } catch (err) {
-    throw new Error(`IBRK connection failed: ${err.message}`);
+    throw new Error(`FastAPI connection failed: ${err.message}`);
   }
 
   // Fetch market data for each symbol
   for (const symbol of symbols) {
     try {
-      // Map common symbols to IBRK contract IDs (US30 -> YM for Dow futures)
-      const ibrkSymbol = mapToIBRKSymbol(symbol);
+      // Map common symbols to FastAPI contract IDs (US30 -> YM for Dow futures)
+      const fastapiSymbol = mapToFastAPISymbol(symbol);
 
-      // Fetch snapshot data from IBRK
+      // Fetch snapshot data from FastAPI
       const snapshotResponse = await fetch(`${connectionUrl}/v1/api/md/snapshot`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -80,19 +80,19 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
       });
 
       if (!snapshotResponse.ok) {
-        console.warn(`Failed to fetch ${symbol} from IBRK, using fallback`);
+        console.warn(`Failed to fetch ${symbol} from FastAPI, using fallback`);
         marketData[symbol] = generateFallbackData(symbol);
         continue;
       }
 
       const snapshotData = await snapshotResponse.json();
 
-      // Parse IBRK response and normalize to our format
-      const normalizedData = normalizeIBRKData(symbol, snapshotData, timestamp);
+      // Parse FastAPI response and normalize to our format
+      const normalizedData = normalizeFastAPIData(symbol, snapshotData, timestamp);
       marketData[symbol] = normalizedData;
 
     } catch (err) {
-      console.warn(`Error fetching ${symbol} from IBRK:`, err.message);
+      console.warn(`Error fetching ${symbol} from FastAPI:`, err.message);
       marketData[symbol] = generateFallbackData(symbol);
     }
   }
@@ -105,7 +105,7 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
 
   // Update last connection status
   await easysite.table.update({
-    customTableID: IBRK_SETTINGS_TABLE_ID,
+    customTableID: FASTAPI_SETTINGS_TABLE_ID,
     update: {
       id: credentials.id,
       last_connected: timestamp
@@ -119,7 +119,7 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
     metadata: {
       totalSymbols: symbols.length,
       fetchTime: timestamp,
-      source: 'ibrk',
+      source: 'fastapi',
       status: 'active',
       connection: {
         host: credentials.api_host,
@@ -130,9 +130,9 @@ async function ibrkMarketDataFetcher(symbols = ['US30'], userId = null) {
 }
 
 /**
- * Map common trading symbols to IBRK contract identifiers
+ * Map common trading symbols to FastAPI contract identifiers
  */
-function mapToIBRKSymbol(symbol) {
+function mapToFastAPISymbol(symbol) {
   const mapping = {
     'US30': 'YM', // Dow Jones futures
     'SPX': 'ES', // S&P 500 futures
@@ -145,18 +145,18 @@ function mapToIBRKSymbol(symbol) {
 }
 
 /**
- * Normalize IBRK API response to our standard format
+ * Normalize FastAPI response to our standard format
  */
-function normalizeIBRKData(symbol, ibrkData, timestamp) {
-  // IBRK snapshot typically includes fields like:
+function normalizeFastAPIData(symbol, fastapiData, timestamp) {
+  // FastAPI snapshot typically includes fields like:
   // 31: bid, 84: ask, 86: last, 87: high, 88: low, 7295: volume
 
-  const last = parseFloat(ibrkData['86'] || ibrkData.last || 0);
-  const bid = parseFloat(ibrkData['31'] || ibrkData.bid || last * 0.9995);
-  const ask = parseFloat(ibrkData['84'] || ibrkData.ask || last * 1.0005);
-  const high = parseFloat(ibrkData['87'] || ibrkData.high || last * 1.005);
-  const low = parseFloat(ibrkData['88'] || ibrkData.low || last * 0.995);
-  const volume = parseInt(ibrkData['7295'] || ibrkData.volume || 1000);
+  const last = parseFloat(fastapiData['86'] || fastapiData.last || 0);
+  const bid = parseFloat(fastapiData['31'] || fastapiData.bid || last * 0.9995);
+  const ask = parseFloat(fastapiData['84'] || fastapiData.ask || last * 1.0005);
+  const high = parseFloat(fastapiData['87'] || fastapiData.high || last * 1.005);
+  const low = parseFloat(fastapiData['88'] || fastapiData.low || last * 0.995);
+  const volume = parseInt(fastapiData['7295'] || fastapiData.volume || 1000);
 
   // Calculate open from previous close (approximation)
   const open = last * (0.998 + Math.random() * 0.004);
@@ -196,13 +196,13 @@ function normalizeIBRKData(symbol, ibrkData, timestamp) {
       volatility: parseFloat(Math.abs(changePercent).toFixed(2)),
       lastUpdate: Date.now(),
       dataAge: 0,
-      source: 'ibrk'
+      source: 'fastapi'
     }
   };
 }
 
 /**
- * Generate fallback data if IBRK fetch fails
+ * Generate fallback data if FastAPI fetch fails
  */
 function generateFallbackData(symbol) {
   const basePrices = {
@@ -299,9 +299,9 @@ function calculateMarketSentiment(symbol, priceChange) {
   const newsImpact = (Math.random() - 0.5) * 20;
   score = Math.max(0, Math.min(100, score + newsImpact));
 
-  if (score > 65) sentiment = 'bullish';else
-  if (score < 35) sentiment = 'bearish';else
-  sentiment = 'neutral';
+  if (score > 65) sentiment = 'bullish';
+  else if (score < 35) sentiment = 'bearish';
+  else sentiment = 'neutral';
 
   return {
     sentiment,
@@ -315,26 +315,26 @@ function generateSentimentFactors(sentiment) {
   const factors = [];
   const allFactors = {
     bullish: [
-    'Strong price momentum',
-    'Volume surge detected',
-    'Breaking resistance',
-    'Bullish divergence',
-    'Positive market correlation'],
-
+      'Strong price momentum',
+      'Volume surge detected',
+      'Breaking resistance',
+      'Bullish divergence',
+      'Positive market correlation'
+    ],
     bearish: [
-    'Weakening momentum',
-    'Low volume concern',
-    'Testing support levels',
-    'Bearish divergence',
-    'Negative market correlation'],
-
+      'Weakening momentum',
+      'Low volume concern',
+      'Testing support levels',
+      'Bearish divergence',
+      'Negative market correlation'
+    ],
     neutral: [
-    'Consolidating',
-    'Mixed signals',
-    'Range-bound trading',
-    'Awaiting catalyst',
-    'Balanced indicators']
-
+      'Consolidating',
+      'Mixed signals',
+      'Range-bound trading',
+      'Awaiting catalyst',
+      'Balanced indicators'
+    ]
   };
 
   const relevantFactors = allFactors[sentiment] || allFactors.neutral;
@@ -362,8 +362,8 @@ function calculateMarketSummary(marketData) {
     totalVolume += data.volume.current;
     avgChange += data.price.changePercent;
 
-    if (data.sentiment.sentiment === 'bullish') bullishCount++;else
-    if (data.sentiment.sentiment === 'bearish') bearishCount++;
+    if (data.sentiment.sentiment === 'bullish') bullishCount++;
+    else if (data.sentiment.sentiment === 'bearish') bearishCount++;
   });
 
   avgChange /= symbols.length;

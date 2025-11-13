@@ -31,7 +31,7 @@ import RealTimeChart from '@/components/RealTimeChart';
 import UserProfile from '@/components/UserProfile';
 import ApiIntegration from '@/components/ApiIntegration';
 import LoginForm from '@/components/LoginForm';
-import IBRKConfiguration from '@/components/IBRKConfiguration';
+import FastAPIConfiguration from '@/components/FastAPIConfiguration';
 import CTraderConfiguration from '@/components/CTraderConfiguration';
 import ThinkorSwimConfiguration from '@/components/ThinkorSwimConfiguration';
 import Walkthrough from '@/components/Walkthrough';
@@ -308,8 +308,8 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="space-y-6" data-tour="ibrk-config">
-              <IBRKConfiguration />
+            <div className="space-y-6" data-tour="fastapi-config">
+              <FastAPIConfiguration />
               <CTraderConfiguration />
               <ThinkorSwimConfiguration />
             </div>

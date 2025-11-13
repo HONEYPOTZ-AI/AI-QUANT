@@ -1,6 +1,6 @@
 
-async function fetchIBRKEquity() {
-  // Fetch IBRK API settings
+async function fetchFastAPIEquity() {
+  // Fetch FastAPI settings
   const { data: settingsData, error: settingsError } = await easysite.table.page(51055, {
     PageNo: 1,
     PageSize: 1,
@@ -9,21 +9,21 @@ async function fetchIBRKEquity() {
   });
 
   if (settingsError) {
-    throw new Error("Failed to fetch IBRK settings: " + settingsError);
+    throw new Error("Failed to fetch FastAPI settings: " + settingsError);
   }
 
   if (!settingsData?.List || settingsData.List.length === 0) {
-    throw new Error("IBRK API settings not configured");
+    throw new Error("FastAPI settings not configured");
   }
 
   // Note: Mock implementation
-  // In production, use IBRK Client Portal API
+  // In production, use FastAPI Client Portal API
   // Example endpoint: GET /portfolio/{accountId}/summary
 
   try {
     // Mock equity data - replace with actual API call
     const equityData = {
-      broker: "IBRK",
+      broker: "FastAPI",
       equityBalance: 52450.75,
       cashBalance: 50000.00,
       marginUsed: 2000.00,
@@ -34,6 +34,6 @@ async function fetchIBRKEquity() {
 
     return equityData;
   } catch (error) {
-    throw new Error("Failed to fetch IBRK equity: " + error.message);
+    throw new Error("Failed to fetch FastAPI equity: " + error.message);
   }
 }

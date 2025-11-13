@@ -308,6 +308,6 @@ export default function OptionsGreeksPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 }
