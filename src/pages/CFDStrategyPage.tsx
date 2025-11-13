@@ -312,7 +312,7 @@ export default function CFDStrategyPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="dashboard" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-7">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
                 <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 <TabsTrigger value="pnl">P&L</TabsTrigger>
                 <TabsTrigger value="equity">Equity</TabsTrigger>

@@ -101,6 +101,7 @@ export default function EquityTracker() {
                   <SelectItem value="ALL">All Brokers</SelectItem>
                   <SelectItem value="IBRK">IBRK</SelectItem>
                   <SelectItem value="cTrader">cTrader</SelectItem>
+                  <SelectItem value="ThinkorSwim">ThinkorSwim</SelectItem>
                 </SelectContent>
               </Select>
 

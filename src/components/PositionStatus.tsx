@@ -20,16 +20,17 @@ interface Position {
 interface PositionStatusProps {
   positions: Position[];
   totalRiskUsed: number;
+  broker?: string;
 }
 
-export default function PositionStatus({ positions, totalRiskUsed }: PositionStatusProps) {
+export default function PositionStatus({ positions, totalRiskUsed, broker = 'ALL' }: PositionStatusProps) {
   return (
     <Card className="bg-slate-800/50 border-slate-700">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2">
             <Target className="w-5 h-5 text-purple-400" />
-            Position Status
+            Position Status {broker !== 'ALL' && <Badge variant="outline" className="ml-2">{broker}</Badge>}
           </CardTitle>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-blue-400" />

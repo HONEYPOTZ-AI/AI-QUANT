@@ -47,6 +47,25 @@ async function saveEquitySnapshot(broker = "ALL") {
     }
   }
 
+  if (broker === "ALL" || broker === "ThinkorSwim") {
+    try {
+      const tosEquity = await window.ezsite.apis.run({
+        path: "__easysite_nodejs__/thinkorswimEquityFetcher.js",
+        param: []
+      });
+
+      if (!tosEquity.error && tosEquity.data) {
+        equityData.equityBalance += tosEquity.data.equityBalance;
+        equityData.cashBalance += tosEquity.data.cashBalance;
+        equityData.marginUsed += tosEquity.data.marginUsed;
+        equityData.availableMargin += tosEquity.data.availableMargin;
+        equityData.unrealizedPnL += tosEquity.data.unrealizedPnL;
+      }
+    } catch (error) {
+      console.error("Failed to fetch ThinkorSwim equity:", error.message);
+    }
+  }
+
   // Fetch previous high watermark
   const { data: prevSnapshot } = await easysite.table.page(56080, {
     PageNo: 1,
