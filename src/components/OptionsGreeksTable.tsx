@@ -4,8 +4,8 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  TableRow } from
+"@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 interface OptionPosition {
@@ -38,7 +38,7 @@ export default function OptionsGreeksTable({ positions }: OptionsGreeksTableProp
   const formatCurrency = (num: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'USD'
     }).format(num);
   };
 
@@ -46,7 +46,7 @@ export default function OptionsGreeksTable({ positions }: OptionsGreeksTableProp
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -75,15 +75,15 @@ export default function OptionsGreeksTable({ positions }: OptionsGreeksTableProp
           </TableRow>
         </TableHeader>
         <TableBody>
-          {positions.length === 0 ? (
-            <TableRow>
+          {positions.length === 0 ?
+          <TableRow>
               <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
                 No options positions found
               </TableCell>
-            </TableRow>
-          ) : (
-            positions.map((position) => (
-              <TableRow key={position.id} className="hover:bg-muted/50">
+            </TableRow> :
+
+          positions.map((position) =>
+          <TableRow key={position.id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">{position.symbol}</TableCell>
                 <TableCell>
                   <Badge variant={position.option_type === 'Call' ? 'default' : 'secondary'}>
@@ -116,10 +116,10 @@ export default function OptionsGreeksTable({ positions }: OptionsGreeksTableProp
                   {formatNumber(position.implied_volatility * 100, 1)}%
                 </TableCell>
               </TableRow>
-            ))
-          )}
+          )
+          }
         </TableBody>
       </Table>
-    </div>
-  );
+    </div>);
+
 }

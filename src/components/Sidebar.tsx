@@ -59,7 +59,9 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
 
   const externalLinks = [
   { path: '/anomaly-detection', label: 'Anomaly Detection', icon: <AlertTriangle className="h-5 w-5" /> },
-  { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> },
+  { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
+
+  const optionsDataLinks = [
   { path: '/options-greeks', label: 'Options Greeks', icon: <PieChart className="h-5 w-5" /> }];
 
 
@@ -120,6 +122,26 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
               variant="ghost"
               className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700 min-h-[44px]"
               data-tour={link.path === '/cfd-strategy' ? 'sidebar-cfd' : link.path === '/anomaly-detection' ? 'sidebar-anomaly' : undefined}>
+
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    {link.icon}
+                    <span className="text-sm sm:text-base">{link.label}</span>
+                  </div>
+                </Button>
+              </Link>
+          )}
+          </div>
+        </div>
+
+        {/* Options Data Section */}
+        <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-700">
+          <p className="text-xs text-slate-500 uppercase font-semibold mb-2 px-2 sm:px-3">Options Data</p>
+          <div className="space-y-1 sm:space-y-2">
+            {optionsDataLinks.map((link) =>
+          <Link key={link.path} to={link.path} onClick={() => setOpen(false)}>
+                <Button
+              variant="ghost"
+              className="w-full justify-start text-left text-slate-300 hover:text-white hover:bg-slate-700 min-h-[44px]">
 
                   <div className="flex items-center gap-2 sm:gap-3">
                     {link.icon}
