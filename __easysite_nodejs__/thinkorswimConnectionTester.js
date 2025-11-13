@@ -24,12 +24,12 @@ async function thinkorswimConnectionTester(userId) {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          {
-            name: 'user_id',
-            op: 'Equal',
-            value: userId
-          }
-        ]
+        {
+          name: 'user_id',
+          op: 'Equal',
+          value: userId
+        }]
+
       }
     );
 
@@ -111,16 +111,16 @@ async function thinkorswimConnectionTester(userId) {
     // Simulate API connection test
     // In a real implementation, this would make an actual API call to ThinkorSwim
     // For example: GET https://api.tdameritrade.com/v1/accounts
-    
+
     // For now, simulate a successful connection if all credentials are present
-    const hasAllCredentials = 
-      settings.api_key && 
-      settings.client_id && 
-      settings.access_token;
+    const hasAllCredentials =
+    settings.api_key &&
+    settings.client_id &&
+    settings.access_token;
 
     if (hasAllCredentials) {
       details.connectionStatus = 'Connected';
-      
+
       return {
         success: true,
         authenticated: true,
@@ -132,7 +132,7 @@ async function thinkorswimConnectionTester(userId) {
     } else {
       errors.push('Incomplete credentials');
       details.connectionStatus = 'Connection failed';
-      
+
       return {
         success: false,
         authenticated: true,
@@ -145,7 +145,7 @@ async function thinkorswimConnectionTester(userId) {
 
   } catch (error) {
     errors.push(`Unexpected error: ${error.message || error}`);
-    
+
     return {
       success: false,
       authenticated: false,

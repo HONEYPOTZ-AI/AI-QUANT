@@ -17,7 +17,8 @@ import {
   LogOut,
   TrendingUp,
   HelpCircle,
-  Menu } from
+  Menu,
+  PieChart } from
 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,7 +59,8 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
 
   const externalLinks = [
   { path: '/anomaly-detection', label: 'Anomaly Detection', icon: <AlertTriangle className="h-5 w-5" /> },
-  { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
+  { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> },
+  { path: '/options-greeks', label: 'Options Greeks', icon: <PieChart className="h-5 w-5" /> }];
 
 
   const SidebarContent = () =>

@@ -25,29 +25,29 @@ async function fetchThinkorSwimPositions() {
   try {
     // Mock positions data - replace with actual API call
     const positions = [
-      {
-        positionId: "TOS_POS_001",
-        symbol: "SPY",
-        positionType: "LONG",
-        quantity: 100,
-        entryPrice: 450.50,
-        currentPrice: 452.75,
-        unrealizedPnL: 225.0,
-        commission: 0.0,
-        openTime: new Date(Date.now() - 4800000).toISOString()
-      },
-      {
-        positionId: "TOS_POS_002",
-        symbol: "QQQ",
-        positionType: "SHORT",
-        quantity: 50,
-        entryPrice: 385.20,
-        currentPrice: 384.50,
-        unrealizedPnL: 35.0,
-        commission: 0.0,
-        openTime: new Date(Date.now() - 6400000).toISOString()
-      }
-    ];
+    {
+      positionId: "TOS_POS_001",
+      symbol: "SPY",
+      positionType: "LONG",
+      quantity: 100,
+      entryPrice: 450.50,
+      currentPrice: 452.75,
+      unrealizedPnL: 225.0,
+      commission: 0.0,
+      openTime: new Date(Date.now() - 4800000).toISOString()
+    },
+    {
+      positionId: "TOS_POS_002",
+      symbol: "QQQ",
+      positionType: "SHORT",
+      quantity: 50,
+      entryPrice: 385.20,
+      currentPrice: 384.50,
+      unrealizedPnL: 35.0,
+      commission: 0.0,
+      openTime: new Date(Date.now() - 6400000).toISOString()
+    }];
+
 
     return {
       broker: "ThinkorSwim",

@@ -126,24 +126,24 @@ async function syncAllPositions() {
       if (error || !data?.List || data.List.length === 0) {
         return { error: "ThinkorSwim not configured" };
       }
-      
+
       // Mock ThinkorSwim positions
       return {
         data: {
           broker: "ThinkorSwim",
           positions: [
-            {
-              positionId: "TOS_POS_001",
-              symbol: "SPY",
-              positionType: "LONG",
-              quantity: 100,
-              entryPrice: 450.50,
-              currentPrice: 452.75,
-              unrealizedPnL: 225.0,
-              commission: 0.0,
-              openTime: new Date(Date.now() - 4800000).toISOString()
-            }
-          ]
+          {
+            positionId: "TOS_POS_001",
+            symbol: "SPY",
+            positionType: "LONG",
+            quantity: 100,
+            entryPrice: 450.50,
+            currentPrice: 452.75,
+            unrealizedPnL: 225.0,
+            commission: 0.0,
+            openTime: new Date(Date.now() - 4800000).toISOString()
+          }]
+
         }
       };
     })();
@@ -156,10 +156,10 @@ async function syncAllPositions() {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "broker", op: "Equal", value: "ThinkorSwim" },
-            { name: "position_id", op: "Equal", value: pos.positionId },
-            { name: "status", op: "Equal", value: "OPEN" }
-          ]
+          { name: "broker", op: "Equal", value: "ThinkorSwim" },
+          { name: "position_id", op: "Equal", value: pos.positionId },
+          { name: "status", op: "Equal", value: "OPEN" }]
+
         });
 
         const positionData = {

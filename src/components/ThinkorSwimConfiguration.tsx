@@ -71,12 +71,12 @@ const ThinkorSwimConfiguration = () => {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          {
-            name: 'user_id',
-            op: 'Equal',
-            value: userInfo.ID
-          }
-        ]
+        {
+          name: 'user_id',
+          op: 'Equal',
+          value: userInfo.ID
+        }]
+
       });
 
       if (error) throw error;
@@ -252,7 +252,7 @@ const ThinkorSwimConfiguration = () => {
       if (result.error) throw new Error(result.error);
 
       const authUrl = result.data;
-      
+
       toast({
         title: 'Redirecting to ThinkorSwim',
         description: 'You will be redirected to TD Ameritrade login page...',
@@ -323,7 +323,7 @@ const ThinkorSwimConfiguration = () => {
             is_active: true,
             update_time: new Date().toISOString()
           });
-          setSettings(prev => ({ ...prev, is_active: true }));
+          setSettings((prev) => ({ ...prev, is_active: true }));
         }
       } else {
         setConnectionStatus('disconnected');
@@ -361,29 +361,29 @@ const ThinkorSwimConfiguration = () => {
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Connected
-          </Badge>
-        );
+          </Badge>);
+
       case 'disconnected':
         return (
           <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
             <XCircle className="h-3 w-3 mr-1" />
             Disconnected
-          </Badge>
-        );
+          </Badge>);
+
       case 'testing':
         return (
           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             Testing...
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge className="bg-slate-500/10 text-slate-400 border-slate-500/20">
             <AlertCircle className="h-3 w-3 mr-1" />
             Unknown
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -396,8 +396,8 @@ const ThinkorSwimConfiguration = () => {
       return (
         <span className={isExpired ? 'text-red-400' : 'text-green-400'}>
           {date.toLocaleString()} {isExpired ? '(Expired)' : '(Valid)'}
-        </span>
-      );
+        </span>);
+
     } catch {
       return 'Invalid date';
     }
@@ -426,8 +426,8 @@ const ThinkorSwimConfiguration = () => {
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -445,35 +445,35 @@ const ThinkorSwimConfiguration = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {saveSuccess && (
-          <Alert className="bg-green-500/10 border-green-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
+        {saveSuccess &&
+        <Alert className="bg-green-500/10 border-green-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400 flex items-center gap-2">
               <span>✓ Credentials saved and encrypted successfully!</span>
               <ShieldCheck className="h-4 w-4" />
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {connectionStatus === 'connected' && !saveSuccess && (
-          <Alert className="bg-green-500/10 border-green-500/20">
+        {connectionStatus === 'connected' && !saveSuccess &&
+        <Alert className="bg-green-500/10 border-green-500/20">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400">
               Successfully connected to ThinkorSwim API
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="api_key" className="text-slate-200 flex items-center gap-2">
               API Key (Consumer Key) <span className="text-red-500">*</span>
-              {hasLoadedApiKey && !apiKeyModified && (
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+              {hasLoadedApiKey && !apiKeyModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                   <ShieldCheck className="h-3 w-3 mr-1" />
                   Encrypted
                 </Badge>
-              )}
+              }
             </Label>
             <div className="relative">
               <Input
@@ -482,14 +482,14 @@ const ThinkorSwimConfiguration = () => {
                 placeholder={hasLoadedApiKey && !apiKeyModified ? "••••••••••••••••••••" : "Enter your ThinkorSwim API Key"}
                 value={settings.api_key}
                 onChange={(e) => handleApiKeyChange(e.target.value)}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
-                aria-label={showApiKey ? "Hide API key" : "Show API key"}
-              >
+                aria-label={showApiKey ? "Hide API key" : "Show API key"}>
+
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -499,12 +499,12 @@ const ThinkorSwimConfiguration = () => {
                 Your Consumer Key from TD Ameritrade Developer Portal, stored with end-to-end encryption
               </span>
             </div>
-            {hasLoadedApiKey && !apiKeyModified && (
-              <p className="text-xs text-blue-400 flex items-center gap-1">
+            {hasLoadedApiKey && !apiKeyModified &&
+            <p className="text-xs text-blue-400 flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 API Key is currently masked. Enter new value to update.
               </p>
-            )}
+            }
           </div>
 
           <div className="space-y-2">
@@ -517,8 +517,8 @@ const ThinkorSwimConfiguration = () => {
               placeholder="Enter your Client ID"
               value={settings.client_id}
               onChange={(e) => setSettings({ ...settings, client_id: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             <p className="text-xs text-slate-400">
               Usually the same as your API Key (Consumer Key)
             </p>
@@ -534,8 +534,8 @@ const ThinkorSwimConfiguration = () => {
               placeholder="Enter your OAuth Redirect URI"
               value={settings.redirect_uri}
               onChange={(e) => setSettings({ ...settings, redirect_uri: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             <p className="text-xs text-slate-400">
               OAuth callback URL registered with TD Ameritrade (must match exactly)
             </p>
@@ -544,12 +544,12 @@ const ThinkorSwimConfiguration = () => {
           <div className="space-y-2">
             <Label htmlFor="refresh_token" className="text-slate-200 flex items-center gap-2">
               Refresh Token
-              {hasLoadedRefreshToken && !refreshTokenModified && (
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+              {hasLoadedRefreshToken && !refreshTokenModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                   <ShieldCheck className="h-3 w-3 mr-1" />
                   Encrypted
                 </Badge>
-              )}
+              }
             </Label>
             <div className="relative">
               <Input
@@ -558,14 +558,14 @@ const ThinkorSwimConfiguration = () => {
                 placeholder={hasLoadedRefreshToken && !refreshTokenModified ? "••••••••••••••••••••" : "Obtained via OAuth flow"}
                 value={settings.refresh_token}
                 onChange={(e) => handleRefreshTokenChange(e.target.value)}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
               <button
                 type="button"
                 onClick={() => setShowRefreshToken(!showRefreshToken)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
-                aria-label={showRefreshToken ? "Hide token" : "Show token"}
-              >
+                aria-label={showRefreshToken ? "Hide token" : "Show token"}>
+
                 {showRefreshToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -578,12 +578,12 @@ const ThinkorSwimConfiguration = () => {
           <div className="space-y-2">
             <Label htmlFor="access_token" className="text-slate-200 flex items-center gap-2">
               Access Token
-              {hasLoadedAccessToken && !accessTokenModified && (
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+              {hasLoadedAccessToken && !accessTokenModified &&
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                   <ShieldCheck className="h-3 w-3 mr-1" />
                   Encrypted
                 </Badge>
-              )}
+              }
             </Label>
             <div className="relative">
               <Input
@@ -592,14 +592,14 @@ const ThinkorSwimConfiguration = () => {
                 placeholder={hasLoadedAccessToken && !accessTokenModified ? "••••••••••••••••••••" : "Obtained via OAuth flow"}
                 value={settings.access_token}
                 onChange={(e) => handleAccessTokenChange(e.target.value)}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 pr-10" />
+
               <button
                 type="button"
                 onClick={() => setShowAccessToken(!showAccessToken)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
-                aria-label={showAccessToken ? "Hide token" : "Show token"}
-              >
+                aria-label={showAccessToken ? "Hide token" : "Show token"}>
+
                 {showAccessToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -609,14 +609,14 @@ const ThinkorSwimConfiguration = () => {
             </div>
           </div>
 
-          {settings.token_expiry && (
-            <div className="space-y-2">
+          {settings.token_expiry &&
+          <div className="space-y-2">
               <Label className="text-slate-200">Token Expiry</Label>
               <div className="bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-slate-300 text-sm">
                 {formatTokenExpiry(settings.token_expiry)}
               </div>
             </div>
-          )}
+          }
 
           <div className="space-y-2">
             <Label htmlFor="account_id" className="text-slate-200">
@@ -628,8 +628,8 @@ const ThinkorSwimConfiguration = () => {
               placeholder="Your ThinkorSwim account ID (optional)"
               value={settings.account_id}
               onChange={(e) => setSettings({ ...settings, account_id: e.target.value })}
-              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-            />
+              className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             <p className="text-xs text-slate-400">
               ThinkorSwim trading account identifier (automatically retrieved if left blank)
             </p>
@@ -641,67 +641,67 @@ const ThinkorSwimConfiguration = () => {
             onClick={handleInitiateOAuth}
             disabled={isAuthenticating || !settings.api_key || !settings.client_id || !settings.redirect_uri}
             variant="outline"
-            className="border-purple-600 text-purple-400 hover:bg-purple-900/20 w-full sm:w-auto"
-          >
-            {isAuthenticating ? (
-              <>
+            className="border-purple-600 text-purple-400 hover:bg-purple-900/20 w-full sm:w-auto">
+
+            {isAuthenticating ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Initializing...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Start OAuth Flow
               </>
-            )}
+            }
           </Button>
 
           <Button
             onClick={handleTestConnection}
             disabled={isTesting || !settings.id}
             variant="outline"
-            className="border-blue-600 text-blue-400 hover:bg-blue-900/20 w-full sm:w-auto"
-          >
-            {isTesting ? (
-              <>
+            className="border-blue-600 text-blue-400 hover:bg-blue-900/20 w-full sm:w-auto">
+
+            {isTesting ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Testing...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Wifi className="h-4 w-4 mr-2" />
                 Test Connection
               </>
-            )}
+            }
           </Button>
 
           <Button
             onClick={handleSave}
             disabled={isSaving || !settings.api_key || !settings.client_id || !settings.redirect_uri}
-            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
-          >
-            {isSaving ? (
-              <>
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
+
+            {isSaving ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="h-4 w-4 mr-2" />
                 Save Settings
               </>
-            )}
+            }
           </Button>
         </div>
 
         {/* Test Result Display */}
-        {testResult && (
-          <Alert className={`${testResult.success ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'} animate-in fade-in slide-in-from-top-2 duration-300`}>
-            {testResult.success ? (
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-            ) : (
-              <XCircle className="h-4 w-4 text-red-500" />
-            )}
+        {testResult &&
+        <Alert className={`${testResult.success ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'} animate-in fade-in slide-in-from-top-2 duration-300`}>
+            {testResult.success ?
+          <CheckCircle2 className="h-4 w-4 text-green-500" /> :
+
+          <XCircle className="h-4 w-4 text-red-500" />
+          }
             <AlertDescription className={testResult.success ? 'text-green-300' : 'text-red-300'}>
               <div className="space-y-2">
                 <div className="font-semibold">
@@ -711,11 +711,11 @@ const ThinkorSwimConfiguration = () => {
                 <div className="text-sm space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">Credentials:</span>
-                    {testResult.details.credentialsFound ? (
-                      <span className="text-green-400">✓ Found</span>
-                    ) : (
-                      <span className="text-red-400">✗ Not Found</span>
-                    )}
+                    {testResult.details.credentialsFound ?
+                  <span className="text-green-400">✓ Found</span> :
+
+                  <span className="text-red-400">✗ Not Found</span>
+                  }
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -732,24 +732,24 @@ const ThinkorSwimConfiguration = () => {
                     </span>
                   </div>
 
-                  {testResult.connected && testResult.details.accountId && (
-                    <div className="flex items-center gap-2">
+                  {testResult.connected && testResult.details.accountId &&
+                <div className="flex items-center gap-2">
                       <span className="font-medium">Account ID:</span>
                       <span className="text-blue-400">{testResult.details.accountId}</span>
                     </div>
-                  )}
+                }
                 </div>
 
-                {testResult.errors && testResult.errors.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-red-500/20">
+                {testResult.errors && testResult.errors.length > 0 &&
+              <div className="mt-2 pt-2 border-t border-red-500/20">
                     <div className="font-medium text-xs mb-1">Error Details:</div>
-                    {testResult.errors.map((error: string, index: number) => (
-                      <div key={index} className="text-xs text-red-300 ml-2">
+                    {testResult.errors.map((error: string, index: number) =>
+                <div key={index} className="text-xs text-red-300 ml-2">
                         • {error}
                       </div>
-                    ))}
-                  </div>
                 )}
+                  </div>
+              }
 
                 <div className="text-xs text-slate-400 mt-2">
                   Tested at: {new Date(testResult.timestamp).toLocaleString()}
@@ -757,7 +757,7 @@ const ThinkorSwimConfiguration = () => {
               </div>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <Alert className="bg-blue-500/10 border-blue-500/20">
           <AlertCircle className="h-4 w-4 text-blue-400" />
@@ -767,8 +767,8 @@ const ThinkorSwimConfiguration = () => {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ThinkorSwimConfiguration;

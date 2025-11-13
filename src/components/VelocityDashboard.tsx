@@ -53,12 +53,12 @@ export default function VelocityDashboard({
             <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700">
               <div className="text-sm text-slate-400 mb-1">5m Trend</div>
               <Badge className={`${
-                trendBias5m === 'bullish' ? 'bg-green-500/20 text-green-400' :
-                trendBias5m === 'bearish' ? 'bg-red-500/20 text-red-400' :
-                'bg-slate-500/20 text-slate-400'
-              }`}>
-                {trendBias5m === 'bullish' ? <TrendingUp className="w-4 h-4 mr-1 inline" /> : 
-                 trendBias5m === 'bearish' ? <TrendingDown className="w-4 h-4 mr-1 inline" /> : null}
+              trendBias5m === 'bullish' ? 'bg-green-500/20 text-green-400' :
+              trendBias5m === 'bearish' ? 'bg-red-500/20 text-red-400' :
+              'bg-slate-500/20 text-slate-400'}`
+              }>
+                {trendBias5m === 'bullish' ? <TrendingUp className="w-4 h-4 mr-1 inline" /> :
+                trendBias5m === 'bearish' ? <TrendingDown className="w-4 h-4 mr-1 inline" /> : null}
                 {trendBias5m}
               </Badge>
             </div>
@@ -66,12 +66,12 @@ export default function VelocityDashboard({
             <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700">
               <div className="text-sm text-slate-400 mb-1">1h Trend</div>
               <Badge className={`${
-                trendBias1h === 'bullish' ? 'bg-green-500/20 text-green-400' :
-                trendBias1h === 'bearish' ? 'bg-red-500/20 text-red-400' :
-                'bg-slate-500/20 text-slate-400'
-              }`}>
-                {trendBias1h === 'bullish' ? <TrendingUp className="w-4 h-4 mr-1 inline" /> : 
-                 trendBias1h === 'bearish' ? <TrendingDown className="w-4 h-4 mr-1 inline" /> : null}
+              trendBias1h === 'bullish' ? 'bg-green-500/20 text-green-400' :
+              trendBias1h === 'bearish' ? 'bg-red-500/20 text-red-400' :
+              'bg-slate-500/20 text-slate-400'}`
+              }>
+                {trendBias1h === 'bullish' ? <TrendingUp className="w-4 h-4 mr-1 inline" /> :
+                trendBias1h === 'bearish' ? <TrendingDown className="w-4 h-4 mr-1 inline" /> : null}
                 {trendBias1h}
               </Badge>
             </div>
@@ -79,9 +79,9 @@ export default function VelocityDashboard({
             <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700">
               <div className="text-sm text-slate-400 mb-1">Compression</div>
               <div className="flex items-center gap-2">
-                {compressionDetected ? 
-                  <CheckCircle className="w-5 h-5 text-green-400" /> :
-                  <AlertCircle className="w-5 h-5 text-orange-400" />
+                {compressionDetected ?
+                <CheckCircle className="w-5 h-5 text-green-400" /> :
+                <AlertCircle className="w-5 h-5 text-orange-400" />
                 }
                 <span className="text-white font-bold">{compressionCount} bars</span>
               </div>
@@ -106,7 +106,7 @@ export default function VelocityDashboard({
                     {cdcVelocity.ratio.toFixed(2)}x
                   </span>
                 </div>
-                <Progress value={Math.min(100, (cdcVelocity.ratio / 3) * 100)} className="h-2" />
+                <Progress value={Math.min(100, cdcVelocity.ratio / 3 * 100)} className="h-2" />
               </div>
             </div>
 
@@ -119,7 +119,7 @@ export default function VelocityDashboard({
                     {volume.ratio.toFixed(2)}x
                   </span>
                 </div>
-                <Progress value={Math.min(100, (volume.ratio / 2) * 100)} className="h-2" />
+                <Progress value={Math.min(100, volume.ratio / 2 * 100)} className="h-2" />
               </div>
 
               <div className="mt-3 pt-3 border-t border-slate-700">
@@ -129,26 +129,26 @@ export default function VelocityDashboard({
             </div>
           </div>
 
-          {activeSignals.length > 0 && (
-            <div className="p-4 rounded-lg bg-blue-900/20 border border-blue-500/30">
+          {activeSignals.length > 0 &&
+          <div className="p-4 rounded-lg bg-blue-900/20 border border-blue-500/30">
               <div className="text-sm font-semibold text-blue-400 mb-2">Active Signals</div>
-              {activeSignals.map((signal, idx) => (
-                <div key={idx} className="flex items-center justify-between text-sm">
+              {activeSignals.map((signal, idx) =>
+            <div key={idx} className="flex items-center justify-between text-sm">
                   <span className="text-white font-medium uppercase">{signal.type}</span>
                   <span className="text-slate-400">@ {signal.price?.toFixed(2)}</span>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
 
-          {currentPrice > 0 && (
-            <div className="text-center pt-4 border-t border-slate-700">
+          {currentPrice > 0 &&
+          <div className="text-center pt-4 border-t border-slate-700">
               <div className="text-sm text-slate-400">Current Price</div>
               <div className="text-3xl font-bold text-white">${currentPrice.toFixed(2)}</div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }

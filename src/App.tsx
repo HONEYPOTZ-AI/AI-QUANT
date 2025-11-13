@@ -12,6 +12,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import NotFound from '@/pages/NotFound';
 import CFDStrategyPage from '@/pages/CFDStrategyPage';
 import AnomalyDetectionPage from '@/pages/AnomalyDetectionPage';
+import OptionsGreeksPage from '@/pages/OptionsGreeksPage';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/anomaly-detection" element={<AnomalyDetectionPage />} />
                 <Route path="/cfd-strategy" element={<CFDStrategyPage />} />
+                <Route path="/options-greeks" element={<OptionsGreeksPage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
