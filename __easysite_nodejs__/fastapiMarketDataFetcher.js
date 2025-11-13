@@ -299,9 +299,9 @@ function calculateMarketSentiment(symbol, priceChange) {
   const newsImpact = (Math.random() - 0.5) * 20;
   score = Math.max(0, Math.min(100, score + newsImpact));
 
-  if (score > 65) sentiment = 'bullish';
-  else if (score < 35) sentiment = 'bearish';
-  else sentiment = 'neutral';
+  if (score > 65) sentiment = 'bullish';else
+  if (score < 35) sentiment = 'bearish';else
+  sentiment = 'neutral';
 
   return {
     sentiment,
@@ -315,26 +315,26 @@ function generateSentimentFactors(sentiment) {
   const factors = [];
   const allFactors = {
     bullish: [
-      'Strong price momentum',
-      'Volume surge detected',
-      'Breaking resistance',
-      'Bullish divergence',
-      'Positive market correlation'
-    ],
+    'Strong price momentum',
+    'Volume surge detected',
+    'Breaking resistance',
+    'Bullish divergence',
+    'Positive market correlation'],
+
     bearish: [
-      'Weakening momentum',
-      'Low volume concern',
-      'Testing support levels',
-      'Bearish divergence',
-      'Negative market correlation'
-    ],
+    'Weakening momentum',
+    'Low volume concern',
+    'Testing support levels',
+    'Bearish divergence',
+    'Negative market correlation'],
+
     neutral: [
-      'Consolidating',
-      'Mixed signals',
-      'Range-bound trading',
-      'Awaiting catalyst',
-      'Balanced indicators'
-    ]
+    'Consolidating',
+    'Mixed signals',
+    'Range-bound trading',
+    'Awaiting catalyst',
+    'Balanced indicators']
+
   };
 
   const relevantFactors = allFactors[sentiment] || allFactors.neutral;
@@ -362,8 +362,8 @@ function calculateMarketSummary(marketData) {
     totalVolume += data.volume.current;
     avgChange += data.price.changePercent;
 
-    if (data.sentiment.sentiment === 'bullish') bullishCount++;
-    else if (data.sentiment.sentiment === 'bearish') bearishCount++;
+    if (data.sentiment.sentiment === 'bullish') bullishCount++;else
+    if (data.sentiment.sentiment === 'bearish') bearishCount++;
   });
 
   avgChange /= symbols.length;

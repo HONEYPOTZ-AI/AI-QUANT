@@ -35,6 +35,7 @@ import FastAPIConfiguration from '@/components/FastAPIConfiguration';
 import CTraderConfiguration from '@/components/CTraderConfiguration';
 import ThinkorSwimConfiguration from '@/components/ThinkorSwimConfiguration';
 import Walkthrough from '@/components/Walkthrough';
+import SPXVIXDisplay from '@/components/SPXVIXDisplay';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -143,6 +144,11 @@ const Dashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsContent value="overview" className="space-y-6">
+            {/* SPX/VIX Display - Prominent Position */}
+            <div className="mb-6">
+              <SPXVIXDisplay />
+            </div>
+
             {/* SPX Overview */}
             <Card className="bg-slate-800 border-slate-700">
               <CardHeader>
