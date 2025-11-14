@@ -44,8 +44,8 @@ export default function PnLAttributionChart() {
           <p className={`text-lg ${payload[0].value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatCurrency(payload[0].value)}
           </p>
-        </div>
-      );
+        </div>);
+
     }
     return null;
   };
@@ -59,8 +59,8 @@ export default function PnLAttributionChart() {
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -70,8 +70,8 @@ export default function PnLAttributionChart() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load P&L attribution'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const attribution = data || {
@@ -85,13 +85,13 @@ export default function PnLAttributionChart() {
   };
 
   const chartData = [
-    { name: 'Delta P&L', value: attribution.delta_pnl, fill: '#10b981' },
-    { name: 'Gamma P&L', value: attribution.gamma_pnl, fill: '#3b82f6' },
-    { name: 'Theta P&L', value: attribution.theta_pnl, fill: '#ef4444' },
-    { name: 'Vega P&L', value: attribution.vega_pnl, fill: '#8b5cf6' },
-    { name: 'Rho P&L', value: attribution.rho_pnl, fill: '#f59e0b' },
-    { name: 'Other P&L', value: attribution.other_pnl, fill: '#6b7280' }
-  ];
+  { name: 'Delta P&L', value: attribution.delta_pnl, fill: '#10b981' },
+  { name: 'Gamma P&L', value: attribution.gamma_pnl, fill: '#3b82f6' },
+  { name: 'Theta P&L', value: attribution.theta_pnl, fill: '#ef4444' },
+  { name: 'Vega P&L', value: attribution.vega_pnl, fill: '#8b5cf6' },
+  { name: 'Rho P&L', value: attribution.rho_pnl, fill: '#f59e0b' },
+  { name: 'Other P&L', value: attribution.other_pnl, fill: '#6b7280' }];
+
 
   return (
     <Card>
@@ -107,23 +107,23 @@ export default function PnLAttributionChart() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-2">
-              {['daily', 'weekly', 'monthly'].map(p => (
-                <Button
-                  key={p}
-                  variant={period === p ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setPeriod(p)}
-                >
+              {['daily', 'weekly', 'monthly'].map((p) =>
+              <Button
+                key={p}
+                variant={period === p ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPeriod(p)}>
+
                   {p.charAt(0).toUpperCase() + p.slice(1)}
                 </Button>
-              ))}
+              )}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              disabled={isFetching}
-            >
+              disabled={isFetching}>
+
               <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
             </Button>
           </div>
@@ -137,24 +137,24 @@ export default function PnLAttributionChart() {
               type="number"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              tickFormatter={formatCurrency}
-            />
+              tickFormatter={formatCurrency} />
+
             <YAxis
               type="category"
               dataKey="name"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              width={100}
-            />
+              width={100} />
+
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
+              {chartData.map((entry, index) =>
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+              )}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

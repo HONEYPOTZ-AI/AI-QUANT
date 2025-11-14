@@ -48,8 +48,8 @@ export default function PnLAttributionBreakdown() {
         <CardContent>
           <Skeleton className="h-64 w-full" />
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -59,8 +59,8 @@ export default function PnLAttributionBreakdown() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load P&L breakdown'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const attribution = data || {
@@ -74,43 +74,43 @@ export default function PnLAttributionBreakdown() {
   };
 
   const attributions = [
-    {
-      label: 'Delta P&L',
-      value: attribution.delta_pnl,
-      description: 'P&L from underlying price movement',
-      color: 'bg-green-500'
-    },
-    {
-      label: 'Gamma P&L',
-      value: attribution.gamma_pnl,
-      description: 'P&L from delta changes (convexity)',
-      color: 'bg-blue-500'
-    },
-    {
-      label: 'Theta P&L',
-      value: attribution.theta_pnl,
-      description: 'P&L from time decay',
-      color: 'bg-red-500'
-    },
-    {
-      label: 'Vega P&L',
-      value: attribution.vega_pnl,
-      description: 'P&L from volatility changes',
-      color: 'bg-purple-500'
-    },
-    {
-      label: 'Rho P&L',
-      value: attribution.rho_pnl,
-      description: 'P&L from interest rate changes',
-      color: 'bg-orange-500'
-    },
-    {
-      label: 'Other P&L',
-      value: attribution.other_pnl,
-      description: 'Residual and other factors',
-      color: 'bg-gray-500'
-    }
-  ];
+  {
+    label: 'Delta P&L',
+    value: attribution.delta_pnl,
+    description: 'P&L from underlying price movement',
+    color: 'bg-green-500'
+  },
+  {
+    label: 'Gamma P&L',
+    value: attribution.gamma_pnl,
+    description: 'P&L from delta changes (convexity)',
+    color: 'bg-blue-500'
+  },
+  {
+    label: 'Theta P&L',
+    value: attribution.theta_pnl,
+    description: 'P&L from time decay',
+    color: 'bg-red-500'
+  },
+  {
+    label: 'Vega P&L',
+    value: attribution.vega_pnl,
+    description: 'P&L from volatility changes',
+    color: 'bg-purple-500'
+  },
+  {
+    label: 'Rho P&L',
+    value: attribution.rho_pnl,
+    description: 'P&L from interest rate changes',
+    color: 'bg-orange-500'
+  },
+  {
+    label: 'Other P&L',
+    value: attribution.other_pnl,
+    description: 'Residual and other factors',
+    color: 'bg-gray-500'
+  }];
+
 
   return (
     <Card>
@@ -118,16 +118,16 @@ export default function PnLAttributionBreakdown() {
         <div className="flex items-center justify-between">
           <CardTitle>Detailed P&L Attribution</CardTitle>
           <div className="flex gap-2">
-            {['daily', 'weekly', 'monthly'].map(p => (
-              <Button
-                key={p}
-                variant={period === p ? "default" : "outline"}
-                size="sm"
-                onClick={() => setPeriod(p)}
-              >
+            {['daily', 'weekly', 'monthly'].map((p) =>
+            <Button
+              key={p}
+              variant={period === p ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPeriod(p)}>
+
                 {p.charAt(0).toUpperCase() + p.slice(1)}
               </Button>
-            ))}
+            )}
           </div>
         </div>
       </CardHeader>
@@ -139,11 +139,11 @@ export default function PnLAttributionBreakdown() {
               {formatCurrency(attribution.total_pnl)}
             </p>
           </div>
-          {attribution.total_pnl >= 0 ? (
-            <TrendingUp className="h-8 w-8 text-green-600" />
-          ) : (
-            <TrendingDown className="h-8 w-8 text-red-600" />
-          )}
+          {attribution.total_pnl >= 0 ?
+          <TrendingUp className="h-8 w-8 text-green-600" /> :
+
+          <TrendingDown className="h-8 w-8 text-red-600" />
+          }
         </div>
 
         <div className="space-y-4">
@@ -168,13 +168,13 @@ export default function PnLAttributionBreakdown() {
                 <Progress
                   value={percentage}
                   className="h-2"
-                  indicatorClassName={item.color}
-                />
-              </div>
-            );
+                  indicatorClassName={item.color} />
+
+              </div>);
+
           })}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

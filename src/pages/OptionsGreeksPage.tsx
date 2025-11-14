@@ -22,7 +22,7 @@ export default function OptionsGreeksPage() {
           path: 'greeksSnapshotSaver',
           param: [user.ID]
         });
-        
+
         if (error) {
           console.error('Failed to save Greeks snapshot:', error);
         }
@@ -60,7 +60,7 @@ export default function OptionsGreeksPage() {
 
       toast({
         title: "Data Refreshed",
-        description: "All Greeks and P&L data has been updated successfully.",
+        description: "All Greeks and P&L data has been updated successfully."
       });
 
       // Force re-render by reloading the page data
@@ -69,7 +69,7 @@ export default function OptionsGreeksPage() {
       toast({
         title: "Refresh Failed",
         description: error instanceof Error ? error.message : "Failed to refresh data",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -116,6 +116,6 @@ export default function OptionsGreeksPage() {
           </div>
         </section>
       </div>
-    </div>
-  );
+    </div>);
+
 }

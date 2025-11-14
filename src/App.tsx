@@ -5,6 +5,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { MarketDataProvider } from '@/components/MarketDataService';
+import EconomicNewsTicker from '@/components/EconomicNewsTicker';
+import AlertNotification from '@/components/AlertNotification';
 import HomePage from '@/pages/HomePage';
 import Dashboard from '@/pages/Dashboard';
 import AuthSuccess from '@/pages/AuthSuccess';

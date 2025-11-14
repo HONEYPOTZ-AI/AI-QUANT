@@ -11,9 +11,9 @@ async function getPnLAttributionHistory(userId, days = 30) {
       OrderByField: "attribution_date",
       IsAsc: true,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "attribution_date", op: "GreaterThanOrEqual", value: startDate }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "attribution_date", op: "GreaterThanOrEqual", value: startDate }]
+
     });
 
     if (error) {
@@ -25,7 +25,7 @@ async function getPnLAttributionHistory(userId, days = 30) {
     return {
       userId,
       days,
-      attributions: attributions.map(a => ({
+      attributions: attributions.map((a) => ({
         date: a.attribution_date,
         delta_pnl: a.delta_pnl,
         gamma_pnl: a.gamma_pnl,

@@ -36,6 +36,7 @@ import CTraderConfiguration from '@/components/CTraderConfiguration';
 import ThinkorSwimConfiguration from '@/components/ThinkorSwimConfiguration';
 import Walkthrough from '@/components/Walkthrough';
 import SPXVIXDisplay from '@/components/SPXVIXDisplay';
+import EconomicDataRefreshTrigger from '@/components/EconomicDataRefreshTrigger';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -118,6 +119,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col lg:flex-row" data-tour="dashboard-overview">
+      <EconomicDataRefreshTrigger />
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onStartTour={handleStartTour} />
       <Walkthrough run={runTour} onClose={handleCloseTour} />
       

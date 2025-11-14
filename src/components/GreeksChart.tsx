@@ -31,18 +31,18 @@ export default function GreeksChart() {
   });
 
   const greeksOptions = [
-    { value: 'Delta', label: 'Delta', color: '#10b981' },
-    { value: 'Gamma', label: 'Gamma', color: '#3b82f6' },
-    { value: 'Theta', label: 'Theta', color: '#ef4444' },
-    { value: 'Vega', label: 'Vega', color: '#8b5cf6' },
-    { value: 'Rho', label: 'Rho', color: '#f59e0b' }
-  ];
+  { value: 'Delta', label: 'Delta', color: '#10b981' },
+  { value: 'Gamma', label: 'Gamma', color: '#3b82f6' },
+  { value: 'Theta', label: 'Theta', color: '#ef4444' },
+  { value: 'Vega', label: 'Vega', color: '#8b5cf6' },
+  { value: 'Rho', label: 'Rho', color: '#f59e0b' }];
+
 
   const toggleGreek = (greek: string) => {
-    setSelectedGreeks(prev => 
-      prev.includes(greek) 
-        ? prev.filter(g => g !== greek)
-        : [...prev, greek]
+    setSelectedGreeks((prev) =>
+    prev.includes(greek) ?
+    prev.filter((g) => g !== greek) :
+    [...prev, greek]
     );
   };
 
@@ -55,8 +55,8 @@ export default function GreeksChart() {
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -66,12 +66,12 @@ export default function GreeksChart() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load historical Greeks data'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const snapshots = data?.snapshots || [];
-  
+
   const chartData = snapshots.map((snapshot: any) => ({
     time: format(new Date(snapshot.snapshot_time), 'MM/dd HH:mm'),
     Delta: snapshot.total_delta,
@@ -91,23 +91,23 @@ export default function GreeksChart() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-2">
-              {[7, 14, 30].map(d => (
-                <Button
-                  key={d}
-                  variant={days === d ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDays(d)}
-                >
+              {[7, 14, 30].map((d) =>
+              <Button
+                key={d}
+                variant={days === d ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDays(d)}>
+
                   {d}d
                 </Button>
-              ))}
+              )}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              disabled={isFetching}
-            >
+              disabled={isFetching}>
+
               <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
             </Button>
           </div>
@@ -115,65 +115,65 @@ export default function GreeksChart() {
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap gap-4">
-          {greeksOptions.map(option => (
-            <div key={option.value} className="flex items-center space-x-2">
+          {greeksOptions.map((option) =>
+          <div key={option.value} className="flex items-center space-x-2">
               <Checkbox
-                id={option.value}
-                checked={selectedGreeks.includes(option.value)}
-                onCheckedChange={() => toggleGreek(option.value)}
-              />
+              id={option.value}
+              checked={selectedGreeks.includes(option.value)}
+              onCheckedChange={() => toggleGreek(option.value)} />
+
               <label
-                htmlFor={option.value}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                style={{ color: option.color }}
-              >
+              htmlFor={option.value}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              style={{ color: option.color }}>
+
                 {option.label}
               </label>
             </div>
-          ))}
+          )}
         </div>
 
-        {chartData.length === 0 ? (
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+        {chartData.length === 0 ?
+        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
             No historical data available
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
+          </div> :
+
+        <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
-                dataKey="time"
-                className="text-xs"
-                tick={{ fill: 'currentColor' }}
-              />
+              dataKey="time"
+              className="text-xs"
+              tick={{ fill: 'currentColor' }} />
+
               <YAxis
-                className="text-xs"
-                tick={{ fill: 'currentColor' }}
-              />
+              className="text-xs"
+              tick={{ fill: 'currentColor' }} />
+
               <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px'
-                }}
-              />
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '6px'
+              }} />
+
               <Legend />
-              {greeksOptions.map(option => 
-                selectedGreeks.includes(option.value) && (
-                  <Line
-                    key={option.value}
-                    type="monotone"
-                    dataKey={option.value}
-                    stroke={option.color}
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                )
-              )}
+              {greeksOptions.map((option) =>
+            selectedGreeks.includes(option.value) &&
+            <Line
+              key={option.value}
+              type="monotone"
+              dataKey={option.value}
+              stroke={option.color}
+              strokeWidth={2}
+              dot={false} />
+
+
+            )}
             </LineChart>
           </ResponsiveContainer>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

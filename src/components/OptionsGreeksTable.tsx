@@ -6,8 +6,8 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from "@/components/ui/table";
+  TableRow } from
+"@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -80,8 +80,8 @@ export default function OptionsGreeksTable() {
       <div className="space-y-3">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-32 w-full" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
@@ -91,8 +91,8 @@ export default function OptionsGreeksTable() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load options positions'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const positions: OptionPosition[] = data?.positions || [];
@@ -105,8 +105,8 @@ export default function OptionsGreeksTable() {
           variant="outline"
           size="sm"
           onClick={() => refetch()}
-          disabled={isFetching}
-        >
+          disabled={isFetching}>
+
           <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -132,15 +132,15 @@ export default function OptionsGreeksTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {positions.length === 0 ? (
-              <TableRow>
+            {positions.length === 0 ?
+            <TableRow>
                 <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
                   No options positions found
                 </TableCell>
-              </TableRow>
-            ) : (
-              positions.map((position) => (
-                <TableRow key={position.id} className="hover:bg-muted/50">
+              </TableRow> :
+
+            positions.map((position) =>
+            <TableRow key={position.id} className="hover:bg-muted/50">
                   <TableCell className="font-medium">{position.symbol}</TableCell>
                   <TableCell>
                     <Badge variant={position.option_type === 'Call' ? 'default' : 'secondary'}>
@@ -173,11 +173,11 @@ export default function OptionsGreeksTable() {
                     {formatNumber(position.implied_volatility * 100, 1)}%
                   </TableCell>
                 </TableRow>
-              ))
-            )}
+            )
+            }
           </TableBody>
         </Table>
       </div>
-    </div>
-  );
+    </div>);
+
 }

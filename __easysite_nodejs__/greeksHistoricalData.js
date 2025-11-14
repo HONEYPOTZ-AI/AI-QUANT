@@ -11,9 +11,9 @@ async function getGreeksHistoricalData(userId, days = 30) {
       OrderByField: "snapshot_time",
       IsAsc: true,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "snapshot_time", op: "GreaterThanOrEqual", value: startDate }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "snapshot_time", op: "GreaterThanOrEqual", value: startDate }]
+
     });
 
     if (error) {
@@ -25,7 +25,7 @@ async function getGreeksHistoricalData(userId, days = 30) {
     return {
       userId,
       days,
-      snapshots: snapshots.map(s => ({
+      snapshots: snapshots.map((s) => ({
         snapshot_time: s.snapshot_time,
         total_delta: s.total_delta,
         total_gamma: s.total_gamma,

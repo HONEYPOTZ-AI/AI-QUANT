@@ -2,6 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Economic News Ticker Animations */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 60s linear infinite;
+}
+
+.ticker-item {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0 1rem;
+  white-space: nowrap;
+}
+
+.ticker-separator {
+  display: inline-block;
+  font-size: 1rem;
+}
+
+/* Duplicate content for seamless loop */
+.ticker-content::after {
+  content: attr(data-content);
+}
+
+/* Pause animation on hover */
+.ticker-content:hover {
+  animation-play-state: paused;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

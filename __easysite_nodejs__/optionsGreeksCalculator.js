@@ -8,9 +8,9 @@ async function calculateOptionsGreeks(userId) {
       PageNo: 1,
       PageSize: 1000,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "status", op: "Equal", value: "Open" }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "status", op: "Equal", value: "Open" }]
+
     });
 
     if (positionsError) {
@@ -18,7 +18,7 @@ async function calculateOptionsGreeks(userId) {
     }
 
     const positions = positionsData?.List || [];
-    
+
     if (positions.length === 0) {
       return {
         positions: [],
@@ -35,7 +35,7 @@ async function calculateOptionsGreeks(userId) {
     }
 
     // Calculate Greeks for each position
-    const updatedPositions = positions.map(position => {
+    const updatedPositions = positions.map((position) => {
       // Use existing Greeks from the database (assumed to be updated by market data feed)
       // Scale by quantity (each contract = 100 shares)
       const scaledDelta = position.delta * position.quantity;
@@ -43,9 +43,9 @@ async function calculateOptionsGreeks(userId) {
       const scaledTheta = position.theta * position.quantity;
       const scaledVega = position.vega * position.quantity;
       const scaledRho = position.rho * position.quantity;
-      
+
       const positionValue = position.current_price * position.quantity * 100;
-      
+
       return {
         ...position,
         scaledDelta,

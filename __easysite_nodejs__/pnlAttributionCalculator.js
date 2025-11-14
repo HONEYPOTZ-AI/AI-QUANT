@@ -4,7 +4,7 @@
 async function calculatePnLAttribution(userId, period = "daily") {
   try {
     const now = dayjs();
-    
+
     // Calculate date ranges
     let startDate;
     switch (period) {
@@ -28,9 +28,9 @@ async function calculatePnLAttribution(userId, period = "daily") {
       OrderByField: "snapshot_time",
       IsAsc: true,
       Filters: [
-        { name: "user_id", op: "Equal", value: userId },
-        { name: "snapshot_time", op: "GreaterThanOrEqual", value: startDate.toISOString() }
-      ]
+      { name: "user_id", op: "Equal", value: userId },
+      { name: "snapshot_time", op: "GreaterThanOrEqual", value: startDate.toISOString() }]
+
     });
 
     if (snapshotsError) {
@@ -64,7 +64,7 @@ async function calculatePnLAttribution(userId, period = "daily") {
     // Simplified P&L attribution calculation
     // In reality, this would require underlying price movements, IV changes, etc.
     // Here we estimate based on Greek changes
-    
+
     // Delta P&L: Estimate from delta changes (proxy for directional moves)
     const deltaChange = Math.abs(lastSnapshot.total_delta - firstSnapshot.total_delta);
     const deltaPnL = deltaChange * 10; // Simplified: $10 per delta unit change
