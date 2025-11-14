@@ -45,7 +45,7 @@ const HomePage = () => {
   { label: "Alerts Triggered", value: "3,249", trend: "+12%" }];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-10">
       {/* Header */}
       <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-lg">
         <div className="container mx-auto px-4 sm:px-6 py-4">

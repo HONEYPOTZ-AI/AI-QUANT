@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -89,11 +88,15 @@ export default function EconomicNewsTicker() {
     // Add economic events
     if (eventsData?.List) {
       eventsData.List.forEach((event: EconomicEvent) => {
-        const dateStr = format(new Date(event.event_date), 'MMM dd, HH:mm');
-        const color = getEventColor(event.event_type);
-        items.push(
-          `<span class="ticker-item" style="color: ${color}">📊 ${event.event_type}: ${event.event_name} - ${dateStr}</span>`
-        );
+        try {
+          const dateStr = format(new Date(event.event_date), 'MMM dd, HH:mm');
+          const color = getEventColor(event.event_type);
+          items.push(
+            `<span class="ticker-item font-semibold" style="color: ${color}">📊 ${event.event_type}: ${event.event_name} - ${dateStr}</span>`
+          );
+        } catch (e) {
+          console.error('Error formatting event:', e);
+        }
       });
     }
 
@@ -103,7 +106,7 @@ export default function EconomicNewsTicker() {
         const icon = alert.is_live ? '🔴 LIVE' : '🏛️';
         const color = alert.is_live ? '#ef4444' : '#8b5cf6';
         items.push(
-          `<span class="ticker-item" style="color: ${color}">${icon} ${alert.title}</span>`
+          `<span class="ticker-item font-semibold" style="color: ${color}">${icon} ${alert.title}</span>`
         );
       });
     }
@@ -113,22 +116,25 @@ export default function EconomicNewsTicker() {
       newsData.List.slice(0, 10).forEach((news: EconomicNews) => {
         const color = getCategoryColor(news.category);
         items.push(
-          `<span class="ticker-item" style="color: ${color}">📰 ${news.headline}</span>`
+          `<span class="ticker-item font-semibold" style="color: ${color}">📰 ${news.headline}</span>`
         );
       });
     }
 
     if (items.length > 0) {
-      setTickerItems(items);
+      // Duplicate items for seamless infinite scroll
+      setTickerItems([...items, ...items, ...items]);
     } else {
       setTickerItems([
-        '<span class="ticker-item">📊 Loading economic data...</span>'
+        '<span class="ticker-item font-semibold text-yellow-400">📊 Loading economic data...</span>',
+        '<span class="ticker-item font-semibold text-blue-400">🔄 Fetching market updates...</span>',
+        '<span class="ticker-item font-semibold text-green-400">📈 Real-time news loading...</span>'
       ]);
     }
   }, [eventsData, alertsData, newsData]);
 
   const getEventColor = (eventType: string): string => {
-    const colors: { [key: string]: string } = {
+    const colors: {[key: string]: string} = {
       FOMC: '#ef4444',
       NFP: '#3b82f6',
       CPI: '#f97316',
@@ -140,7 +146,7 @@ export default function EconomicNewsTicker() {
   };
 
   const getCategoryColor = (category: string): string => {
-    const colors: { [key: string]: string } = {
+    const colors: {[key: string]: string} = {
       Markets: '#3b82f6',
       Policy: '#8b5cf6',
       Employment: '#06b6d4',
@@ -152,17 +158,21 @@ export default function EconomicNewsTicker() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-yellow-500/50 shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b-2 border-yellow-500/70 shadow-2xl shadow-yellow-500/20">
       <div className="relative h-10 overflow-hidden">
         <div
-          className="ticker-content absolute whitespace-nowrap flex items-center h-full gap-8 animate-ticker"
+          className="ticker-scroll absolute whitespace-nowrap flex items-center h-full gap-8 px-4"
           dangerouslySetInnerHTML={{
             __html: tickerItems.join(
-              '<span class="ticker-separator mx-4 text-yellow-500">•</span>'
+              '<span class="ticker-separator mx-6 text-yellow-500 text-xl">•</span>'
             )
           }}
         />
       </div>
+      
+      {/* Gradient fade edges for smooth visual effect */}
+      <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-10" />
     </div>
   );
 }

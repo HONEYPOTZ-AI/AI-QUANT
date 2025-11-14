@@ -2,6 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Economic News Ticker Animation */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 60s linear infinite;
+}
+
+.ticker-scroll:hover {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.ticker-item:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+.ticker-separator {
+  display: inline-block;
+  opacity: 0.6;
+}
+
 /* Economic News Ticker Animations */
 @keyframes ticker {
   0% {

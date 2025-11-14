@@ -25,6 +25,12 @@ function App() {
         <AuthProvider>
           <MarketDataProvider>
             <Router>
+              {/* Economic News Ticker - Fixed at top of all pages */}
+              <EconomicNewsTicker />
+              
+              {/* Alert Notification System */}
+              <AlertNotification />
+              
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/home" element={<HomePage />} />

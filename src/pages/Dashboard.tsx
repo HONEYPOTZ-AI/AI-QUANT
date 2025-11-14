@@ -118,12 +118,12 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col lg:flex-row" data-tour="dashboard-overview">
+    <div className="min-h-screen bg-slate-900 flex flex-col lg:flex-row pt-10" data-tour="dashboard-overview">
       <EconomicDataRefreshTrigger />
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onStartTour={handleStartTour} />
       <Walkthrough run={runTour} onClose={handleCloseTour} />
       
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>

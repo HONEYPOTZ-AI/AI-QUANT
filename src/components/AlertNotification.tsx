@@ -9,8 +9,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  AlertDialogTitle } from
+'@/components/ui/alert-dialog';
 
 interface WhiteHouseAlert {
   id: number;
@@ -38,8 +38,8 @@ export default function AlertNotification() {
         OrderByField: 'published_date',
         IsAsc: false,
         Filters: [
-          { name: 'notified', op: 'Equal', value: false }
-        ]
+        { name: 'notified', op: 'Equal', value: false }]
+
       });
       if (result.error) throw new Error(result.error);
       return result.data;
@@ -56,7 +56,7 @@ export default function AlertNotification() {
       if (notifiedIds.has(alert.id)) return;
 
       // Add to notified set
-      setNotifiedIds(prev => new Set(prev).add(alert.id));
+      setNotifiedIds((prev) => new Set(prev).add(alert.id));
 
       // Show notification based on severity
       if (alert.severity === 'Critical' || alert.is_live) {
@@ -107,11 +107,11 @@ export default function AlertNotification() {
       <AlertDialogContent className="border-2 border-red-500 bg-gradient-to-br from-red-950 to-slate-900">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-2xl font-bold text-red-400 flex items-center gap-2">
-            {criticalAlert?.is_live && (
-              <span className="flex items-center gap-1 animate-pulse">
+            {criticalAlert?.is_live &&
+            <span className="flex items-center gap-1 animate-pulse">
                 🔴 LIVE
               </span>
-            )}
+            }
             {!criticalAlert?.is_live && '🚨'}
             {criticalAlert?.alert_type}: CRITICAL ALERT
           </AlertDialogTitle>
@@ -124,13 +124,13 @@ export default function AlertNotification() {
           <AlertDialogAction onClick={handleCloseCriticalAlert} className="bg-gray-600 hover:bg-gray-700">
             Dismiss
           </AlertDialogAction>
-          {criticalAlert?.source_url && (
-            <AlertDialogAction onClick={handleViewSource} className="bg-red-600 hover:bg-red-700">
+          {criticalAlert?.source_url &&
+          <AlertDialogAction onClick={handleViewSource} className="bg-red-600 hover:bg-red-700">
               View Source
             </AlertDialogAction>
-          )}
+          }
         </AlertDialogFooter>
       </AlertDialogContent>
-    </AlertDialog>
-  );
+    </AlertDialog>);
+
 }
