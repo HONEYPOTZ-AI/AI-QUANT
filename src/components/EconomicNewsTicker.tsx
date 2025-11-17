@@ -81,6 +81,44 @@ export default function EconomicNewsTicker() {
     refetchInterval: 3 * 60 * 1000 // Refresh every 3 minutes
   });
 
+  // Helper function to get color based on importance
+  const getImportanceColor = (importance: string | undefined, fallbackColor: string): string => {
+    if (!importance) return fallbackColor;
+    
+    const importanceLower = importance.toLowerCase();
+    
+    // Bright red for critical/highest priority
+    if (importanceLower.includes('critical') || importanceLower.includes('urgent') || importanceLower.includes('high')) {
+      return '#FF0000'; // Bright red
+    }
+    
+    // Bright green for important items
+    if (importanceLower.includes('important') || importanceLower.includes('medium')) {
+      return '#00FF00'; // Bright green
+    }
+    
+    return fallbackColor;
+  };
+
+  // Helper function to get color based on severity
+  const getSeverityColor = (severity: string | undefined, fallbackColor: string): string => {
+    if (!severity) return fallbackColor;
+    
+    const severityLower = severity.toLowerCase();
+    
+    // Bright red for critical/severe
+    if (severityLower.includes('critical') || severityLower.includes('severe') || severityLower.includes('high')) {
+      return '#FF0000'; // Bright red
+    }
+    
+    // Bright green for medium severity
+    if (severityLower.includes('medium') || severityLower.includes('moderate')) {
+      return '#00FF00'; // Bright green
+    }
+    
+    return fallbackColor;
+  };
+
   // Combine and format ticker items
   useEffect(() => {
     const items: string[] = [];
@@ -90,7 +128,8 @@ export default function EconomicNewsTicker() {
       eventsData.List.forEach((event: EconomicEvent) => {
         try {
           const dateStr = format(new Date(event.event_date), 'MMM dd, HH:mm');
-          const color = getEventColor(event.event_type);
+          const baseColor = getEventColor(event.event_type);
+          const color = getImportanceColor(event.importance, baseColor);
           items.push(
             `<span class="ticker-item font-semibold" style="color: ${color}">📊 ${event.event_type}: ${event.event_name} - ${dateStr}</span>`
           );
@@ -104,7 +143,8 @@ export default function EconomicNewsTicker() {
     if (alertsData?.List) {
       alertsData.List.forEach((alert: WhiteHouseAlert) => {
         const icon = alert.is_live ? '🔴 LIVE' : '🏛️';
-        const color = alert.is_live ? '#ef4444' : '#8b5cf6';
+        const baseColor = alert.is_live ? '#ef4444' : '#8b5cf6';
+        const color = getSeverityColor(alert.severity, baseColor);
         items.push(
           `<span class="ticker-item font-semibold" style="color: ${color}">${icon} ${alert.title}</span>`
         );
@@ -114,7 +154,8 @@ export default function EconomicNewsTicker() {
     // Add economic news
     if (newsData?.List) {
       newsData.List.slice(0, 10).forEach((news: EconomicNews) => {
-        const color = getCategoryColor(news.category);
+        const baseColor = getCategoryColor(news.category);
+        const color = getImportanceColor(news.importance, baseColor);
         items.push(
           `<span class="ticker-item font-semibold" style="color: ${color}">📰 ${news.headline}</span>`
         );
@@ -126,15 +167,15 @@ export default function EconomicNewsTicker() {
       setTickerItems([...items, ...items, ...items]);
     } else {
       setTickerItems([
-        '<span class="ticker-item font-semibold text-yellow-400">📊 Loading economic data...</span>',
-        '<span class="ticker-item font-semibold text-blue-400">🔄 Fetching market updates...</span>',
-        '<span class="ticker-item font-semibold text-green-400">📈 Real-time news loading...</span>'
-      ]);
+      '<span class="ticker-item font-semibold text-yellow-400">📊 Loading economic data...</span>',
+      '<span class="ticker-item font-semibold text-blue-400">🔄 Fetching market updates...</span>',
+      '<span class="ticker-item font-semibold text-green-400">📈 Real-time news loading...</span>']
+      );
     }
   }, [eventsData, alertsData, newsData]);
 
   const getEventColor = (eventType: string): string => {
-    const colors: {[key: string]: string} = {
+    const colors: {[key: string]: string;} = {
       FOMC: '#ef4444',
       NFP: '#3b82f6',
       CPI: '#f97316',
@@ -146,7 +187,7 @@ export default function EconomicNewsTicker() {
   };
 
   const getCategoryColor = (category: string): string => {
-    const colors: {[key: string]: string} = {
+    const colors: {[key: string]: string;} = {
       Markets: '#3b82f6',
       Policy: '#8b5cf6',
       Employment: '#06b6d4',
@@ -166,13 +207,13 @@ export default function EconomicNewsTicker() {
             __html: tickerItems.join(
               '<span class="ticker-separator mx-6 text-yellow-500 text-xl">•</span>'
             )
-          }}
-        />
+          }} />
+
       </div>
       
       {/* Gradient fade edges for smooth visual effect */}
       <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none z-10" />
       <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-10" />
-    </div>
-  );
+    </div>);
+
 }
