@@ -84,38 +84,38 @@ export default function EconomicNewsTicker() {
   // Helper function to get color based on importance
   const getImportanceColor = (importance: string | undefined, fallbackColor: string): string => {
     if (!importance) return fallbackColor;
-    
+
     const importanceLower = importance.toLowerCase();
-    
+
     // Bright red for critical/highest priority
     if (importanceLower.includes('critical') || importanceLower.includes('urgent') || importanceLower.includes('high')) {
       return '#FF0000'; // Bright red
     }
-    
+
     // Bright green for important items
     if (importanceLower.includes('important') || importanceLower.includes('medium')) {
       return '#00FF00'; // Bright green
     }
-    
+
     return fallbackColor;
   };
 
   // Helper function to get color based on severity
   const getSeverityColor = (severity: string | undefined, fallbackColor: string): string => {
     if (!severity) return fallbackColor;
-    
+
     const severityLower = severity.toLowerCase();
-    
+
     // Bright red for critical/severe
     if (severityLower.includes('critical') || severityLower.includes('severe') || severityLower.includes('high')) {
       return '#FF0000'; // Bright red
     }
-    
+
     // Bright green for medium severity
     if (severityLower.includes('medium') || severityLower.includes('moderate')) {
       return '#00FF00'; // Bright green
     }
-    
+
     return fallbackColor;
   };
 
