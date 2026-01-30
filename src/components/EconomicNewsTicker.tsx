@@ -27,6 +27,18 @@ interface EconomicNews {
   importance: string;
 }
 
+interface TrumpTweet {
+  id: number;
+  tweet_id: string;
+  content: string;
+  posted_at: string;
+  retweet_count: number;
+  like_count: number;
+  reply_count: number;
+  url: string;
+  is_important: boolean;
+}
+
 export default function EconomicNewsTicker() {
   const [tickerItems, setTickerItems] = useState<string[]>([]);
 
@@ -79,6 +91,23 @@ export default function EconomicNewsTicker() {
       return result.data;
     },
     refetchInterval: 3 * 60 * 1000 // Refresh every 3 minutes
+  });
+
+  // Fetch Trump tweets
+  const { data: tweetsData } = useQuery({
+    queryKey: ['trumpTweets'],
+    queryFn: async () => {
+      const result = await window.ezsite.apis.tablePage(73738, {
+        PageNo: 1,
+        PageSize: 20,
+        OrderByField: 'posted_at',
+        IsAsc: false,
+        Filters: []
+      });
+      if (result.error) throw new Error(result.error);
+      return result.data;
+    },
+    refetchInterval: 60 * 1000 // Refresh every 60 seconds
   });
 
   // Helper function to get color based on importance
@@ -151,6 +180,25 @@ export default function EconomicNewsTicker() {
       });
     }
 
+    // Add Trump tweets with bright cyan color
+    if (tweetsData?.List) {
+      tweetsData.List.forEach((tweet: TrumpTweet) => {
+        try {
+          const dateStr = format(new Date(tweet.posted_at), 'MMM dd, HH:mm');
+          const tweetColor = tweet.is_important ? '#FF0000' : '#00FFFF'; // Bright red for important, bright cyan otherwise
+          const truncatedContent = tweet.content.length > 100 
+            ? tweet.content.substring(0, 100) + '...' 
+            : tweet.content;
+          const engagement = `👍 ${tweet.like_count} 🔁 ${tweet.retweet_count}`;
+          items.push(
+            `<span class="ticker-item font-semibold" style="color: ${tweetColor}">𝕏 TRUMP: ${truncatedContent} - ${dateStr} | ${engagement}</span>`
+          );
+        } catch (e) {
+          console.error('Error formatting tweet:', e);
+        }
+      });
+    }
+
     // Add economic news
     if (newsData?.List) {
       newsData.List.slice(0, 10).forEach((news: EconomicNews) => {
@@ -172,7 +220,7 @@ export default function EconomicNewsTicker() {
       '<span class="ticker-item font-semibold text-green-400">📈 Real-time news loading...</span>']
       );
     }
-  }, [eventsData, alertsData, newsData]);
+  }, [eventsData, alertsData, newsData, tweetsData]);
 
   const getEventColor = (eventType: string): string => {
     const colors: {[key: string]: string;} = {
