@@ -1,7 +1,80 @@
 /**
- * Fetches real-time SPX and VIX market data from configured sources
- * Returns current price, change, and percentage change for both indices
+ * Fetches real-time SPX and VIX market data
+ * Uses Alpha Vantage API (free tier) as primary source
+ * Falls back to ThinkorSwim or FastAPI if configured
  */
+
+// Free API key for Alpha Vantage (demo key - replace with your own for production)
+const ALPHA_VANTAGE_KEY = 'demo';
+
+async function fetchFromAlphaVantage(symbol) {
+  try {
+    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_KEY}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Alpha Vantage API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const quote = data['Global Quote'];
+    
+    if (!quote || !quote['05. price']) {
+      return null;
+    }
+    
+    const price = parseFloat(quote['05. price']);
+    const change = parseFloat(quote['09. change']);
+    const percentChange = parseFloat(quote['10. change percent'].replace('%', ''));
+    const previousClose = parseFloat(quote['08. previous close']);
+    
+    return {
+      price,
+      change,
+      percentChange,
+      previousClose
+    };
+  } catch (error) {
+    console.error(`Alpha Vantage fetch error for ${symbol}:`, error);
+    return null;
+  }
+}
+
+async function fetchFromYahooFinance(symbol) {
+  try {
+    // Yahoo Finance API endpoint (unofficial but free)
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    const data = await response.json();
+    const result = data?.chart?.result?.[0];
+    
+    if (!result) {
+      return null;
+    }
+    
+    const meta = result.meta;
+    const price = meta.regularMarketPrice;
+    const previousClose = meta.chartPreviousClose || meta.previousClose;
+    const change = price - previousClose;
+    const percentChange = (change / previousClose) * 100;
+    
+    return {
+      price,
+      change,
+      percentChange,
+      previousClose
+    };
+  } catch (error) {
+    console.error(`Yahoo Finance fetch error for ${symbol}:`, error);
+    return null;
+  }
+}
+
 async function fetchSPXVIXData(userId) {
   try {
     const results = {
@@ -11,14 +84,35 @@ async function fetchSPXVIXData(userId) {
       timestamp: new Date().toISOString()
     };
 
-    // Try ThinkorSwim first
+    // Try Yahoo Finance first (free and reliable for SPX and VIX)
+    try {
+      const spxData = await fetchFromYahooFinance('^GSPC'); // S&P 500 symbol
+      const vixData = await fetchFromYahooFinance('^VIX');  // VIX symbol
+      
+      if (spxData) {
+        results.spx = spxData;
+      }
+      
+      if (vixData) {
+        results.vix = vixData;
+      }
+      
+      if (spxData || vixData) {
+        results.source = 'Yahoo Finance';
+        return results;
+      }
+    } catch (yahooError) {
+      console.error('Yahoo Finance fetch failed, trying alternatives:', yahooError);
+    }
+
+    // Try ThinkorSwim if configured
     const { data: tosSettings } = await easysite.table.page(58031, {
       PageNo: 1,
       PageSize: 1,
       Filters: [
-      { name: "user_id", op: "Equal", value: userId },
-      { name: "is_active", op: "Equal", value: true }]
-
+        { name: "user_id", op: "Equal", value: userId },
+        { name: "is_active", op: "Equal", value: true }
+      ]
     });
 
     if (tosSettings?.List?.[0]) {
@@ -68,7 +162,7 @@ async function fetchSPXVIXData(userId) {
             };
           }
 
-          results.source = 'thinkorswim';
+          results.source = 'ThinkorSwim';
           return results;
         }
       } catch (tosError) {
@@ -76,14 +170,14 @@ async function fetchSPXVIXData(userId) {
       }
     }
 
-    // Try FastAPI as fallback
+    // Try FastAPI as final fallback
     const { data: fastapiSettings } = await easysite.table.page(56078, {
       PageNo: 1,
       PageSize: 1,
       Filters: [
-      { name: "user_id", op: "Equal", value: userId },
-      { name: "is_active", op: "Equal", value: true }]
-
+        { name: "user_id", op: "Equal", value: userId },
+        { name: "is_active", op: "Equal", value: true }
+      ]
     });
 
     if (fastapiSettings?.List?.[0]) {
@@ -123,7 +217,7 @@ async function fetchSPXVIXData(userId) {
             };
           }
 
-          results.source = 'fastapi';
+          results.source = 'FastAPI';
           return results;
         }
       } catch (fastapiError) {
@@ -131,9 +225,9 @@ async function fetchSPXVIXData(userId) {
       }
     }
 
-    // If no data source is available or both failed, return mock data structure
+    // If all sources failed
     if (!results.spx && !results.vix) {
-      throw new Error('No active market data source configured. Please configure ThinkorSwim or FastAPI connection.');
+      throw new Error('Unable to fetch market data. All data sources unavailable. Please try again later or configure a custom data source.');
     }
 
     return results;
@@ -141,3 +235,5 @@ async function fetchSPXVIXData(userId) {
     throw new Error(`Failed to fetch SPX/VIX data: ${error.message}`);
   }
 }
+
+export { fetchSPXVIXData };

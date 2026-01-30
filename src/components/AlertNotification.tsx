@@ -37,7 +37,7 @@ interface TrumpTweet {
   notified?: boolean;
 }
 
-type CriticalAlert = WhiteHouseAlert | (TrumpTweet & { isTweet: true });
+type CriticalAlert = WhiteHouseAlert | (TrumpTweet & {isTweet: true;});
 
 export default function AlertNotification() {
   const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
@@ -73,8 +73,8 @@ export default function AlertNotification() {
         OrderByField: 'posted_at',
         IsAsc: false,
         Filters: [
-          { name: 'is_important', op: 'Equal', value: true }
-        ]
+        { name: 'is_important', op: 'Equal', value: true }]
+
       });
       if (result.error) throw new Error(result.error);
       return result.data;
@@ -138,7 +138,7 @@ export default function AlertNotification() {
       setNotifiedTweetIds((prev) => new Set(prev).add(tweet.id));
 
       // Show modal for important tweets
-      const tweetAlert: TrumpTweet & { isTweet: true } = { ...tweet, isTweet: true };
+      const tweetAlert: TrumpTweet & {isTweet: true;} = { ...tweet, isTweet: true };
       setCriticalAlert(tweetAlert);
 
       // Show toast notification
@@ -172,54 +172,54 @@ export default function AlertNotification() {
       <AlertDialogContent className={`border-2 ${isTweetAlert ? 'border-cyan-400 bg-gradient-to-br from-cyan-950 to-slate-900' : 'border-red-500 bg-gradient-to-br from-red-950 to-slate-900'}`}>
         <AlertDialogHeader>
           <AlertDialogTitle className={`text-2xl font-bold ${isTweetAlert ? 'text-cyan-400' : 'text-red-400'} flex items-center gap-2`}>
-            {isTweetAlert ? (
-              <>
+            {isTweetAlert ?
+            <>
                 <span className="flex items-center gap-1 animate-pulse">
                   𝕏 TRUMP
                 </span>
                 : IMPORTANT TWEET
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 {(criticalAlert as WhiteHouseAlert)?.is_live &&
-                <span className="flex items-center gap-1 animate-pulse">
+              <span className="flex items-center gap-1 animate-pulse">
                     🔴 LIVE
                   </span>
-                }
+              }
                 {!(criticalAlert as WhiteHouseAlert)?.is_live && '🚨'}
                 {(criticalAlert as WhiteHouseAlert)?.alert_type}: CRITICAL ALERT
               </>
-            )}
+            }
           </AlertDialogTitle>
           <AlertDialogDescription className="text-white text-lg mt-4">
-            {isTweetAlert ? (
-              <>
+            {isTweetAlert ?
+            <>
                 <div className="font-semibold mb-4 text-cyan-300">
-                  {(criticalAlert as TrumpTweet & { isTweet: true }).content}
+                  {(criticalAlert as TrumpTweet & {isTweet: true;}).content}
                 </div>
                 <div className="flex gap-4 text-sm text-gray-300">
-                  <span>👍 {(criticalAlert as TrumpTweet & { isTweet: true }).like_count.toLocaleString()}</span>
-                  <span>🔁 {(criticalAlert as TrumpTweet & { isTweet: true }).retweet_count.toLocaleString()}</span>
-                  <span>💬 {(criticalAlert as TrumpTweet & { isTweet: true }).reply_count.toLocaleString()}</span>
+                  <span>👍 {(criticalAlert as TrumpTweet & {isTweet: true;}).like_count.toLocaleString()}</span>
+                  <span>🔁 {(criticalAlert as TrumpTweet & {isTweet: true;}).retweet_count.toLocaleString()}</span>
+                  <span>💬 {(criticalAlert as TrumpTweet & {isTweet: true;}).reply_count.toLocaleString()}</span>
                 </div>
                 <div className="text-xs text-gray-400 mt-2">
-                  {new Date((criticalAlert as TrumpTweet & { isTweet: true }).posted_at).toLocaleString()}
+                  {new Date((criticalAlert as TrumpTweet & {isTweet: true;}).posted_at).toLocaleString()}
                 </div>
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <div className="font-semibold mb-2">{(criticalAlert as WhiteHouseAlert)?.title}</div>
                 <div className="text-gray-300">{(criticalAlert as WhiteHouseAlert)?.description}</div>
               </>
-            )}
+            }
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction onClick={handleCloseCriticalAlert} className="bg-gray-600 hover:bg-gray-700">
             Dismiss
           </AlertDialogAction>
-          {((isTweetAlert && (criticalAlert as TrumpTweet & { isTweet: true }).url) || 
-            (!isTweetAlert && (criticalAlert as WhiteHouseAlert)?.source_url)) &&
+          {(isTweetAlert && (criticalAlert as TrumpTweet & {isTweet: true;}).url ||
+          !isTweetAlert && (criticalAlert as WhiteHouseAlert)?.source_url) &&
           <AlertDialogAction onClick={handleViewSource} className={isTweetAlert ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-red-600 hover:bg-red-700'}>
               View on {isTweetAlert ? '𝕏' : 'Source'}
             </AlertDialogAction>

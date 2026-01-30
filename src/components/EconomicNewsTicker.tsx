@@ -186,9 +186,9 @@ export default function EconomicNewsTicker() {
         try {
           const dateStr = format(new Date(tweet.posted_at), 'MMM dd, HH:mm');
           const tweetColor = tweet.is_important ? '#FF0000' : '#00FFFF'; // Bright red for important, bright cyan otherwise
-          const truncatedContent = tweet.content.length > 100 
-            ? tweet.content.substring(0, 100) + '...' 
-            : tweet.content;
+          const truncatedContent = tweet.content.length > 100 ?
+          tweet.content.substring(0, 100) + '...' :
+          tweet.content;
           const engagement = `👍 ${tweet.like_count} 🔁 ${tweet.retweet_count}`;
           items.push(
             `<span class="ticker-item font-semibold" style="color: ${tweetColor}">𝕏 TRUMP: ${truncatedContent} - ${dateStr} | ${engagement}</span>`

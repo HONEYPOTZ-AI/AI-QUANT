@@ -34,8 +34,10 @@ export default function SPXVIXDisplay() {
       return data;
     },
     enabled: !!user?.ID,
-    refetchInterval: 10000, // Refresh every 10 seconds
-    staleTime: 5000
+    refetchInterval: 45000, // Refresh every 45 seconds for real-time updates
+    staleTime: 30000, // Consider data stale after 30 seconds
+    retry: 3, // Retry failed requests up to 3 times
+    retryDelay: 2000 // Wait 2 seconds between retries
   });
 
   const renderIndexCard = (
