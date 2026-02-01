@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { TrendingUp, TrendingDown, Activity, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 
@@ -23,7 +23,7 @@ interface SPXVIXData {
 export default function SPXVIXDisplay() {
   const { user } = useAuth();
 
-  const { data, isLoading, error, isError } = useQuery<SPXVIXData>({
+  const { data, isLoading, error, isError, refetch } = useQuery<SPXVIXData>({
     queryKey: ['spx-vix-data', user?.ID],
     queryFn: async () => {
       const { data, error } = await window.ezsite.apis.run({
@@ -34,10 +34,10 @@ export default function SPXVIXDisplay() {
       return data;
     },
     enabled: !!user?.ID,
-    refetchInterval: 45000, // Refresh every 45 seconds for real-time updates
-    staleTime: 30000, // Consider data stale after 30 seconds
-    retry: 3, // Retry failed requests up to 3 times
-    retryDelay: 2000 // Wait 2 seconds between retries
+    refetchInterval: 5000, // Refresh every 5 seconds for real-time updates
+    staleTime: 3000, // Consider data stale after 3 seconds
+    retry: 3,
+    retryDelay: 2000
   });
 
   const renderIndexCard = (
@@ -148,12 +148,28 @@ export default function SPXVIXDisplay() {
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-slate-600 dark:text-slate-400" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Market Indices</h2>
-        </div>
-        {data?.timestamp &&
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-            Last updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
+          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span>Live</span>
           </div>
-        }
+        </div>
+        <div className="flex items-center gap-3">
+          {data?.timestamp &&
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              Updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
+            </div>
+          }
+          <button
+            onClick={() => refetch()}
+            className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            title="Refresh data"
+          >
+            <RefreshCw className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          </button>
+        </div>
       </div>
       
       <div className="flex flex-col md:flex-row gap-4">

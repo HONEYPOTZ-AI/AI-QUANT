@@ -62,7 +62,8 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
   { path: '/cfd-strategy', label: 'CFD Strategy', icon: <TrendingUp className="h-5 w-5" /> }];
 
   const optionsDataLinks = [
-  { path: '/options-greeks', label: 'Options Greeks', icon: <PieChart className="h-5 w-5" /> }];
+  { path: '/options-greeks', label: 'Options Greeks', icon: <PieChart className="h-5 w-5" /> },
+  { path: '/spx-options', label: 'SPX Options', icon: <TrendingUp className="h-5 w-5" /> }];
 
 
   const SidebarContent = () =>
