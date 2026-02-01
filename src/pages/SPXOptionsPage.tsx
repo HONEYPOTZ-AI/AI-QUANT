@@ -32,6 +32,6 @@ export default function SPXOptionsPage() {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>);
+
 }

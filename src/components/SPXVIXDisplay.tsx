@@ -6,129 +6,59 @@ import { TrendingUp, TrendingDown, Activity, AlertCircle, RefreshCw } from 'luci
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 
-interface IndexData {
+interface SPXPriceData {
   price: number;
+  bid: number | null;
+  ask: number | null;
   change: number;
   percentChange: number;
-  previousClose?: number;
-}
-
-interface SPXVIXData {
-  spx: IndexData | null;
-  vix: IndexData | null;
-  source: string | null;
+  volume: number;
+  previousClose: number;
+  high: number;
+  low: number;
+  open: number;
+  vwap: number;
+  transactions: number;
+  source: string;
   timestamp: string;
 }
 
 export default function SPXVIXDisplay() {
   const { user } = useAuth();
 
-  const { data, isLoading, error, isError, refetch } = useQuery<SPXVIXData>({
-    queryKey: ['spx-vix-data', user?.ID],
+  const { data, isLoading, error, isError, refetch, isFetching } = useQuery<SPXPriceData>({
+    queryKey: ['spx-realtime-price', user?.ID],
     queryFn: async () => {
       const { data, error } = await window.ezsite.apis.run({
-        path: 'spxVixDataFetcher',
-        param: [user?.ID]
+        path: 'spxRealTimePriceFetcher',
+        methodName: 'fetchRealTimeSPXPrice',
+        param: []
       });
       if (error) throw new Error(error);
       return data;
     },
     enabled: !!user?.ID,
-    refetchInterval: 5000, // Refresh every 5 seconds for real-time updates
-    staleTime: 3000, // Consider data stale after 3 seconds
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 25000, // Consider data stale after 25 seconds
     retry: 3,
-    retryDelay: 2000
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
-
-  const renderIndexCard = (
-  title: string,
-  symbol: string,
-  data: IndexData | null | undefined,
-  icon: React.ReactNode) =>
-  {
-    if (!data) {
-      return (
-        <Card className="flex-1 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              {icon}
-              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">{title}</h3>
-            </div>
-            <span className="text-sm font-mono text-slate-500 dark:text-slate-400">{symbol}</span>
-          </div>
-          <div className="text-center py-4">
-            <p className="text-sm text-slate-500 dark:text-slate-400">No data available</p>
-          </div>
-        </Card>);
-
-    }
-
-    const isPositive = data.change >= 0;
-    const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-    const bgColor = isPositive ?
-    'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' :
-    'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
-    const borderColor = isPositive ?
-    'border-green-200 dark:border-green-800' :
-    'border-red-200 dark:border-red-800';
-
-    return (
-      <Card className={`flex-1 p-6 bg-gradient-to-br ${bgColor} ${borderColor} border-2 transition-all duration-300 hover:shadow-lg`}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {icon}
-            <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">{title}</h3>
-          </div>
-          <span className="text-sm font-mono font-semibold text-slate-600 dark:text-slate-300">{symbol}</span>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-slate-900 dark:text-slate-100">
-              {data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-1 ${changeColor} font-semibold`}>
-              {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-              <span className="text-lg">
-                {isPositive ? '+' : ''}{data.change.toFixed(2)}
-              </span>
-            </div>
-            
-            <div className={`px-3 py-1 rounded-full ${changeColor} ${isPositive ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-              <span className="text-sm font-semibold">
-                {isPositive ? '+' : ''}{data.percentChange.toFixed(2)}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>);
-
-  };
 
   if (isLoading) {
     return (
       <div className="w-full">
         <div className="mb-2 flex items-center gap-2">
           <Activity className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Market Indices</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Live SPX Price</h2>
         </div>
-        <div className="flex gap-4">
-          <Card className="flex-1 p-6">
-            <Skeleton className="h-8 w-32 mb-4" />
-            <Skeleton className="h-12 w-full mb-3" />
-            <Skeleton className="h-6 w-24" />
-          </Card>
-          <Card className="flex-1 p-6">
-            <Skeleton className="h-8 w-32 mb-4" />
-            <Skeleton className="h-12 w-full mb-3" />
-            <Skeleton className="h-6 w-24" />
-          </Card>
-        </div>
-      </div>);
-
+        <Card className="p-6">
+          <Skeleton className="h-8 w-32 mb-4" />
+          <Skeleton className="h-16 w-full mb-3" />
+          <Skeleton className="h-6 w-40 mb-2" />
+          <Skeleton className="h-6 w-32" />
+        </Card>
+      </div>
+    );
   }
 
   if (isError) {
@@ -136,18 +66,38 @@ export default function SPXVIXDisplay() {
       <Alert variant="destructive" className="mb-4">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {error instanceof Error ? error.message : 'Failed to load market data. Please check your API configuration.'}
+          {error instanceof Error ? error.message : 'Failed to load SPX price data. Please check your API configuration.'}
         </AlertDescription>
-      </Alert>);
-
+      </Alert>
+    );
   }
+
+  if (!data) {
+    return (
+      <Alert className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          No SPX price data available. Please try refreshing.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  const isPositive = data.change >= 0;
+  const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+  const bgColor = isPositive 
+    ? 'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' 
+    : 'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
+  const borderColor = isPositive 
+    ? 'border-green-200 dark:border-green-800' 
+    : 'border-red-200 dark:border-red-800';
 
   return (
     <div className="w-full">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Market Indices</h2>
+          <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Live SPX Price</h2>
           <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -157,41 +107,108 @@ export default function SPXVIXDisplay() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {data?.timestamp &&
+          {data.timestamp && (
             <div className="text-xs text-slate-500 dark:text-slate-400">
               Updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
             </div>
-          }
+          )}
           <button
             onClick={() => refetch()}
-            className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            title="Refresh data"
-          >
-            <RefreshCw className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+            disabled={isFetching}
+            className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh data">
+            <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-400 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-4">
-        {renderIndexCard(
-          'S&P 500 Index',
-          'SPX',
-          data?.spx,
-          <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        )}
-        {renderIndexCard(
-          'Volatility Index',
-          'VIX',
-          data?.vix,
-          <Activity className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-        )}
-      </div>
-      
-      {data?.source &&
-      <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-right">
-          Data source: {data.source === 'thinkorswim' ? 'ThinkorSwim' : 'FastAPI'}
+      <Card className={`p-6 bg-gradient-to-br ${bgColor} ${borderColor} border-2 transition-all duration-300 hover:shadow-lg`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-200">S&P 500 Index</h3>
+          </div>
+          <span className="text-lg font-mono font-semibold text-slate-600 dark:text-slate-300">SPX</span>
         </div>
-      }
-    </div>);
+        
+        <div className="space-y-4">
+          <div className="flex items-baseline gap-3">
+            <span className="text-5xl font-bold text-slate-900 dark:text-slate-100">
+              {data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-1 ${changeColor} font-semibold`}>
+              {isPositive ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
+              <span className="text-2xl">
+                {isPositive ? '+' : ''}{data.change.toFixed(2)}
+              </span>
+            </div>
+            
+            <div className={`px-4 py-2 rounded-full ${changeColor} ${isPositive ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+              <span className="text-lg font-semibold">
+                {isPositive ? '+' : ''}{data.percentChange.toFixed(2)}%
+              </span>
+            </div>
+          </div>
 
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-300 dark:border-slate-600">
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Previous Close</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {data.previousClose.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Open</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {data.open.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">High</p>
+              <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                {data.high.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Low</p>
+              <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                {data.low.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Volume</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {data.volume?.toLocaleString() || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">VWAP</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {data.vwap?.toFixed(2) || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Transactions</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {data.transactions?.toLocaleString() || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Data Source</p>
+              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                {data.source || 'N/A'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+      
+      <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center">
+        Auto-refreshes every 30 seconds
+      </div>
+    </div>
+  );
 }

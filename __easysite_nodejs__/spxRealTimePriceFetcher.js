@@ -1,6 +1,6 @@
 /**
  * Real-time SPX Price Fetcher
- * Fetches live SPX index price from configured data source
+ * Fetches live SPX index price from Polygon.io API
  */
 
 const CACHE_DURATION = 5000; // Cache for 5 seconds
@@ -9,10 +9,9 @@ let lastFetchTime = 0;
 
 /**
  * Fetch real-time SPX price
- * @param {number} userId - User ID for API configuration
  * @returns {Object} SPX price data with timestamp
  */
-export async function fetchRealTimeSPXPrice(userId) {
+export async function fetchRealTimeSPXPrice() {
   try {
     const now = Date.now();
     
@@ -21,16 +20,11 @@ export async function fetchRealTimeSPXPrice(userId) {
       return priceCache;
     }
 
-    // Try to fetch from ThinkorSwim first
-    let priceData = await fetchFromThinkorSwim(userId);
-    
-    // Fallback to FastAPI if ThinkorSwim fails
-    if (!priceData) {
-      priceData = await fetchFromFastAPI(userId);
-    }
+    // Fetch from Polygon.io
+    const priceData = await fetchFromPolygon();
 
     if (!priceData) {
-      throw new Error('Unable to fetch SPX price from any data source');
+      throw new Error('Unable to fetch SPX price from Polygon.io');
     }
 
     // Cache the result
@@ -48,111 +42,68 @@ export async function fetchRealTimeSPXPrice(userId) {
 }
 
 /**
- * Fetch SPX price from ThinkorSwim
+ * Fetch SPX price from Polygon.io
  */
-async function fetchFromThinkorSwim(userId) {
+async function fetchFromPolygon() {
   try {
-    // Get ThinkorSwim settings
-    const { data: settings } = await easysite.table.page(58031, {
-      PageNo: 1,
-      PageSize: 1,
-      Filters: [{ name: 'user_id', op: 'Equal', value: userId }]
-    });
-
-    if (!settings?.List?.[0]) {
-      return null;
-    }
-
-    const config = settings.List[0];
-    if (!config.is_connected || !config.access_token) {
-      return null;
-    }
-
-    // Fetch SPX quote from ThinkorSwim API
-    const axios = (await import('npm:axios@1.7.9')).default;
-    const response = await axios.get(
-      `https://api.tdameritrade.com/v1/marketdata/$SPX.X/quotes`,
-      {
-        headers: {
-          'Authorization': `Bearer ${config.access_token}`
-        },
-        timeout: 5000
-      }
-    );
-
-    const quote = response.data['$SPX.X'];
-    if (!quote) {
-      return null;
-    }
-
-    return {
-      price: quote.lastPrice || quote.mark,
-      bid: quote.bidPrice,
-      ask: quote.askPrice,
-      change: quote.netChange,
-      percentChange: quote.netPercentChangeInDouble,
-      volume: quote.totalVolume,
-      previousClose: quote.closePrice,
-      high: quote.highPrice,
-      low: quote.lowPrice,
-      open: quote.openPrice,
-      source: 'thinkorswim'
-    };
-  } catch (error) {
-    console.error('ThinkorSwim fetch error:', error.message);
-    return null;
-  }
-}
-
-/**
- * Fetch SPX price from FastAPI
- */
-async function fetchFromFastAPI(userId) {
-  try {
-    // Get FastAPI settings
-    const { data: settings } = await easysite.table.page(58031, {
-      PageNo: 1,
-      PageSize: 1,
-      Filters: [{ name: 'user_id', op: 'Equal', value: userId }]
-    });
-
-    if (!settings?.List?.[0]) {
-      return null;
-    }
-
-    const config = settings.List[0];
-    const baseUrl = config.api_base_url || process.env.FASTAPI_BASE_URL;
+    const apiKey = Deno.env.get('POLYGON_API_KEY');
     
-    if (!baseUrl) {
-      return null;
+    if (!apiKey) {
+      throw new Error('POLYGON_API_KEY not found in environment variables');
     }
 
-    // Fetch SPX quote from FastAPI
     const axios = (await import('npm:axios@1.7.9')).default;
+    
+    // Get previous day's close data for SPX (I:SPX is the index ticker on Polygon)
+    // Using /v2/aggs/ticker endpoint for aggregated data
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateStr = yesterday.toISOString().split('T')[0];
+    
     const response = await axios.get(
-      `${baseUrl}/market-data/quote/SPX`,
+      `https://api.polygon.io/v2/aggs/ticker/I:SPX/prev`,
       {
-        timeout: 5000
+        params: {
+          apiKey: apiKey,
+          adjusted: true
+        },
+        timeout: 10000
       }
     );
 
-    const quote = response.data;
+    if (!response.data || !response.data.results || response.data.results.length === 0) {
+      throw new Error('No price data returned from Polygon.io');
+    }
+
+    const result = response.data.results[0];
+    
+    // Calculate change and percent change
+    const price = result.c; // Close price
+    const previousClose = result.o; // Open price as previous close approximation
+    const change = price - previousClose;
+    const percentChange = previousClose !== 0 ? (change / previousClose) * 100 : 0;
+
     return {
-      price: quote.last_price || quote.price,
-      bid: quote.bid,
-      ask: quote.ask,
-      change: quote.change,
-      percentChange: quote.percent_change,
-      volume: quote.volume,
-      previousClose: quote.previous_close,
-      high: quote.high,
-      low: quote.low,
-      open: quote.open,
-      source: 'fastapi'
+      price: price,
+      bid: null, // Polygon.io doesn't provide bid/ask for indices in this endpoint
+      ask: null,
+      change: change,
+      percentChange: percentChange,
+      volume: result.v,
+      previousClose: previousClose,
+      high: result.h,
+      low: result.l,
+      open: result.o,
+      vwap: result.vw, // Volume weighted average price
+      transactions: result.n, // Number of transactions
+      source: 'polygon.io'
     };
   } catch (error) {
-    console.error('FastAPI fetch error:', error.message);
-    return null;
+    console.error('Polygon.io fetch error:', error.message);
+    if (error.response) {
+      console.error('API Response:', error.response.data);
+    }
+    throw error;
   }
 }
 
