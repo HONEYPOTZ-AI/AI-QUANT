@@ -17,11 +17,11 @@ export async function fetchRealTimeSPXPrice() {
     
     // Return cached data if still valid
     if (priceCache && (now - lastFetchTime) < CACHE_DURATION) {
-      console.log('✅ Returning cached SPX price data');
+      console.log('✅ [SPX Fetcher] Returning cached SPX price data');
       return priceCache;
     }
 
-    console.log('🔄 Fetching fresh SPX price from Polygon.io...');
+    console.log('🔄 [SPX Fetcher] Fetching fresh SPX price from Polygon.io...');
 
     // Fetch from Polygon.io
     const priceData = await fetchFromPolygon();
@@ -37,10 +37,10 @@ export async function fetchRealTimeSPXPrice() {
     };
     lastFetchTime = now;
 
-    console.log('✅ SPX price data cached successfully');
+    console.log('✅ [SPX Fetcher] SPX price cached successfully:', priceData.price);
     return priceCache;
   } catch (error) {
-    console.error('Error fetching real-time SPX price:', error);
+    console.error('❌ [SPX Fetcher] Error fetching real-time SPX price:', error);
     throw new Error(`Failed to fetch SPX price: ${error.message}`);
   }
 }

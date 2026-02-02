@@ -208,19 +208,22 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
 
     setState((prev) => ({ ...prev, isConnected: true }));
 
+    const symbols = Array.from(subscriptions);
+    const source = state.dataSource;
+
     // Fetch immediately
-    fetchData(state.dataSource, Array.from(subscriptions));
+    fetchData(source, symbols);
 
     // Set up periodic updates
     const interval = setInterval(() => {
-      fetchData(state.dataSource, Array.from(subscriptions));
-    }, state.dataSource === 'mock' ? 2000 : 5000); // Mock: 2s, IBRK: 5s
+      fetchData(source, symbols);
+    }, source === 'mock' ? 2000 : 5000); // Mock: 2s, IBRK: 5s
 
     return () => {
       clearInterval(interval);
       setState((prev) => ({ ...prev, isConnected: false }));
     };
-  }, [subscriptions, state.dataSource]);
+  }, [subscriptions]); // Removed state.dataSource from dependencies to prevent infinite loop
 
   const subscribe = (symbols: string[]) => {
     setSubscriptions((prev) => {
@@ -250,6 +253,10 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
 
   const setDataSource = (source: DataSource) => {
     setState((prev) => ({ ...prev, dataSource: source }));
+    // Trigger immediate refresh with new data source
+    if (subscriptions.size > 0) {
+      fetchData(source, Array.from(subscriptions));
+    }
   };
 
   const value: MarketDataContextType = {

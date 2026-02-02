@@ -49,6 +49,8 @@ async function fetchSnapshot(ticker, type = 'stocks') {
       timeout: 10000
     });
 
+    console.log(`✅ Snapshot response for ${ticker}:`, response.status);
+
     if (response.data && response.data.ticker) {
       const ticker_data = response.data.ticker;
       const day = ticker_data.day || {};
@@ -68,9 +70,13 @@ async function fetchSnapshot(ticker, type = 'stocks') {
         timestamp: day.t || Date.now()
       };
     }
+    console.warn(`⚠️ No ticker data in response for ${ticker}`);
     return null;
   } catch (error) {
-    console.error(`Error fetching snapshot for ${ticker}:`, error.message);
+    console.error(`❌ Error fetching snapshot for ${ticker}:`, error.message);
+    if (error.response) {
+      console.error(`API Response: ${error.response.status}`, error.response.data);
+    }
     return null;
   }
 }

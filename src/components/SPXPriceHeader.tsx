@@ -106,7 +106,7 @@ export default function SPXPriceHeader() {
 
   return (
     <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
+      <CardHeader className="flex flex-row items-start justify-between pb-3">
         <div className="space-y-1">
           <CardTitle className="text-2xl font-bold">S&P 500 Index</CardTitle>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -132,7 +132,7 @@ export default function SPXPriceHeader() {
           size="sm"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="gap-2">
+          className="gap-2 mt-2">
 
           <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           Refresh
