@@ -49,20 +49,20 @@ export default function PolygonAPITestPanel() {
       if (result.data.summary?.failed === 0) {
         toast({
           title: '✅ All Tests Passed',
-          description: 'Polygon API integration is working correctly.',
+          description: 'Polygon API integration is working correctly.'
         });
       } else {
         toast({
           title: '⚠️ Some Tests Failed',
           description: `${result.data.summary?.failed} out of ${result.data.summary?.total} tests failed.`,
-          variant: 'destructive',
+          variant: 'destructive'
         });
       }
     } catch (error: any) {
       toast({
         title: 'Test Failed',
         description: error.message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
       setResults({
         tests: [{
@@ -112,45 +112,45 @@ export default function PolygonAPITestPanel() {
             onClick={runTests}
             disabled={testing}
             size="lg"
-            className="gap-2"
-          >
-            {testing ? (
-              <>
+            className="gap-2">
+
+            {testing ?
+            <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Running Tests...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Play className="w-4 h-4" />
                 Run Verification
               </>
-            )}
+            }
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* API Key Status */}
-        {results.apiKeyConfigured !== undefined && (
-          <Alert className={results.apiKeyConfigured ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+        {results.apiKeyConfigured !== undefined &&
+        <Alert className={results.apiKeyConfigured ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
             <AlertDescription className="flex items-center gap-2">
-              {results.apiKeyConfigured ? (
-                <>
+              {results.apiKeyConfigured ?
+            <>
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                   <span className="font-medium">API Key Configured</span>
-                </>
-              ) : (
-                <>
+                </> :
+
+            <>
                   <XCircle className="w-4 h-4 text-red-600" />
                   <span className="font-medium">API Key Not Found - Please add POLYGON_API_KEY to .env file</span>
                 </>
-              )}
+            }
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Summary */}
-        {results.summary && (
-          <div className="grid grid-cols-3 gap-4">
+        {results.summary &&
+        <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
@@ -176,58 +176,58 @@ export default function PolygonAPITestPanel() {
               </CardContent>
             </Card>
           </div>
-        )}
+        }
 
         {/* Test Results */}
-        {results.tests && results.tests.length > 0 && (
-          <div className="space-y-3">
+        {results.tests && results.tests.length > 0 &&
+        <div className="space-y-3">
             <h3 className="text-lg font-semibold">Test Results</h3>
-            {results.tests.map((test, index) => (
-              <Card key={index} className={`border-2 ${getStatusColor(test.status)}`}>
+            {results.tests.map((test, index) =>
+          <Card key={index} className={`border-2 ${getStatusColor(test.status)}`}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
                       {getStatusIcon(test.status)}
                       <div className="flex-1">
                         <div className="font-semibold mb-1">{test.name}</div>
-                        {test.details && (
-                          <div className="text-sm text-muted-foreground mb-2">{test.details}</div>
-                        )}
-                        {test.error && (
-                          <Alert variant="destructive" className="mt-2">
+                        {test.details &&
+                    <div className="text-sm text-muted-foreground mb-2">{test.details}</div>
+                    }
+                        {test.error &&
+                    <Alert variant="destructive" className="mt-2">
                             <AlertDescription className="text-sm">{test.error}</AlertDescription>
                           </Alert>
-                        )}
-                        {test.data && (
-                          <div className="mt-2 p-3 bg-white/50 rounded border text-xs font-mono">
+                    }
+                        {test.data &&
+                    <div className="mt-2 p-3 bg-white/50 rounded border text-xs font-mono">
                             <pre>{JSON.stringify(test.data, null, 2)}</pre>
                           </div>
-                        )}
+                    }
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {test.fetchTime && (
-                        <Badge variant="outline" className="text-xs">
+                      {test.fetchTime &&
+                  <Badge variant="outline" className="text-xs">
                           {test.fetchTime}
                         </Badge>
-                      )}
-                      <Badge 
-                        variant={test.status === 'PASSED' ? 'default' : 'destructive'}
-                        className="text-xs"
-                      >
+                  }
+                      <Badge
+                    variant={test.status === 'PASSED' ? 'default' : 'destructive'}
+                    className="text-xs">
+
                         {test.status}
                       </Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+          )}
           </div>
-        )}
+        }
 
         {/* Instructions */}
-        {!results.tests && !testing && (
-          <Alert>
+        {!results.tests && !testing &&
+        <Alert>
             <AlertDescription>
               <div className="space-y-2">
                 <p className="font-medium">Click "Run Verification" to test:</p>
@@ -242,15 +242,15 @@ export default function PolygonAPITestPanel() {
               </div>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Timestamp */}
-        {results.timestamp && (
-          <div className="text-xs text-muted-foreground text-right">
+        {results.timestamp &&
+        <div className="text-xs text-muted-foreground text-right">
             Test completed at: {new Date(results.timestamp).toLocaleString()}
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

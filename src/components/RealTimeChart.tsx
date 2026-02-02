@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Activity, Wifi, WifiOff } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, Clock } from 'lucide-react';
 import { useMarketData } from '@/components/MarketDataService';
-import { Database } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 interface RealTimeChartProps {
   symbol: string;
@@ -15,42 +15,36 @@ interface RealTimeChartProps {
 
 export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartProps) {
   const { data, isConnected, subscribe, unsubscribe, dataSource, loading } = useMarketData();
-
   const [timeframe, setTimeframe] = useState('1m');
-  const [polygonData, setPolygonData] = useState<any>(null);
 
-  // Use Polygon API for SPX
-  useEffect(() => {
-    if (symbol === 'SPX' || symbol === 'I:SPX') {
-      const fetchSPXData = async () => {
-        try {
-          const result = await window.ezsite.apis.run({
-            path: 'spxRealTimePriceFetcher',
-            methodName: 'fetchRealTimeSPXPrice',
-            param: []
-          });
-          if (!result.error && result.data) {
-            setPolygonData(result.data);
-          }
-        } catch (err) {
-          console.error('Failed to fetch SPX data from Polygon:', err);
-        }
-      };
+  // Use Polygon API for SPX with auto-refresh
+  const { data: spxData, refetch, isFetching } = useQuery({
+    queryKey: ['spx-realtime-chart', symbol],
+    queryFn: async () => {
+      const result = await window.ezsite.apis.run({
+        path: 'spxRealTimePriceFetcher',
+        methodName: 'fetchRealTimeSPXPrice',
+        param: []
+      });
+      if (result.error) throw new Error(result.error);
+      return result.data;
+    },
+    enabled: symbol === 'SPX' || symbol === 'I:SPX',
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    staleTime: 25000,
+  });
 
-      fetchSPXData();
-      const interval = setInterval(fetchSPXData, 30000); // Refresh every 30 seconds
-      return () => clearInterval(interval);
-    }
-  }, [symbol]);
-
-  const marketData = (symbol === 'SPX' || symbol === 'I:SPX') && polygonData ? {
-    price: polygonData.price,
-    change: polygonData.change,
-    changePercent: polygonData.percentChange,
-    volume: polygonData.volume || 0,
-    open: polygonData.open,
-    high: polygonData.high,
-    low: polygonData.low
+  const marketData = (symbol === 'SPX' || symbol === 'I:SPX') && spxData ? {
+    price: spxData.price,
+    change: spxData.change,
+    changePercent: spxData.percentChange,
+    volume: spxData.volume || 0,
+    open: spxData.open,
+    high: spxData.high,
+    low: spxData.low,
+    timestamp: spxData.timestamp,
+    marketStatus: spxData.marketStatus,
+    isRealTime: spxData.isRealTime
   } : data[symbol];
 
   useEffect(() => {
@@ -64,7 +58,6 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
     const data = marketData;
     if (!data || !data.price) return [];
 
-    // Use real price data if available, otherwise generate realistic data
     const currentPrice = data.price;
     const points = [];
 
@@ -73,8 +66,8 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
       const timestamp = Date.now() - i * 60 * 1000; // 1 minute intervals
 
       // Create realistic price movement based on volatility
-      const volatility = 2; // Default volatility if not available
-      const variation = (Math.random() - 0.5) * (volatility / 100) * 0.1; // Small variations
+      const volatility = 2; // Default volatility
+      const variation = (Math.random() - 0.5) * (volatility / 100) * 0.1;
       const price = currentPrice * (1 + variation);
 
       // Use real volume data with some variation
@@ -84,7 +77,7 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
       points.push({
         timestamp,
         price: parseFloat(price.toFixed(4)),
-        volume: Math.floor(baseVolume * volumeVariation / 30), // Distribute volume across time
+        volume: Math.floor(baseVolume * volumeVariation / 30),
         time: new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
     }
@@ -98,6 +91,7 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
   }, [marketData]);
 
   const isPositive = marketData?.change >= 0;
+  const isSPX = symbol === 'SPX' || symbol === 'I:SPX';
 
   return (
     <Card className="w-full">
@@ -107,35 +101,63 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
             <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
               <span>{symbol}</span>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  {isConnected ?
-                  <Wifi className="w-4 h-4 text-green-500" /> :
-
-                  <WifiOff className="w-4 h-4 text-red-500" />
-                  }
-                  <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
-                    {isConnected ? "LIVE" : "DISCONNECTED"}
-                  </Badge>
-                </div>
-                <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                  <Database className="w-3 h-3" />
-                  {dataSource === 'ibrk' ? 'IBRK' : dataSource === 'auto' ? 'Auto' : 'Mock'}
-                </Badge>
+                {isSPX && (
+                  <>
+                    <Badge variant={marketData?.marketStatus === 'open' ? "default" : "secondary"} className="text-xs">
+                      {marketData?.marketStatus === 'open' ? (
+                        <span className="flex items-center gap-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                          LIVE
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          CLOSED
+                        </span>
+                      )}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {marketData?.isRealTime ? 'Real-time' : 'Delayed'}
+                    </Badge>
+                  </>
+                )}
+                {!isSPX && (
+                  <>
+                    <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                      {isConnected ? "LIVE" : "DISCONNECTED"}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {dataSource === 'ibrk' ? 'IBRK' : dataSource === 'auto' ? 'Auto' : 'Mock'}
+                    </Badge>
+                  </>
+                )}
               </div>
             </CardTitle>
             <CardDescription>Real-time market data</CardDescription>
           </div>
-          <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-20 sm:w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1m">1m</SelectItem>
-              <SelectItem value="5m">5m</SelectItem>
-              <SelectItem value="15m">15m</SelectItem>
-              <SelectItem value="1h">1h</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            {isSPX && (
+              <button
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+                title="Refresh data"
+              >
+                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+              </button>
+            )}
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger className="w-20 sm:w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1m">1m</SelectItem>
+                <SelectItem value="5m">5m</SelectItem>
+                <SelectItem value="15m">15m</SelectItem>
+                <SelectItem value="1h">1h</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         {marketData && (
@@ -143,13 +165,20 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
             <div className="text-xl sm:text-2xl font-bold">
               ${marketData.price.toFixed(2)}
             </div>
-            <div className={`flex items-center gap-1 text-sm sm:text-base ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`flex items-center gap-1 text-sm sm:text-base ${
+              isPositive ? 'text-green-600' : 'text-red-600'
+            }`}>
               {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span className="font-medium">
                 {isPositive ? '+' : ''}{marketData.change.toFixed(2)} 
                 ({isPositive ? '+' : ''}{marketData.changePercent.toFixed(2)}%)
               </span>
             </div>
+            {marketData.timestamp && (
+              <div className="text-xs text-muted-foreground">
+                Updated: {format(new Date(marketData.timestamp), 'HH:mm:ss')}
+              </div>
+            )}
           </div>
         )}
       </CardHeader>
@@ -159,28 +188,28 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis
-                dataKey="time"
+              <XAxis 
+                dataKey="time" 
                 tick={{ fontSize: 12 }}
-                tickFormatter={(value) => value.split(' ')[1] || value} />
-
-              <YAxis
+                tickFormatter={(value) => value.split(' ')[1] || value}
+              />
+              <YAxis 
                 domain={['dataMin - 5', 'dataMax + 5']}
                 tick={{ fontSize: 12 }}
-                tickFormatter={(value) => `$${value}`} />
-
-              <Tooltip
+                tickFormatter={(value) => `$${value}`}
+              />
+              <Tooltip 
                 labelFormatter={(value) => `Time: ${value}`}
-                formatter={(value) => [`$${value}`, 'Price']} />
-
-              <Line
+                formatter={(value) => [`$${value}`, 'Price']}
+              />
+              <Line 
                 type="monotone"
                 dataKey="price"
                 stroke={isPositive ? "#16a34a" : "#dc2626"}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, stroke: isPositive ? "#16a34a" : "#dc2626" }} />
-
+                activeDot={{ r: 4, stroke: isPositive ? "#16a34a" : "#dc2626" }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -205,7 +234,13 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
             </div>
           </div>
         )}
+        
+        {isSPX && marketData?.marketStatus === 'open' && (
+          <div className="mt-3 text-xs text-center text-muted-foreground">
+            Auto-refreshes every 30 seconds
+          </div>
+        )}
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 }
