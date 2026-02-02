@@ -1,198 +1,154 @@
-# FastAPI Market Data Processing Service
+# Market Data Processing Python Service
 
-This is a Python FastAPI service for market data processing and analysis. It provides HTTP endpoints that can be called by the Deno backend for advanced data processing tasks.
+FastAPI service for advanced market data processing, options analytics, and iron condor strategy analysis.
 
 ## Features
 
-- **Real-time Market Data Processing**: Fetch and analyze market data for multiple symbols
-- **Technical Indicators**: Calculate RSI, MACD, Moving Averages, and more
-- **Position Management**: Track and analyze trading positions
-- **Equity Monitoring**: Monitor account equity and margin information
-- **Advanced Analytics**: Perform correlation analysis and trend detection
-
-## Prerequisites
-
-- Python 3.9 or higher
-- pip (Python package manager)
+- **Market Data Processing**: Real-time market data aggregation and technical indicators
+- **Options Greeks**: Calculate portfolio-level Greeks for options positions
+- **Iron Condor Analysis**: Risk/reward analysis and optimal strike selection
+- **Position Management**: Fetch positions and equity data from trading platforms
 
 ## Installation
 
-1. Navigate to the python_service directory:
 ```bash
 cd python_service
-```
-
-2. Create a virtual environment (recommended):
-```bash
-python -m venv venv
-
-# On Windows
-venv\Scripts\activate
-
-# On macOS/Linux
-source venv/bin/activate
-```
-
-3. Install dependencies:
-```bash
 pip install -r requirements.txt
 ```
 
 ## Running the Service
 
-### Development Mode
-
-Run with auto-reload enabled:
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Production Mode
-
-Run without auto-reload:
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-### Using Python directly
-
 ```bash
 python main.py
 ```
 
-The service will start on `http://localhost:8000`
+Or using uvicorn directly:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
 
 ## API Endpoints
 
-### Health Check
-```
-GET /health
-```
-Check if the service is running and healthy.
+### General
+- `GET /` - Service information
+- `GET /health` - Health check
 
 ### Market Data
-```
-POST /market-data
-Content-Type: application/json
+- `POST /market-data` - Fetch and process market data for symbols
+- `GET /positions` - Get current trading positions
+- `GET /equity` - Get account equity and balance
+- `POST /analyze` - Perform market analysis
 
+### Iron Condor Strategy
+- `POST /iron-condor/analyze` - Analyze iron condor risk/reward
+- `POST /iron-condor/greeks` - Calculate combined Greeks for iron condor
+
+## Iron Condor Endpoints
+
+### POST /iron-condor/analyze
+
+Analyzes iron condor strategy setup and provides recommendations.
+
+**Request Body:**
+```json
 {
-  "symbols": ["US30", "AAPL", "GOOGL"],
-  "timeframe": "1m"
+  "symbol": "SPX",
+  "expiration_date": "2024-12-20",
+  "long_call_strike": 4600,
+  "short_call_strike": 4550,
+  "short_put_strike": 4400,
+  "long_put_strike": 4350,
+  "contracts": 1,
+  "current_price": 4475,
+  "implied_volatility": 0.20
 }
 ```
-Fetch and process market data for given symbols.
 
-### Positions
+**Response:**
+```json
+{
+  "success": true,
+  "analysis": {
+    "risk_reward": {
+      "max_profit": 800,
+      "max_loss": 4200,
+      "return_on_risk_percent": 19.05,
+      "risk_reward_ratio": 0.190
+    },
+    "breakevens": {
+      "upper": 4558,
+      "lower": 4392,
+      "range": 166
+    },
+    "probability": {
+      "profit_percent": 68.5,
+      "loss_percent": 31.5
+    },
+    "recommendations": {
+      "optimal_short_call_strike": 4565,
+      "optimal_short_put_strike": 4385
+    }
+  }
+}
 ```
-GET /positions?account_id=YOUR_ACCOUNT_ID
-```
-Retrieve current trading positions.
 
-### Equity
-```
-GET /equity?account_id=YOUR_ACCOUNT_ID
-```
-Get account equity and balance information.
+### POST /iron-condor/greeks
 
-### Market Analysis
-```
-POST /analyze?symbols=US30&symbols=AAPL&symbols=GOOGL
-```
-Perform advanced market analysis including correlations and trends.
+Calculates portfolio-level Greeks for iron condor position.
 
-## API Documentation
+**Request Body:**
+```json
+{
+  "long_call_greeks": {"delta": 0.25, "gamma": 0.01, "theta": -2, "vega": 15},
+  "short_call_greeks": {"delta": 0.35, "gamma": 0.015, "theta": -3, "vega": 20},
+  "short_put_greeks": {"delta": -0.35, "gamma": 0.015, "theta": -3, "vega": 20},
+  "long_put_greeks": {"delta": -0.25, "gamma": 0.01, "theta": -2, "vega": 15},
+  "contracts": 1
+}
+```
 
-Once the service is running, you can access:
-- Interactive API docs (Swagger UI): `http://localhost:8000/docs`
-- Alternative API docs (ReDoc): `http://localhost:8000/redoc`
+**Response:**
+```json
+{
+  "success": true,
+  "portfolio_greeks": {
+    "delta": 0.0,
+    "gamma": -0.8,
+    "theta": 4.0,
+    "vega": -20.0
+  },
+  "risk_profile": {
+    "delta_neutral": true,
+    "positive_theta": true,
+    "negative_vega": true,
+    "gamma_risk": "low"
+  },
+  "daily_estimates": {
+    "theta_decay_pnl": 4.0,
+    "pnl_if_underlying_up_1pct": 0.0
+  }
+}
+```
 
 ## Integration with Deno Backend
 
-The Deno backend communicates with this Python service via HTTP requests. The connection is configured in the Deno backend files:
+The Deno backend (`__easysite_nodejs__/ironCondorStrategy.js`) calls this Python service for advanced analytics:
 
-- `fastapiConnectionManager.js` - Manages connection to Python service
-- `fastapiMarketDataFetcher.js` - Fetches market data via HTTP
-- `fastapiPositionsFetcher.js` - Fetches positions via HTTP
-- `fastapiEquityFetcher.js` - Fetches equity via HTTP
-
-## Configuration
-
-Default settings:
-- Host: `0.0.0.0` (all interfaces)
-- Port: `8000`
-- CORS: Enabled for all origins (configure for production)
-
-To change the port, edit `main.py` or use command line:
-```bash
-uvicorn main:app --port 8080
+```javascript
+// Example: Analyze iron condor setup
+const response = await axios.post('http://localhost:8000/iron-condor/analyze', {
+  symbol: 'SPX',
+  expiration_date: '2024-12-20',
+  // ... other parameters
+});
 ```
 
-## Testing
+## Environment Variables
 
-Test the service using curl:
+Configure in `.env` file at project root (shared with frontend/Deno backend).
 
-```bash
-# Health check
-curl http://localhost:8000/health
+## Development
 
-# Market data
-curl -X POST http://localhost:8000/market-data \
-  -H "Content-Type: application/json" \
-  -d '{"symbols": ["US30", "AAPL"]}'
-
-# Positions
-curl http://localhost:8000/positions
-
-# Equity
-curl http://localhost:8000/equity
-```
-
-## Project Structure
-
-```
-python_service/
-├── main.py              # FastAPI application
-├── requirements.txt     # Python dependencies
-└── README.md           # This file
-```
-
-## Production Deployment
-
-For production deployment, consider:
-
-1. **Use a production ASGI server**: Uvicorn with Gunicorn
-```bash
-gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-```
-
-2. **Configure CORS properly**: Update `allow_origins` in `main.py` to specific domains
-
-3. **Add authentication**: Implement API key or OAuth authentication
-
-4. **Use environment variables**: For configuration (host, port, API keys)
-
-5. **Add logging**: Configure proper logging for monitoring
-
-6. **Deploy with Docker**: Create a Dockerfile for containerization
-
-## Troubleshooting
-
-### Port Already in Use
-If port 8000 is already in use, change the port:
-```bash
-uvicorn main:app --port 8001
-```
-And update the Deno backend configuration accordingly.
-
-### Module Not Found
-Make sure all dependencies are installed:
-```bash
-pip install -r requirements.txt
-```
-
-### CORS Errors
-If you get CORS errors, check the `allow_origins` configuration in `main.py`.
-
-## Support
-
-For issues or questions, refer to the main project documentation.
+- API documentation: http://localhost:8000/docs
+- Alternative docs: http://localhost:8000/redoc

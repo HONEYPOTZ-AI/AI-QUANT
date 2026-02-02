@@ -54,6 +54,7 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
   { id: 'analytics', label: 'AI Analytics', icon: <Brain className="h-5 w-5" /> },
   { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
   { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
+  { id: 'iron-condor', label: 'Iron Condor', icon: <Target className="h-5 w-5" /> },
   { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> },
   { id: 'settings', label: 'IBRK Settings', icon: <Settings className="h-5 w-5" /> },
   { id: 'api-test', label: 'API Test', icon: <TestTube className="h-5 w-5" /> }];
@@ -98,6 +99,8 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
           onClick={() => {
             if (item.id === 'api-test') {
               navigate('/api-test');
+            } else if (item.id === 'iron-condor') {
+              navigate('/iron-condor');
             } else {
               setActiveTab(item.id);
             }

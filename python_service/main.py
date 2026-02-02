@@ -337,6 +337,295 @@ async def analyze_market(symbols: List[str] = Query(..., description="Symbols to
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
+# Iron Condor Strategy Models
+class IronCondorAnalysisRequest(BaseModel):
+    symbol: str
+    expiration_date: str
+    long_call_strike: float
+    short_call_strike: float
+    short_put_strike: float
+    long_put_strike: float
+    contracts: int
+    current_price: Optional[float] = None
+    implied_volatility: Optional[float] = 0.20  # Default 20% IV
+
+class IronCondorGreeksRequest(BaseModel):
+    long_call_greeks: Dict[str, float]
+    short_call_greeks: Dict[str, float]
+    short_put_greeks: Dict[str, float]
+    long_put_greeks: Dict[str, float]
+    contracts: int
+
+# Iron Condor Endpoints
+@app.post("/iron-condor/analyze")
+async def analyze_iron_condor(request: IronCondorAnalysisRequest):
+    """
+    Analyze iron condor strategy
+    
+    Returns:
+        - Risk/reward metrics
+        - Optimal strike recommendations
+        - Probability of profit
+        - Sensitivity analysis
+    """
+    try:
+        # Calculate spread widths
+        call_spread_width = request.long_call_strike - request.short_call_strike
+        put_spread_width = request.short_put_strike - request.long_put_strike
+        
+        # Estimate net credit (simplified - in production, use real option prices)
+        # Assume short strikes are worth more than long strikes
+        estimated_call_credit = call_spread_width * 0.4  # 40% of width
+        estimated_put_credit = put_spread_width * 0.4
+        net_credit = (estimated_call_credit + estimated_put_credit) * request.contracts * 100
+        
+        # Calculate max profit and loss
+        max_profit = net_credit
+        max_loss = (max(call_spread_width, put_spread_width) * request.contracts * 100) - net_credit
+        
+        # Calculate breakeven points
+        credit_per_share = net_credit / (request.contracts * 100)
+        upper_breakeven = request.short_call_strike + credit_per_share
+        lower_breakeven = request.short_put_strike - credit_per_share
+        
+        # Calculate return on risk
+        return_on_risk = (max_profit / max_loss) * 100 if max_loss > 0 else 0
+        
+        # Calculate probability of profit (using normal distribution approximation)
+        if request.current_price:
+            current_price = request.current_price
+        else:
+            # Estimate current price as midpoint of strikes
+            current_price = (request.short_call_strike + request.short_put_strike) / 2
+        
+        # Days to expiration
+        expiration = datetime.strptime(request.expiration_date, "%Y-%m-%d")
+        days_to_expiration = (expiration - datetime.now()).days
+        years_to_expiration = days_to_expiration / 365.0
+        
+        # Probability calculation using implied volatility
+        iv = request.implied_volatility
+        if years_to_expiration > 0 and iv > 0:
+            # Standard deviation of price movement
+            price_std = current_price * iv * np.sqrt(years_to_expiration)
+            
+            # Z-scores for breakeven points
+            z_upper = (upper_breakeven - current_price) / price_std
+            z_lower = (lower_breakeven - current_price) / price_std
+            
+            # Probability that price stays within range (between lower and upper breakeven)
+            from scipy import stats
+            prob_below_upper = stats.norm.cdf(z_upper)
+            prob_below_lower = stats.norm.cdf(z_lower)
+            probability_of_profit = (prob_below_upper - prob_below_lower) * 100
+        else:
+            probability_of_profit = 60.0  # Default estimate
+        
+        # Optimal strike recommendations
+        # For iron condors, typically place short strikes at 1 standard deviation
+        optimal_std = current_price * iv * np.sqrt(years_to_expiration)
+        recommended_short_call = current_price + optimal_std
+        recommended_short_put = current_price - optimal_std
+        
+        # Wing width recommendation (typically 5-10 points)
+        recommended_wing_width = max(5, current_price * 0.02)
+        
+        # Sensitivity analysis - how much can underlying move before breakeven
+        upside_room = ((upper_breakeven - current_price) / current_price) * 100
+        downside_room = ((current_price - lower_breakeven) / current_price) * 100
+        
+        return {
+            "success": True,
+            "analysis": {
+                "risk_reward": {
+                    "max_profit": round(max_profit, 2),
+                    "max_loss": round(max_loss, 2),
+                    "return_on_risk_percent": round(return_on_risk, 2),
+                    "risk_reward_ratio": round(max_profit / max_loss, 3) if max_loss > 0 else 0
+                },
+                "breakevens": {
+                    "upper": round(upper_breakeven, 2),
+                    "lower": round(lower_breakeven, 2),
+                    "range": round(upper_breakeven - lower_breakeven, 2)
+                },
+                "probability": {
+                    "profit_percent": round(probability_of_profit, 2),
+                    "loss_percent": round(100 - probability_of_profit, 2),
+                    "method": "normal_distribution_approximation"
+                },
+                "sensitivity": {
+                    "upside_room_percent": round(upside_room, 2),
+                    "downside_room_percent": round(downside_room, 2),
+                    "days_to_expiration": days_to_expiration
+                },
+                "recommendations": {
+                    "optimal_short_call_strike": round(recommended_short_call, 2),
+                    "optimal_short_put_strike": round(recommended_short_put, 2),
+                    "recommended_wing_width": round(recommended_wing_width, 2),
+                    "reasoning": "Strikes placed at ~1 standard deviation from current price"
+                },
+                "quality_metrics": {
+                    "score": calculate_strategy_score(return_on_risk, probability_of_profit, days_to_expiration),
+                    "rating": get_strategy_rating(return_on_risk, probability_of_profit)
+                }
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/iron-condor/greeks")
+async def calculate_iron_condor_greeks(request: IronCondorGreeksRequest):
+    """
+    Calculate combined Greeks for iron condor position
+    
+    Args:
+        request: Greeks for each of the four legs
+        
+    Returns:
+        Portfolio-level Greeks and risk metrics
+    """
+    try:
+        # Extract individual leg Greeks
+        lc = request.long_call_greeks
+        sc = request.short_call_greeks
+        sp = request.short_put_greeks
+        lp = request.long_put_greeks
+        contracts = request.contracts
+        
+        # Calculate net Greeks (consider position direction)
+        # Long positions: negative contribution to portfolio
+        # Short positions: positive contribution to portfolio
+        portfolio_delta = (
+            -lc.get('delta', 0) +  # Long call
+            sc.get('delta', 0) +    # Short call
+            sp.get('delta', 0) +    # Short put
+            -lp.get('delta', 0)     # Long put
+        ) * contracts * 100
+        
+        portfolio_gamma = (
+            -lc.get('gamma', 0) +
+            sc.get('gamma', 0) +
+            sp.get('gamma', 0) +
+            -lp.get('gamma', 0)
+        ) * contracts * 100
+        
+        portfolio_theta = (
+            -lc.get('theta', 0) +
+            sc.get('theta', 0) +
+            sp.get('theta', 0) +
+            -lp.get('theta', 0)
+        ) * contracts * 100
+        
+        portfolio_vega = (
+            -lc.get('vega', 0) +
+            sc.get('vega', 0) +
+            sp.get('vega', 0) +
+            -lp.get('vega', 0)
+        ) * contracts * 100
+        
+        # Calculate individual leg contributions (for analysis)
+        legs_breakdown = {
+            "long_call": {
+                "delta": round(-lc.get('delta', 0) * contracts * 100, 4),
+                "gamma": round(-lc.get('gamma', 0) * contracts * 100, 4),
+                "theta": round(-lc.get('theta', 0) * contracts * 100, 4),
+                "vega": round(-lc.get('vega', 0) * contracts * 100, 4)
+            },
+            "short_call": {
+                "delta": round(sc.get('delta', 0) * contracts * 100, 4),
+                "gamma": round(sc.get('gamma', 0) * contracts * 100, 4),
+                "theta": round(sc.get('theta', 0) * contracts * 100, 4),
+                "vega": round(sc.get('vega', 0) * contracts * 100, 4)
+            },
+            "short_put": {
+                "delta": round(sp.get('delta', 0) * contracts * 100, 4),
+                "gamma": round(sp.get('gamma', 0) * contracts * 100, 4),
+                "theta": round(sp.get('theta', 0) * contracts * 100, 4),
+                "vega": round(sp.get('vega', 0) * contracts * 100, 4)
+            },
+            "long_put": {
+                "delta": round(-lp.get('delta', 0) * contracts * 100, 4),
+                "gamma": round(-lp.get('gamma', 0) * contracts * 100, 4),
+                "theta": round(-lp.get('theta', 0) * contracts * 100, 4),
+                "vega": round(-lp.get('vega', 0) * contracts * 100, 4)
+            }
+        }
+        
+        # Risk interpretation
+        risk_profile = {
+            "delta_neutral": abs(portfolio_delta) < 5,
+            "positive_theta": portfolio_theta > 0,
+            "negative_vega": portfolio_vega < 0,
+            "gamma_risk": "low" if abs(portfolio_gamma) < 0.1 else "moderate" if abs(portfolio_gamma) < 0.5 else "high"
+        }
+        
+        # Daily P&L estimates
+        daily_theta_pnl = portfolio_theta  # Theta decay per day
+        daily_move_1pct = portfolio_delta * 0.01  # P&L if underlying moves 1%
+        
+        return {
+            "success": True,
+            "portfolio_greeks": {
+                "delta": round(portfolio_delta, 4),
+                "gamma": round(portfolio_gamma, 4),
+                "theta": round(portfolio_theta, 4),
+                "vega": round(portfolio_vega, 4)
+            },
+            "legs_breakdown": legs_breakdown,
+            "risk_profile": risk_profile,
+            "daily_estimates": {
+                "theta_decay_pnl": round(daily_theta_pnl, 2),
+                "pnl_if_underlying_up_1pct": round(daily_move_1pct, 2),
+                "pnl_if_underlying_down_1pct": round(-daily_move_1pct, 2)
+            },
+            "interpretation": {
+                "delta": "Position is delta-neutral" if risk_profile["delta_neutral"] else f"Position has directional bias (delta: {round(portfolio_delta, 2)})",
+                "theta": "Position benefits from time decay" if risk_profile["positive_theta"] else "Position loses value over time",
+                "vega": "Position benefits from decreasing volatility" if risk_profile["negative_vega"] else "Position benefits from increasing volatility",
+                "gamma": f"Gamma risk is {risk_profile['gamma_risk']}"
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Greeks calculation failed: {str(e)}")
+
+# Helper functions for iron condor analysis
+def calculate_strategy_score(return_on_risk: float, probability_of_profit: float, days_to_expiration: int) -> float:
+    """
+    Calculate overall strategy quality score (0-100)
+    """
+    # Weight factors
+    ror_score = min(100, return_on_risk * 2)  # 50% ROR = 100 score
+    pop_score = probability_of_profit  # Already 0-100
+    
+    # Time factor (prefer 30-45 days to expiration)
+    if 30 <= days_to_expiration <= 45:
+        time_score = 100
+    elif days_to_expiration < 30:
+        time_score = max(0, (days_to_expiration / 30) * 100)
+    else:
+        time_score = max(0, 100 - ((days_to_expiration - 45) * 2))
+    
+    # Weighted average
+    total_score = (ror_score * 0.3) + (pop_score * 0.5) + (time_score * 0.2)
+    return round(total_score, 2)
+
+def get_strategy_rating(return_on_risk: float, probability_of_profit: float) -> str:
+    """
+    Get qualitative rating for strategy
+    """
+    score = (return_on_risk * 2 * 0.4) + (probability_of_profit * 0.6)
+    
+    if score >= 80:
+        return "Excellent"
+    elif score >= 65:
+        return "Good"
+    elif score >= 50:
+        return "Fair"
+    else:
+        return "Poor"
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

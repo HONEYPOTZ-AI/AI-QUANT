@@ -17,6 +17,7 @@ import AnomalyDetectionPage from '@/pages/AnomalyDetectionPage';
 import OptionsGreeksPage from '@/pages/OptionsGreeksPage';
 import SPXOptionsPage from '@/pages/SPXOptionsPage';
 import APITestPage from '@/pages/APITestPage';
+import IronCondorPage from '@/pages/IronCondorPage';
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/options-greeks" element={<OptionsGreeksPage />} />
                 <Route path="/spx-options" element={<SPXOptionsPage />} />
                 <Route path="/api-test" element={<APITestPage />} />
+                <Route path="/iron-condor" element={<IronCondorPage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
