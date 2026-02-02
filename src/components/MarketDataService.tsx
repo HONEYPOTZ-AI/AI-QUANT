@@ -201,7 +201,10 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
 
   // Update data based on subscriptions and source
   useEffect(() => {
-    if (subscriptions.size === 0) return;
+    if (subscriptions.size === 0) {
+      setState((prev) => ({ ...prev, isConnected: false }));
+      return;
+    }
 
     setState((prev) => ({ ...prev, isConnected: true }));
 
@@ -215,6 +218,7 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
 
     return () => {
       clearInterval(interval);
+      setState((prev) => ({ ...prev, isConnected: false }));
     };
   }, [subscriptions, state.dataSource]);
 

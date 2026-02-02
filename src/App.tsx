@@ -15,6 +15,8 @@ import NotFound from '@/pages/NotFound';
 import CFDStrategyPage from '@/pages/CFDStrategyPage';
 import AnomalyDetectionPage from '@/pages/AnomalyDetectionPage';
 import OptionsGreeksPage from '@/pages/OptionsGreeksPage';
+import SPXOptionsPage from '@/pages/SPXOptionsPage';
+import APITestPage from '@/pages/APITestPage';
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ function App() {
                 <Route path="/anomaly-detection" element={<AnomalyDetectionPage />} />
                 <Route path="/cfd-strategy" element={<CFDStrategyPage />} />
                 <Route path="/options-greeks" element={<OptionsGreeksPage />} />
+                <Route path="/spx-options" element={<SPXOptionsPage />} />
+                <Route path="/api-test" element={<APITestPage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />

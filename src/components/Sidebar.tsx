@@ -18,7 +18,8 @@ import {
   TrendingUp,
   HelpCircle,
   Menu,
-  PieChart } from
+  PieChart,
+  TestTube } from
 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,7 +55,8 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
   { id: 'alerts', label: 'Anomaly Alerts', icon: <AlertTriangle className="h-5 w-5" />, badge: '3' },
   { id: 'options', label: 'Options Data', icon: <Target className="h-5 w-5" /> },
   { id: 'api', label: 'API Integration', icon: <Database className="h-5 w-5" /> },
-  { id: 'settings', label: 'IBRK Settings', icon: <Settings className="h-5 w-5" /> }];
+  { id: 'settings', label: 'IBRK Settings', icon: <Settings className="h-5 w-5" /> },
+  { id: 'api-test', label: 'API Test', icon: <TestTube className="h-5 w-5" /> }];
 
 
   const externalLinks = [
@@ -94,7 +96,11 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
           "text-slate-300 hover:text-white hover:bg-slate-700"}`
           }
           onClick={() => {
-            setActiveTab(item.id);
+            if (item.id === 'api-test') {
+              navigate('/api-test');
+            } else {
+              setActiveTab(item.id);
+            }
             setOpen(false);
           }}>
 

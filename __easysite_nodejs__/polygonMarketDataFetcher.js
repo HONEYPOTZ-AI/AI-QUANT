@@ -135,8 +135,11 @@ export async function getMarketOverviewData() {
   // Check cache - return cached data if still valid
   const now = Date.now();
   if (cache.data && (now - cache.timestamp) < cache.ttl) {
+    console.log('✅ Returning cached market overview data');
     return cache.data;
   }
+
+  console.log('🔄 Fetching fresh market overview data from Polygon.io...');
 
   try {
     // Fetch fresh data from Polygon API
@@ -174,6 +177,7 @@ export async function getMarketOverviewData() {
     cache.data = formattedData;
     cache.timestamp = now;
 
+    console.log(`✅ Market overview data cached: ${formattedData.indices.length} indices, ${formattedData.forex.length} forex, ${formattedData.crypto.length} crypto`);
     return formattedData;
   } catch (error) {
     // If we have cached data, return it even if expired (better than nothing)

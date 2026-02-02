@@ -42,8 +42,8 @@ export default function SPXPriceHeader() {
             <Skeleton className="h-12 w-full" />
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -52,16 +52,16 @@ export default function SPXPriceHeader() {
         <AlertDescription>
           Failed to load SPX price: {error.message}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (!data) {
     return (
       <Alert>
         <AlertDescription>No SPX price data available</AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const isPositive = (data.change || 0) >= 0;
@@ -78,11 +78,11 @@ export default function SPXPriceHeader() {
             <span className="font-medium">SPX</span>
             <span>•</span>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-              data.marketStatus === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-            }`}>
+            data.marketStatus === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`
+            }>
               <span className={`h-1.5 w-1.5 rounded-full ${
-                data.marketStatus === 'open' ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
-              }`} />
+              data.marketStatus === 'open' ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`
+              } />
               {data.marketStatus === 'open' ? 'Market Open' : 'Market Closed'}
             </span>
             <span>•</span>
@@ -97,8 +97,8 @@ export default function SPXPriceHeader() {
           size="sm"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="gap-2"
-        >
+          className="gap-2">
+
           <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -163,24 +163,24 @@ export default function SPXPriceHeader() {
               </div>
             </div>
 
-            {data.vwap && (
-              <div className="p-4 rounded-lg bg-indigo-50">
+            {data.vwap &&
+            <div className="p-4 rounded-lg bg-indigo-50">
                 <div className="text-xs text-muted-foreground mb-1">VWAP</div>
                 <div className="text-lg font-semibold text-indigo-700">
                   {data.vwap.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
-            )}
+            }
           </div>
 
           {/* Timestamp */}
-          {data.timestamp && (
-            <div className="text-xs text-muted-foreground text-right">
+          {data.timestamp &&
+          <div className="text-xs text-muted-foreground text-right">
               Last updated: {format(new Date(data.timestamp), 'PPpp')}
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

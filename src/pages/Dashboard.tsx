@@ -37,6 +37,7 @@ import ThinkorSwimConfiguration from '@/components/ThinkorSwimConfiguration';
 import Walkthrough from '@/components/Walkthrough';
 import SPXVIXDisplay from '@/components/SPXVIXDisplay';
 import EconomicDataRefreshTrigger from '@/components/EconomicDataRefreshTrigger';
+import PolygonIntegrationStatus from '@/components/PolygonIntegrationStatus';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -320,6 +321,9 @@ const Dashboard = () => {
                 <UserProfile />
               </div>
             </div>
+
+            {/* Polygon Integration Status */}
+            <PolygonIntegrationStatus />
 
             <div className="space-y-6" data-tour="fastapi-config">
               <FastAPIConfiguration />
