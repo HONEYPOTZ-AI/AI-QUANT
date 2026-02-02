@@ -59,8 +59,8 @@ export default function SPXVIXDisplay() {
           <Skeleton className="h-6 w-40 mb-2" />
           <Skeleton className="h-6 w-32" />
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   if (isError) {
@@ -70,8 +70,8 @@ export default function SPXVIXDisplay() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load SPX price data. Please check your Polygon.io API configuration in the .env file.'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (!data) {
@@ -81,18 +81,18 @@ export default function SPXVIXDisplay() {
         <AlertDescription>
           No SPX price data available. Please try refreshing.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const isPositive = data.change >= 0;
   const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-  const bgColor = isPositive
-    ? 'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950'
-    : 'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
-  const borderColor = isPositive
-    ? 'border-green-200 dark:border-green-800'
-    : 'border-red-200 dark:border-red-800';
+  const bgColor = isPositive ?
+  'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' :
+  'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
+  const borderColor = isPositive ?
+  'border-green-200 dark:border-green-800' :
+  'border-red-200 dark:border-red-800';
 
   const marketOpen = data.marketStatus === 'open';
   const isRealTime = data.isRealTime !== false;
@@ -103,33 +103,33 @@ export default function SPXVIXDisplay() {
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">SPX Index Price</h2>
-          {marketOpen && isRealTime ? (
-            <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+          {marketOpen && isRealTime ?
+          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
               <span>Live</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+            </div> :
+
+          <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
               <Clock className="w-3 h-3" />
               <span>{marketOpen ? 'Delayed' : 'Market Closed'}</span>
             </div>
-          )}
+          }
         </div>
         <div className="flex items-center gap-3">
-          {data.timestamp && (
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+          {data.timestamp &&
+          <div className="text-xs text-slate-500 dark:text-slate-400">
               Updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
             </div>
-          )}
+          }
           <button
             onClick={() => refetch()}
             disabled={isFetching}
             className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Refresh data"
-          >
+            title="Refresh data">
+
             <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-400 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -218,20 +218,20 @@ export default function SPXVIXDisplay() {
           </div>
 
           {/* Market status notice */}
-          {!marketOpen && (
-            <Alert className="mt-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+          {!marketOpen &&
+          <Alert className="mt-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
               <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <AlertDescription className="text-amber-800 dark:text-amber-200">
                 Market is currently closed. Showing {isRealTime ? 'last traded' : 'previous close'} prices. Market hours: 9:30 AM - 4:00 PM ET, Monday-Friday.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </div>
       </Card>
       
       <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center">
         {marketOpen ? 'Auto-refreshes every 30 seconds' : 'Updates when market opens'}
       </div>
-    </div>
-  );
+    </div>);
+
 }
