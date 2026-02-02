@@ -41,12 +41,12 @@ export default function SPXVIXDisplay() {
           param: []
         });
         console.log('📊 [SPXVIXDisplay] API Response:', { data, error });
-        
+
         if (error) {
           console.error('❌ [SPXVIXDisplay] Error from backend:', error);
           throw new Error(error);
         }
-        
+
         console.log('✅ [SPXVIXDisplay] Successfully fetched SPX price:', data?.price);
         return data;
       } catch (err) {
@@ -60,16 +60,16 @@ export default function SPXVIXDisplay() {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
-  
+
   // Log state changes
-  console.log('📈 [SPXVIXDisplay] Component state:', { 
-    isLoading, 
-    isFetching, 
-    hasData: !!data, 
+  console.log('📈 [SPXVIXDisplay] Component state:', {
+    isLoading,
+    isFetching,
+    hasData: !!data,
     hasError: !!error,
-    errorMessage: error?.message 
+    errorMessage: error?.message
   });
-  
+
   // Show toast notification on error
   useEffect(() => {
     if (error) {

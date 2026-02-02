@@ -61,12 +61,12 @@ export default function SPXOptionsChain() {
           param: [params]
         });
         console.log('📊 [SPXOptionsChain] API Response:', result);
-        
+
         if (result.error) {
           console.error('❌ [SPXOptionsChain] Error from backend:', result.error);
           throw new Error(result.error);
         }
-        
+
         console.log('✅ [SPXOptionsChain] Successfully fetched options chain. Total contracts:', result.data?.totalContracts);
         return result.data as OptionsChainData;
       } catch (err) {
@@ -80,17 +80,17 @@ export default function SPXOptionsChain() {
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000)
   });
-  
+
   // Log state changes
-  console.log('🔗 [SPXOptionsChain] Component state:', { 
-    isLoading, 
-    isFetching, 
-    hasData: !!data, 
+  console.log('🔗 [SPXOptionsChain] Component state:', {
+    isLoading,
+    isFetching,
+    hasData: !!data,
     optionsCount: data?.options?.length,
     hasError: !!error,
-    errorMessage: error?.message 
+    errorMessage: error?.message
   });
-  
+
   // Show toast notification on error
   useEffect(() => {
     if (error) {

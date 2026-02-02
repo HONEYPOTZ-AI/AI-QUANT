@@ -23,12 +23,12 @@ export default function SPXPriceHeader() {
           param: []
         });
         console.log('📊 [SPXPriceHeader] API Response:', result);
-        
+
         if (result.error) {
           console.error('❌ [SPXPriceHeader] Error from backend:', result.error);
           throw new Error(result.error);
         }
-        
+
         console.log('✅ [SPXPriceHeader] Successfully fetched SPX price:', result.data?.price);
         return result.data;
       } catch (err) {
@@ -42,16 +42,16 @@ export default function SPXPriceHeader() {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
-  
+
   // Log state changes
-  console.log('📈 [SPXPriceHeader] Component state:', { 
-    isLoading, 
-    isFetching, 
-    hasData: !!data, 
+  console.log('📈 [SPXPriceHeader] Component state:', {
+    isLoading,
+    isFetching,
+    hasData: !!data,
     hasError: !!error,
-    errorMessage: error?.message 
+    errorMessage: error?.message
   });
-  
+
   // Show toast notification on error
   useEffect(() => {
     if (error) {
