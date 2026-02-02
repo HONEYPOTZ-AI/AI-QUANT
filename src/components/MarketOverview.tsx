@@ -94,8 +94,8 @@ const MarketOverview = () => {
         key={item.symbol}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: index * 0.05 }}
-      >
+        transition={{ duration: 0.3, delay: index * 0.05 }}>
+
         <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
           <CardContent className="p-4">
             <div className="space-y-3">
@@ -108,13 +108,13 @@ const MarketOverview = () => {
               </div>
 
               {/* Price */}
-              <motion.div 
+              <motion.div
                 className="text-2xl font-bold text-white"
                 key={item.price}
                 initial={{ scale: 1.1, color: isPositive ? '#22c55e' : '#ef4444' }}
                 animate={{ scale: 1, color: '#ffffff' }}
-                transition={{ duration: 0.5 }}
-              >
+                transition={{ duration: 0.5 }}>
+
                 ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.div>
 
@@ -139,8 +139,8 @@ const MarketOverview = () => {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
-    );
+      </motion.div>);
+
   };
 
   // Loading state
@@ -151,8 +151,8 @@ const MarketOverview = () => {
           <h2 className="text-2xl font-bold text-white">Market Overview</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(9)].map((_, i) => (
-            <Card key={i} className="bg-slate-800/50 border-slate-700">
+          {[...Array(9)].map((_, i) =>
+          <Card key={i} className="bg-slate-800/50 border-slate-700">
               <CardContent className="p-4">
                 <div className="space-y-3 animate-pulse">
                   <div className="h-5 bg-slate-700 rounded w-20"></div>
@@ -162,10 +162,10 @@ const MarketOverview = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Error state
@@ -183,8 +183,8 @@ const MarketOverview = () => {
             Try Again
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -196,31 +196,31 @@ const MarketOverview = () => {
             <BarChart3 className="h-6 w-6 text-blue-500" />
             Market Overview
           </h2>
-          {lastUpdate && (
-            <p className="text-sm text-slate-400 mt-1">
-              Last updated: {lastUpdate.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-              })}
+          {lastUpdate &&
+          <p className="text-sm text-slate-400 mt-1">
+              Last updated: {lastUpdate.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })}
             </p>
-          )}
+          }
         </div>
         <Button
           onClick={fetchMarketData}
           disabled={loading}
           variant="outline"
           size="sm"
-          className="border-slate-600 hover:bg-slate-700"
-        >
+          className="border-slate-600 hover:bg-slate-700">
+
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
       {/* Stock Indices */}
-      {marketData?.indices && marketData.indices.length > 0 && (
-        <div>
+      {marketData?.indices && marketData.indices.length > 0 &&
+      <div>
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="h-5 w-5 text-blue-400" />
             <h3 className="text-lg font-semibold text-white">Stock Indices</h3>
@@ -229,11 +229,11 @@ const MarketOverview = () => {
             {marketData.indices.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>
-      )}
+      }
 
       {/* Forex */}
-      {marketData?.forex && marketData.forex.length > 0 && (
-        <div>
+      {marketData?.forex && marketData.forex.length > 0 &&
+      <div>
           <div className="flex items-center gap-2 mb-4">
             <DollarSign className="h-5 w-5 text-green-400" />
             <h3 className="text-lg font-semibold text-white">Forex</h3>
@@ -242,11 +242,11 @@ const MarketOverview = () => {
             {marketData.forex.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>
-      )}
+      }
 
       {/* Crypto */}
-      {marketData?.crypto && marketData.crypto.length > 0 && (
-        <div>
+      {marketData?.crypto && marketData.crypto.length > 0 &&
+      <div>
           <div className="flex items-center gap-2 mb-4">
             <Activity className="h-5 w-5 text-orange-400" />
             <h3 className="text-lg font-semibold text-white">Crypto</h3>
@@ -255,9 +255,9 @@ const MarketOverview = () => {
             {marketData.crypto.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default MarketOverview;
