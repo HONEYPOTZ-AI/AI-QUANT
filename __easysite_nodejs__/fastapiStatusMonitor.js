@@ -1,9 +1,11 @@
+import axios from "npm:axios@1.6.5";
+
 /**
- * Monitor and check FastAPI connection status
+ * Monitor and check Python FastAPI service connection status via HTTP
  * @param {number} userId - User ID to check status for
  * @returns {Object} Current connection status and health info
  */
-async function fastapiStatusMonitor(userId) {
+export async function fastapiStatusMonitor(userId) {
   const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
   // Retrieve current settings
@@ -46,24 +48,20 @@ async function fastapiStatusMonitor(userId) {
     };
   }
 
-  const connectionUrl = `http://${settings.api_host}:${settings.api_port}`;
+  const serviceUrl = `http://${settings.api_host}:${settings.api_port}`;
 
-  // Perform health check
+  // Perform health check on Python service
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(`${connectionUrl}/v1/api/tickle`, {
-      method: 'POST',
-      signal: controller.signal,
+    const startTime = Date.now();
+    const response = await axios.get(`${serviceUrl}/health`, {
+      timeout: 5000,
       headers: {
         'Content-Type': 'application/json'
       }
     });
+    const responseTime = Date.now() - startTime;
 
-    clearTimeout(timeoutId);
-
-    const isHealthy = response.ok;
+    const isHealthy = response.status === 200 && response.data.status === 'healthy';
     const currentStatus = isHealthy ? 'connected' : 'unhealthy';
 
     // Update status if changed
@@ -82,10 +80,12 @@ async function fastapiStatusMonitor(userId) {
       status: currentStatus,
       host: settings.api_host,
       port: settings.api_port,
+      serviceUrl: serviceUrl,
       lastConnected: settings.last_connected || null,
       lastChecked: new Date().toISOString(),
       healthy: isHealthy,
-      responseTime: response.headers.get('x-response-time') || null
+      responseTime: `${responseTime}ms`,
+      serviceInfo: response.data
     };
 
   } catch (err) {
@@ -105,7 +105,8 @@ async function fastapiStatusMonitor(userId) {
       message: `Connection check failed: ${err.message}`,
       lastConnected: settings.last_connected || null,
       lastError: err.message,
-      healthy: false
+      healthy: false,
+      serviceUrl: serviceUrl
     };
   }
 }

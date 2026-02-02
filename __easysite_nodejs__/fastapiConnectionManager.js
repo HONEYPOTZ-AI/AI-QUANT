@@ -1,16 +1,17 @@
+import axios from "npm:axios@1.6.5";
+
 /**
- * Establish connection to FastAPI with authentication
+ * Establish connection to FastAPI Python service via HTTP
  * @param {number} userId - User ID to connect for
  * @param {Object} options - Connection options { timeout: 10000, validate: true }
  * @returns {Object} Connection result with status and details
  */
-async function fastapiConnectionManager(userId, options = {}) {
+export async function fastapiConnectionManager(userId, options = {}) {
   const { timeout = 10000, validate = true } = options;
 
-  // Import credentials handler (simulate by calling it)
   const FASTAPI_SETTINGS_TABLE_ID = 51055;
 
-  // Retrieve credentials
+  // Retrieve credentials (now containing Python service URL)
   const filters = userId ? [{
     name: "user_id",
     op: "Equal",
@@ -48,30 +49,20 @@ async function fastapiConnectionManager(userId, options = {}) {
     throw new Error("Invalid credentials: missing host or port");
   }
 
-  const connectionUrl = `http://${credentials.api_host}:${credentials.api_port}`;
-  const clientId = credentials.client_id || 1;
+  const serviceUrl = `http://${credentials.api_host}:${credentials.api_port}`;
 
   try {
-    // Attempt connection to FastAPI Gateway
-    // Using the /v1/api/tickle endpoint to verify connection
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const response = await fetch(`${connectionUrl}/v1/api/tickle`, {
-      method: 'POST',
-      signal: controller.signal,
+    // Attempt connection to Python FastAPI service using health endpoint
+    const response = await axios.get(`${serviceUrl}/health`, {
+      timeout: timeout,
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
+    if (response.status !== 200) {
       throw new Error(`Connection failed with status: ${response.status}`);
     }
-
-    const result = await response.json();
 
     // Update connection status in database
     await easysite.table.update({
@@ -87,10 +78,10 @@ async function fastapiConnectionManager(userId, options = {}) {
       status: 'connected',
       host: credentials.api_host,
       port: credentials.api_port,
-      clientId: clientId,
+      serviceUrl: serviceUrl,
       account: credentials.account_id || '',
       connectedAt: new Date().toISOString(),
-      sessionId: result.session || null
+      serviceInfo: response.data
     };
 
   } catch (err) {
@@ -104,7 +95,7 @@ async function fastapiConnectionManager(userId, options = {}) {
       }
     });
 
-    if (err.name === 'AbortError') {
+    if (err.code === 'ECONNABORTED') {
       throw new Error(`Connection timeout after ${timeout}ms`);
     }
 
