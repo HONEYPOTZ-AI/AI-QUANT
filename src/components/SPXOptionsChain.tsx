@@ -63,11 +63,11 @@ const getThirdFriday = (year: number, month: number): Date => {
   // month is 0-indexed (0 = January)
   const firstDay = startOfMonth(new Date(year, month));
   const firstDayOfWeek = getDay(firstDay);
-  
+
   // Calculate days until first Friday
   let daysUntilFriday = (5 - firstDayOfWeek + 7) % 7;
   if (daysUntilFriday === 0) daysUntilFriday = 7;
-  
+
   // First Friday + 2 weeks = Third Friday
   const thirdFriday = addDays(firstDay, daysUntilFriday + 14);
   return thirdFriday;
@@ -79,11 +79,11 @@ const getQuarterlyExpirations = (count: number = 8): Date[] => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
-  
+
   const expirations: Date[] = [];
   let year = currentYear;
   let monthIndex = 0;
-  
+
   // Find the next quarterly month
   for (let i = 0; i < quarterlyMonths.length; i++) {
     if (quarterlyMonths[i] >= currentMonth) {
@@ -95,24 +95,24 @@ const getQuarterlyExpirations = (count: number = 8): Date[] => {
       monthIndex = 0;
     }
   }
-  
+
   // Generate next N quarterly expiration dates
   while (expirations.length < count) {
     const month = quarterlyMonths[monthIndex];
     const expDate = getThirdFriday(year, month);
-    
+
     // Only include future dates
     if (expDate >= today) {
       expirations.push(expDate);
     }
-    
+
     monthIndex++;
     if (monthIndex >= quarterlyMonths.length) {
       monthIndex = 0;
       year++;
     }
   }
-  
+
   return expirations;
 };
 
@@ -121,12 +121,12 @@ export default function SPXOptionsChain() {
   const [contractType, setContractType] = useState<'ALL' | 'call' | 'put'>('ALL');
   const [sortField, setSortField] = useState<keyof OptionContract>('strike');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  
+
   // Calculate quarterly expiration dates
   const quarterlyExpirations = useMemo(() => getQuarterlyExpirations(8), []);
-  const quarterlyExpirationsSet = useMemo(() => 
-    new Set(quarterlyExpirations.map(d => format(d, 'yyyy-MM-dd'))),
-    [quarterlyExpirations]
+  const quarterlyExpirationsSet = useMemo(() =>
+  new Set(quarterlyExpirations.map((d) => format(d, 'yyyy-MM-dd'))),
+  [quarterlyExpirations]
   );
 
   const { data, isLoading, error, isError, refetch, isFetching } = useQuery<OptionsChainData>({
@@ -291,10 +291,10 @@ export default function SPXOptionsChain() {
                 const monthName = format(date, 'MMMM');
                 const quarter = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(date.getMonth() / 3)];
                 return (
-                  <div 
-                    key={idx} 
-                    className="bg-white dark:bg-slate-800 rounded-lg p-3 border-2 border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow"
-                  >
+                  <div
+                    key={idx}
+                    className="bg-white dark:bg-slate-800 rounded-lg p-3 border-2 border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow">
+
                     <div className="flex items-center justify-between mb-1">
                       <Badge className="bg-blue-600 hover:bg-blue-700 text-xs">
                         {quarter}
@@ -309,23 +309,23 @@ export default function SPXOptionsChain() {
                     <div className="text-xs text-slate-600 dark:text-slate-400">
                       {format(date, 'EEEE')}
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
             </div>
-            {quarterlyExpirations.length > 4 && (
-              <details className="text-xs text-blue-700 dark:text-blue-300">
+            {quarterlyExpirations.length > 4 &&
+            <details className="text-xs text-blue-700 dark:text-blue-300">
                 <summary className="cursor-pointer hover:underline font-medium">
                   Show next 4 quarterly expirations →
                 </summary>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                   {quarterlyExpirations.slice(4, 8).map((date, idx) => {
-                    const quarter = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(date.getMonth() / 3)];
-                    return (
-                      <div 
-                        key={idx} 
-                        className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-blue-200 dark:border-blue-700"
-                      >
+                  const quarter = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(date.getMonth() / 3)];
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-blue-200 dark:border-blue-700">
+
                         <div className="flex items-center justify-between mb-1">
                           <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/50">
                             {quarter}
@@ -337,12 +337,12 @@ export default function SPXOptionsChain() {
                         <div className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                           {format(date, 'MMM dd')}
                         </div>
-                      </div>
-                    );
-                  })}
+                      </div>);
+
+                })}
                 </div>
               </details>
-            )}
+            }
           </div>
         </Card>
 
@@ -398,14 +398,14 @@ export default function SPXOptionsChain() {
                             {option.expiration}
                             <div className="text-xs text-slate-500">{option.daysToExpiration}d</div>
                           </div>
-                          {isQuarterly && (
-                            <Badge 
-                              variant="outline" 
-                              className="ml-1 text-[10px] px-1 py-0 h-4 bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700"
-                            >
+                          {isQuarterly &&
+                          <Badge
+                            variant="outline"
+                            className="ml-1 text-[10px] px-1 py-0 h-4 bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
+
                               Q
                             </Badge>
-                          )}
+                          }
                         </div>
                       </TableCell>
                     <TableCell>
@@ -435,16 +435,16 @@ export default function SPXOptionsChain() {
                     </TableCell>
                     <TableCell className="text-center">
                       {option.inTheMoney ?
-                    <Badge variant="default" className="bg-green-600">ITM</Badge> :
+                        <Badge variant="default" className="bg-green-600">ITM</Badge> :
 
-                    <Badge variant="outline">OTM</Badge>
-                    }
+                        <Badge variant="outline">OTM</Badge>
+                        }
                     </TableCell>
                     <TableCell className="text-right text-sm">
                       {formatMoney(option.intrinsicValue)}
                     </TableCell>
-                    </TableRow>
-                  );
+                    </TableRow>);
+
                 })}
               </TableBody>
             </Table>
