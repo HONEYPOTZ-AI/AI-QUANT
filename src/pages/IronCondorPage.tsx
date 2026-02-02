@@ -73,18 +73,18 @@ export default function IronCondorPage() {
         Filters: [{ name: 'user_id', op: 'Equal', value: user?.ID }]
       });
       if (error) throw new Error(error);
-      
+
       const strategies = data?.List || [];
       const totalStrategies = strategies.length;
       const closedStrategies = strategies.filter((s: any) => s.status === 'CLOSED');
       const winningTrades = closedStrategies.filter((s: any) => (s.current_pnl || 0) > 0).length;
-      const winRate = closedStrategies.length > 0 ? (winningTrades / closedStrategies.length) * 100 : 0;
-      const avgPnL = closedStrategies.length > 0 
-        ? closedStrategies.reduce((sum: number, s: any) => sum + (s.current_pnl || 0), 0) / closedStrategies.length 
-        : 0;
-      const totalTheta = strategies
-        .filter((s: any) => s.status === 'OPEN')
-        .reduce((sum: number, s: any) => sum + (s.current_theta || 0), 0);
+      const winRate = closedStrategies.length > 0 ? winningTrades / closedStrategies.length * 100 : 0;
+      const avgPnL = closedStrategies.length > 0 ?
+      closedStrategies.reduce((sum: number, s: any) => sum + (s.current_pnl || 0), 0) / closedStrategies.length :
+      0;
+      const totalTheta = strategies.
+      filter((s: any) => s.status === 'OPEN').
+      reduce((sum: number, s: any) => sum + (s.current_theta || 0), 0);
 
       return {
         totalStrategies,
@@ -122,7 +122,7 @@ export default function IronCondorPage() {
 
   // Close strategy mutation
   const closeStrategyMutation = useMutation({
-    mutationFn: async ({ strategyId, notes }: { strategyId: number; notes?: string }) => {
+    mutationFn: async ({ strategyId, notes }: {strategyId: number;notes?: string;}) => {
       const result = await window.ezsite.apis.run({
         path: 'ironCondorStrategy',
         methodName: 'closeStrategy',
@@ -149,21 +149,21 @@ export default function IronCondorPage() {
 
   const calculateRiskReward = () => {
     const { longCallStrike, shortCallStrike, shortPutStrike, longPutStrike, contracts } = formData;
-    
+
     if (!longCallStrike || !shortCallStrike || !shortPutStrike || !longPutStrike || !contracts) {
       return;
     }
 
     const callSpreadWidth = longCallStrike - shortCallStrike;
     const putSpreadWidth = shortPutStrike - longPutStrike;
-    
+
     // Estimate credit (simplified - in production, fetch real option prices)
-    const estimatedCredit = ((callSpreadWidth + putSpreadWidth) * 0.3) * contracts * 100;
-    
+    const estimatedCredit = (callSpreadWidth + putSpreadWidth) * 0.3 * contracts * 100;
+
     const maxProfit = estimatedCredit;
-    const maxLoss = (Math.max(callSpreadWidth, putSpreadWidth) * contracts * 100) - estimatedCredit;
-    const upperBreakeven = shortCallStrike + (estimatedCredit / (contracts * 100));
-    const lowerBreakeven = shortPutStrike - (estimatedCredit / (contracts * 100));
+    const maxLoss = Math.max(callSpreadWidth, putSpreadWidth) * contracts * 100 - estimatedCredit;
+    const upperBreakeven = shortCallStrike + estimatedCredit / (contracts * 100);
+    const lowerBreakeven = shortPutStrike - estimatedCredit / (contracts * 100);
     const probabilityOfProfit = 65; // Simplified estimate
     const requiredMargin = Math.max(callSpreadWidth, putSpreadWidth) * contracts * 100;
 
@@ -182,14 +182,14 @@ export default function IronCondorPage() {
     if (!shortCallStrike || !shortPutStrike) return [];
 
     const data = [];
-    const range = (longCallStrike - longPutStrike) || 100;
+    const range = longCallStrike - longPutStrike || 100;
     const start = shortPutStrike - range * 0.3;
     const end = shortCallStrike + range * 0.3;
     const step = (end - start) / 50;
 
     for (let price = start; price <= end; price += step) {
       let pnl = riskReward.maxProfit;
-      
+
       if (price < longPutStrike) {
         pnl = riskReward.maxProfit - (longPutStrike - price) * formData.contracts * 100;
       } else if (price < shortPutStrike) {
@@ -212,9 +212,9 @@ export default function IronCondorPage() {
       return;
     }
 
-    if (formData.longPutStrike >= formData.shortPutStrike || 
-        formData.shortPutStrike >= formData.shortCallStrike ||
-        formData.shortCallStrike >= formData.longCallStrike) {
+    if (formData.longPutStrike >= formData.shortPutStrike ||
+    formData.shortPutStrike >= formData.shortCallStrike ||
+    formData.shortCallStrike >= formData.longCallStrike) {
       toast({ title: 'Error', description: 'Invalid strike order', variant: 'destructive' });
       return;
     }
@@ -249,8 +249,8 @@ export default function IronCondorPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Please log in to access Iron Condor strategies.</AlertDescription>
         </Alert>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -292,12 +292,12 @@ export default function IronCondorPage() {
                 </Button>
               </CardHeader>
               <CardContent>
-                {loadingStrategies ? (
-                  <div className="flex justify-center py-12">
+                {loadingStrategies ?
+                <div className="flex justify-center py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-                  </div>
-                ) : (
-                  <div className="rounded-md border border-slate-700 overflow-x-auto">
+                  </div> :
+
+                <div className="rounded-md border border-slate-700 overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow className="border-slate-700 hover:bg-slate-700/50">
@@ -313,26 +313,26 @@ export default function IronCondorPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {!activeStrategies || activeStrategies.length === 0 ? (
-                          <TableRow>
+                        {!activeStrategies || activeStrategies.length === 0 ?
+                      <TableRow>
                             <TableCell colSpan={9} className="text-center py-12 text-slate-400">
                               No active strategies. Create one to get started.
                             </TableCell>
-                          </TableRow>
-                        ) : (
-                          activeStrategies.map((strategy: any) => {
-                            const dte = getDaysToExpiration(strategy.expiration_date);
-                            const isProfitable = (strategy.current_pnl || 0) > 0;
-                            
-                            return (
-                              <TableRow 
-                                key={strategy.id} 
-                                className="border-slate-700 hover:bg-slate-700/50 cursor-pointer"
-                                onClick={() => {
-                                  setSelectedStrategy(strategy);
-                                  setShowDetailModal(true);
-                                }}
-                              >
+                          </TableRow> :
+
+                      activeStrategies.map((strategy: any) => {
+                        const dte = getDaysToExpiration(strategy.expiration_date);
+                        const isProfitable = (strategy.current_pnl || 0) > 0;
+
+                        return (
+                          <TableRow
+                            key={strategy.id}
+                            className="border-slate-700 hover:bg-slate-700/50 cursor-pointer"
+                            onClick={() => {
+                              setSelectedStrategy(strategy);
+                              setShowDetailModal(true);
+                            }}>
+
                                 <TableCell className="font-medium text-white">
                                   {strategy.symbol} {format(new Date(strategy.entry_date), 'MM/dd')}
                                 </TableCell>
@@ -364,25 +364,25 @@ export default function IronCondorPage() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedStrategy(strategy);
-                                      setShowDetailModal(true);
-                                    }}
-                                  >
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedStrategy(strategy);
+                                  setShowDetailModal(true);
+                                }}>
+
                                     <Eye className="h-4 w-4" />
                                   </Button>
                                 </TableCell>
-                              </TableRow>
-                            );
-                          })
-                        )}
+                              </TableRow>);
+
+                      })
+                      }
                       </TableBody>
                     </Table>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -404,8 +404,8 @@ export default function IronCondorPage() {
                         id="symbol"
                         value={formData.symbol}
                         onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                        className="bg-slate-900 border-slate-600 text-white"
-                      />
+                        className="bg-slate-900 border-slate-600 text-white" />
+
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="contracts" className="text-slate-300">Contracts</Label>
@@ -415,8 +415,8 @@ export default function IronCondorPage() {
                         min="1"
                         value={formData.contracts}
                         onChange={(e) => setFormData({ ...formData, contracts: parseInt(e.target.value) || 1 })}
-                        className="bg-slate-900 border-slate-600 text-white"
-                      />
+                        className="bg-slate-900 border-slate-600 text-white" />
+
                     </div>
                   </div>
 
@@ -427,8 +427,8 @@ export default function IronCondorPage() {
                       type="date"
                       value={formData.expirationDate}
                       onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-                      className="bg-slate-900 border-slate-600 text-white"
-                    />
+                      className="bg-slate-900 border-slate-600 text-white" />
+
                   </div>
 
                   <div className="space-y-3 pt-4">
@@ -443,8 +443,8 @@ export default function IronCondorPage() {
                           value={formData.longCallStrike || ''}
                           onChange={(e) => setFormData({ ...formData, longCallStrike: parseFloat(e.target.value) || 0 })}
                           className="bg-slate-900 border-slate-600 text-white"
-                          placeholder="e.g., 5800"
-                        />
+                          placeholder="e.g., 5800" />
+
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="shortCall" className="text-xs text-slate-400">Short Call</Label>
@@ -455,8 +455,8 @@ export default function IronCondorPage() {
                           value={formData.shortCallStrike || ''}
                           onChange={(e) => setFormData({ ...formData, shortCallStrike: parseFloat(e.target.value) || 0 })}
                           className="bg-slate-900 border-slate-600 text-white"
-                          placeholder="e.g., 5750"
-                        />
+                          placeholder="e.g., 5750" />
+
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="shortPut" className="text-xs text-slate-400">Short Put</Label>
@@ -467,8 +467,8 @@ export default function IronCondorPage() {
                           value={formData.shortPutStrike || ''}
                           onChange={(e) => setFormData({ ...formData, shortPutStrike: parseFloat(e.target.value) || 0 })}
                           className="bg-slate-900 border-slate-600 text-white"
-                          placeholder="e.g., 5650"
-                        />
+                          placeholder="e.g., 5650" />
+
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="longPut" className="text-xs text-slate-400">Long Put</Label>
@@ -479,8 +479,8 @@ export default function IronCondorPage() {
                           value={formData.longPutStrike || ''}
                           onChange={(e) => setFormData({ ...formData, longPutStrike: parseFloat(e.target.value) || 0 })}
                           className="bg-slate-900 border-slate-600 text-white"
-                          placeholder="e.g., 5600"
-                        />
+                          placeholder="e.g., 5600" />
+
                       </div>
                     </div>
                   </div>
@@ -492,23 +492,23 @@ export default function IronCondorPage() {
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       className="bg-slate-900 border-slate-600 text-white"
-                      placeholder="Strategy notes..."
-                    />
+                      placeholder="Strategy notes..." />
+
                   </div>
 
-                  <Button 
-                    onClick={handleCreateStrategy} 
+                  <Button
+                    onClick={handleCreateStrategy}
                     className="w-full"
-                    disabled={createStrategyMutation.isPending}
-                  >
-                    {createStrategyMutation.isPending ? (
-                      <>
+                    disabled={createStrategyMutation.isPending}>
+
+                    {createStrategyMutation.isPending ?
+                    <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating...
-                      </>
-                    ) : (
-                      'Create Position'
-                    )}
+                      </> :
+
+                    'Create Position'
+                    }
                   </Button>
                 </CardContent>
               </Card>
@@ -571,30 +571,30 @@ export default function IronCondorPage() {
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={generatePayoffData()}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                          <XAxis 
-                            dataKey="price" 
+                          <XAxis
+                            dataKey="price"
                             stroke="#9CA3AF"
-                            label={{ value: 'SPX Price', position: 'insideBottom', offset: -5, fill: '#9CA3AF' }}
-                          />
-                          <YAxis 
+                            label={{ value: 'SPX Price', position: 'insideBottom', offset: -5, fill: '#9CA3AF' }} />
+
+                          <YAxis
                             stroke="#9CA3AF"
-                            label={{ value: 'P&L ($)', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
-                          />
+                            label={{ value: 'P&L ($)', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }} />
+
                           <Tooltip
                             contentStyle={{
                               backgroundColor: '#1F2937',
                               border: '1px solid #374151',
                               borderRadius: '8px',
                               color: '#F9FAFB'
-                            }}
-                          />
+                            }} />
+
                           <Area
                             type="monotone"
                             dataKey="pnl"
                             stroke="#3B82F6"
                             fill="url(#pnlGradient)"
-                            strokeWidth={2}
-                          />
+                            strokeWidth={2} />
+
                           <defs>
                             <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
@@ -658,11 +658,11 @@ export default function IronCondorPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={performanceData?.historicalData?.slice(-30) || []}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                      <XAxis 
-                        dataKey="entry_date" 
+                      <XAxis
+                        dataKey="entry_date"
                         stroke="#9CA3AF"
-                        tickFormatter={(date) => format(new Date(date), 'MM/dd')}
-                      />
+                        tickFormatter={(date) => format(new Date(date), 'MM/dd')} />
+
                       <YAxis stroke="#9CA3AF" />
                       <Tooltip
                         contentStyle={{
@@ -671,16 +671,16 @@ export default function IronCondorPage() {
                           borderRadius: '8px',
                           color: '#F9FAFB'
                         }}
-                        labelFormatter={(date) => format(new Date(date), 'MMM dd, yyyy')}
-                      />
+                        labelFormatter={(date) => format(new Date(date), 'MMM dd, yyyy')} />
+
                       <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="current_pnl" 
-                        stroke="#10B981" 
+                      <Line
+                        type="monotone"
+                        dataKey="current_pnl"
+                        stroke="#10B981"
                         name="P&L"
-                        strokeWidth={2}
-                      />
+                        strokeWidth={2} />
+
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -700,17 +700,17 @@ export default function IronCondorPage() {
             </DialogDescription>
           </DialogHeader>
           
-          {selectedStrategy && (
-            <StrategyDetailView 
-              strategy={selectedStrategy} 
-              onClose={() => closeStrategyMutation.mutate({ strategyId: selectedStrategy.id })}
-              isClosing={closeStrategyMutation.isPending}
-            />
-          )}
+          {selectedStrategy &&
+          <StrategyDetailView
+            strategy={selectedStrategy}
+            onClose={() => closeStrategyMutation.mutate({ strategyId: selectedStrategy.id })}
+            isClosing={closeStrategyMutation.isPending} />
+
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 }
 
 // Strategy Detail Component
@@ -821,19 +821,19 @@ function StrategyDetailView({ strategy, onClose, isClosing }: any) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={performanceHistory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis 
-                  dataKey="snapshot_time" 
+                <XAxis
+                  dataKey="snapshot_time"
                   stroke="#9CA3AF"
-                  tickFormatter={(time) => format(new Date(time), 'MM/dd HH:mm')}
-                />
+                  tickFormatter={(time) => format(new Date(time), 'MM/dd HH:mm')} />
+
                 <YAxis stroke="#9CA3AF" />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1F2937',
                     border: '1px solid #374151',
                     borderRadius: '8px'
-                  }}
-                />
+                  }} />
+
                 <Line type="monotone" dataKey="current_pnl" stroke="#10B981" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
@@ -842,15 +842,15 @@ function StrategyDetailView({ strategy, onClose, isClosing }: any) {
       </Card>
 
       {/* Alerts */}
-      {alerts.length > 0 && (
-        <Card className="bg-slate-700 border-slate-600">
+      {alerts.length > 0 &&
+      <Card className="bg-slate-700 border-slate-600">
           <CardHeader>
             <CardTitle className="text-lg">Recent Alerts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {alerts.slice(0, 5).map((alert: any) => (
-                <Alert key={alert.id} className="bg-slate-800 border-slate-600">
+              {alerts.slice(0, 5).map((alert: any) =>
+            <Alert key={alert.id} className="bg-slate-800 border-slate-600">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-sm">
                     <div className="flex justify-between items-start">
@@ -864,32 +864,32 @@ function StrategyDetailView({ strategy, onClose, isClosing }: any) {
                     </div>
                   </AlertDescription>
                 </Alert>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Actions */}
       <div className="flex justify-end gap-3 pt-4 border-t border-slate-600">
         <Button variant="outline" onClick={() => window.close()}>
           Cancel
         </Button>
-        <Button 
-          variant="destructive" 
+        <Button
+          variant="destructive"
           onClick={onClose}
-          disabled={isClosing}
-        >
-          {isClosing ? (
-            <>
+          disabled={isClosing}>
+
+          {isClosing ?
+          <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Closing...
-            </>
-          ) : (
-            'Close Position'
-          )}
+            </> :
+
+          'Close Position'
+          }
         </Button>
       </div>
-    </div>
-  );
+    </div>);
+
 }
