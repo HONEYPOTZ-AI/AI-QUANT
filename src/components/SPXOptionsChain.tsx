@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
@@ -11,12 +11,12 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table';
+  TableRow } from
+'@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RefreshCw, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { RefreshCw, TrendingUp, TrendingDown, AlertCircle, Calendar } from 'lucide-react';
+import { format, addMonths, startOfMonth, getDay, addDays } from 'date-fns';
 
 interface OptionContract {
   symbol: string;
@@ -58,11 +58,76 @@ interface OptionsChainData {
   timestamp: string;
 }
 
+// Calculate third Friday of a given month/year
+const getThirdFriday = (year: number, month: number): Date => {
+  // month is 0-indexed (0 = January)
+  const firstDay = startOfMonth(new Date(year, month));
+  const firstDayOfWeek = getDay(firstDay);
+  
+  // Calculate days until first Friday
+  let daysUntilFriday = (5 - firstDayOfWeek + 7) % 7;
+  if (daysUntilFriday === 0) daysUntilFriday = 7;
+  
+  // First Friday + 2 weeks = Third Friday
+  const thirdFriday = addDays(firstDay, daysUntilFriday + 14);
+  return thirdFriday;
+};
+
+// Get next quarterly expiration dates
+const getQuarterlyExpirations = (count: number = 8): Date[] => {
+  const quarterlyMonths = [2, 5, 8, 11]; // March, June, September, December (0-indexed)
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  
+  const expirations: Date[] = [];
+  let year = currentYear;
+  let monthIndex = 0;
+  
+  // Find the next quarterly month
+  for (let i = 0; i < quarterlyMonths.length; i++) {
+    if (quarterlyMonths[i] >= currentMonth) {
+      monthIndex = i;
+      break;
+    }
+    if (i === quarterlyMonths.length - 1) {
+      year++;
+      monthIndex = 0;
+    }
+  }
+  
+  // Generate next N quarterly expiration dates
+  while (expirations.length < count) {
+    const month = quarterlyMonths[monthIndex];
+    const expDate = getThirdFriday(year, month);
+    
+    // Only include future dates
+    if (expDate >= today) {
+      expirations.push(expDate);
+    }
+    
+    monthIndex++;
+    if (monthIndex >= quarterlyMonths.length) {
+      monthIndex = 0;
+      year++;
+    }
+  }
+  
+  return expirations;
+};
+
 export default function SPXOptionsChain() {
   const { user } = useAuth();
   const [contractType, setContractType] = useState<'ALL' | 'call' | 'put'>('ALL');
   const [sortField, setSortField] = useState<keyof OptionContract>('strike');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  
+  // Calculate quarterly expiration dates
+  const quarterlyExpirations = useMemo(() => getQuarterlyExpirations(8), []);
+  const quarterlyExpirationsSet = useMemo(() => 
+    new Set(quarterlyExpirations.map(d => format(d, 'yyyy-MM-dd'))),
+    [quarterlyExpirations]
+  );
 
   const { data, isLoading, error, isError, refetch, isFetching } = useQuery<OptionsChainData>({
     queryKey: ['spx-options-chain', user?.ID, contractType],
@@ -70,11 +135,11 @@ export default function SPXOptionsChain() {
       const params: any = {
         limit: 100
       };
-      
+
       if (contractType !== 'ALL') {
         params.contractType = contractType;
       }
-      
+
       const { data, error } = await window.ezsite.apis.run({
         path: 'spxOptionsChainFetcher',
         methodName: 'fetchSPXOptionsChain',
@@ -102,10 +167,10 @@ export default function SPXOptionsChain() {
   const sortedOptions = data?.options ? [...data.options].sort((a, b) => {
     const aVal = a[sortField];
     const bVal = b[sortField];
-    
+
     if (aVal === null || aVal === undefined) return 1;
     if (bVal === null || bVal === undefined) return -1;
-    
+
     const modifier = sortDirection === 'asc' ? 1 : -1;
     return aVal > bVal ? modifier : -modifier;
   }) : [];
@@ -135,8 +200,8 @@ export default function SPXOptionsChain() {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-96 w-full" />
         </div>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (isError) {
@@ -146,8 +211,8 @@ export default function SPXOptionsChain() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load SPX options chain. Please check your API configuration.'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (!data || !data.options || data.options.length === 0) {
@@ -157,8 +222,8 @@ export default function SPXOptionsChain() {
         <AlertDescription>
           No options data available. Please try refreshing or adjusting your filters.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   return (
@@ -179,21 +244,21 @@ export default function SPXOptionsChain() {
                 <span>Live</span>
               </div>
             </div>
-            {data.underlyingPrice && (
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+            {data.underlyingPrice &&
+            <p className="text-sm text-slate-600 dark:text-slate-400">
                 Underlying Price: <span className="font-semibold text-blue-600 dark:text-blue-400">{formatMoney(data.underlyingPrice)}</span>
               </p>
-            )}
+            }
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Showing {sortedOptions.length} of {data.totalContracts} contracts
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {data.timestamp && (
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+            {data.timestamp &&
+            <div className="text-xs text-slate-500 dark:text-slate-400">
                 Updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
               </div>
-            )}
+            }
             <Button
               variant="outline"
               size="sm"
@@ -205,6 +270,81 @@ export default function SPXOptionsChain() {
             </Button>
           </div>
         </div>
+
+        {/* Quarterly Expiration Dates */}
+        <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                Upcoming Quarterly Expiration Dates
+              </h3>
+              <Badge variant="outline" className="ml-auto bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700">
+                Standard Expirations
+              </Badge>
+            </div>
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              Quarterly expirations (Third Friday of March, June, September, and December) are among the most liquid SPX options contracts
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {quarterlyExpirations.slice(0, 4).map((date, idx) => {
+                const monthName = format(date, 'MMMM');
+                const quarter = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(date.getMonth() / 3)];
+                return (
+                  <div 
+                    key={idx} 
+                    className="bg-white dark:bg-slate-800 rounded-lg p-3 border-2 border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge className="bg-blue-600 hover:bg-blue-700 text-xs">
+                        {quarter}
+                      </Badge>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                        {format(date, 'yyyy')}
+                      </span>
+                    </div>
+                    <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                      {format(date, 'MMM dd')}
+                    </div>
+                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                      {format(date, 'EEEE')}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {quarterlyExpirations.length > 4 && (
+              <details className="text-xs text-blue-700 dark:text-blue-300">
+                <summary className="cursor-pointer hover:underline font-medium">
+                  Show next 4 quarterly expirations →
+                </summary>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                  {quarterlyExpirations.slice(4, 8).map((date, idx) => {
+                    const quarter = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(date.getMonth() / 3)];
+                    return (
+                      <div 
+                        key={idx} 
+                        className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-blue-200 dark:border-blue-700"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/50">
+                            {quarter}
+                          </Badge>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
+                            {format(date, 'yyyy')}
+                          </span>
+                        </div>
+                        <div className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                          {format(date, 'MMM dd')}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </details>
+            )}
+          </div>
+        </Card>
 
         {/* Filters */}
         <div className="flex items-center gap-4 flex-wrap">
@@ -246,14 +386,28 @@ export default function SPXOptionsChain() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedOptions.map((option, idx) => (
-                  <TableRow
-                    key={`${option.symbol}-${idx}`}
-                    className={option.inTheMoney ? 'bg-green-50 dark:bg-green-950/20' : ''}>
-                    <TableCell className="font-mono text-xs">
-                      {option.expiration}
-                      <div className="text-xs text-slate-500">{option.daysToExpiration}d</div>
-                    </TableCell>
+                {sortedOptions.map((option, idx) => {
+                  const isQuarterly = quarterlyExpirationsSet.has(option.expiration);
+                  return (
+                    <TableRow
+                      key={`${option.symbol}-${idx}`}
+                      className={option.inTheMoney ? 'bg-green-50 dark:bg-green-950/20' : ''}>
+                      <TableCell className="font-mono text-xs">
+                        <div className="flex items-center gap-1">
+                          <div>
+                            {option.expiration}
+                            <div className="text-xs text-slate-500">{option.daysToExpiration}d</div>
+                          </div>
+                          {isQuarterly && (
+                            <Badge 
+                              variant="outline" 
+                              className="ml-1 text-[10px] px-1 py-0 h-4 bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700"
+                            >
+                              Q
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                     <TableCell>
                       <Badge variant={option.type === 'CALL' ? 'default' : 'destructive'}>
                         {option.type}
@@ -280,32 +434,39 @@ export default function SPXOptionsChain() {
                       {option.openInterest !== null ? option.openInterest.toLocaleString() : 'N/A'}
                     </TableCell>
                     <TableCell className="text-center">
-                      {option.inTheMoney ? (
-                        <Badge variant="default" className="bg-green-600">ITM</Badge>
-                      ) : (
-                        <Badge variant="outline">OTM</Badge>
-                      )}
+                      {option.inTheMoney ?
+                    <Badge variant="default" className="bg-green-600">ITM</Badge> :
+
+                    <Badge variant="outline">OTM</Badge>
+                    }
                     </TableCell>
                     <TableCell className="text-right text-sm">
                       {formatMoney(option.intrinsicValue)}
                     </TableCell>
-                  </TableRow>
-                ))}
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-wrap gap-2">
           <div>
             Data source: <span className="font-semibold">{data.source}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
+              Q
+            </Badge>
+            <span>= Quarterly Expiration</span>
           </div>
           <div>
             Auto-refreshes every 30 seconds
           </div>
         </div>
       </div>
-    </Card>
-  );
+    </Card>);
+
 }

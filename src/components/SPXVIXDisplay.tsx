@@ -57,8 +57,8 @@ export default function SPXVIXDisplay() {
           <Skeleton className="h-6 w-40 mb-2" />
           <Skeleton className="h-6 w-32" />
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   if (isError) {
@@ -68,8 +68,8 @@ export default function SPXVIXDisplay() {
         <AlertDescription>
           {error instanceof Error ? error.message : 'Failed to load SPX price data. Please check your API configuration.'}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (!data) {
@@ -79,18 +79,18 @@ export default function SPXVIXDisplay() {
         <AlertDescription>
           No SPX price data available. Please try refreshing.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   const isPositive = data.change >= 0;
   const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-  const bgColor = isPositive 
-    ? 'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' 
-    : 'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
-  const borderColor = isPositive 
-    ? 'border-green-200 dark:border-green-800' 
-    : 'border-red-200 dark:border-red-800';
+  const bgColor = isPositive ?
+  'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' :
+  'from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950';
+  const borderColor = isPositive ?
+  'border-green-200 dark:border-green-800' :
+  'border-red-200 dark:border-red-800';
 
   return (
     <div className="w-full">
@@ -107,11 +107,11 @@ export default function SPXVIXDisplay() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {data.timestamp && (
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+          {data.timestamp &&
+          <div className="text-xs text-slate-500 dark:text-slate-400">
               Updated: {format(new Date(data.timestamp), 'HH:mm:ss')}
             </div>
-          )}
+          }
           <button
             onClick={() => refetch()}
             disabled={isFetching}
@@ -209,6 +209,6 @@ export default function SPXVIXDisplay() {
       <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center">
         Auto-refreshes every 30 seconds
       </div>
-    </div>
-  );
+    </div>);
+
 }
