@@ -14,7 +14,7 @@ export default function APITestPage() {
   const [activeTab, setActiveTab] = useState('status');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8 pt-14 md:pt-16 lg:pt-18">
       <div className="max-w-[1800px] mx-auto space-y-6">
         {/* Page Header */}
         <div className="space-y-2">

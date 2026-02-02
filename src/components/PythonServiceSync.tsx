@@ -8,8 +8,8 @@ interface PythonServiceSyncProps {
   strategyIds?: number[];
 }
 
-export default function PythonServiceSync({ 
-  enabled = true, 
+export default function PythonServiceSync({
+  enabled = true,
   interval = 30000,
   strategyIds = []
 }: PythonServiceSyncProps) {
@@ -23,7 +23,7 @@ export default function PythonServiceSync({
     const syncData = async () => {
       try {
         console.log('[PythonServiceSync] Syncing data with Python service...');
-        
+
         // Sync strategy updates
         if (strategyIds.length > 0) {
           for (const strategyId of strategyIds) {

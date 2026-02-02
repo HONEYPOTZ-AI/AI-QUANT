@@ -13,7 +13,7 @@ export default function PythonServiceStatus() {
           methodName: 'testPythonServiceConnection',
           param: []
         });
-        
+
         if (result.error) throw new Error(result.error);
         return result.data;
       } catch (error) {
@@ -32,10 +32,10 @@ export default function PythonServiceStatus() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge 
-            variant="outline" 
-            className={`flex items-center gap-1.5 bg-${statusColor}-500/10 text-${statusColor}-500 border-${statusColor}-500/20 cursor-help`}
-          >
+          <Badge
+            variant="outline"
+            className={`flex items-center gap-1.5 bg-${statusColor}-500/10 text-${statusColor}-500 border-${statusColor}-500/20 cursor-help`}>
+
             <Server className="h-3 w-3" />
             <StatusIcon className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Checking...' : isConnected ? 'Python Service' : 'Service Offline'}
@@ -46,8 +46,8 @@ export default function PythonServiceStatus() {
             <div className="font-semibold">
               {isConnected ? 'Python FastAPI Service Connected' : 'Python FastAPI Service Unavailable'}
             </div>
-            {data?.serviceInfo && (
-              <>
+            {data?.serviceInfo &&
+            <>
                 <div className="text-xs text-muted-foreground">
                   Version: {data.serviceInfo.version}
                 </div>
@@ -55,15 +55,15 @@ export default function PythonServiceStatus() {
                   URL: {data.serviceUrl}
                 </div>
               </>
-            )}
-            {!isConnected && (
-              <div className="text-xs text-amber-500">
+            }
+            {!isConnected &&
+            <div className="text-xs text-amber-500">
                 Enhanced analytics unavailable
               </div>
-            )}
+            }
           </div>
         </TooltipContent>
       </Tooltip>
-    </TooltipProvider>
-  );
+    </TooltipProvider>);
+
 }

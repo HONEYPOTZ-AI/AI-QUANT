@@ -197,9 +197,9 @@ const AnomalyDetectionPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-10">
       {/* Header */}
-      <div className="border-b bg-white shadow-sm">
+      <div className="border-b bg-white shadow-sm sticky top-10 z-10">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex flex-col gap-3">

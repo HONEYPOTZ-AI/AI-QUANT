@@ -47,7 +47,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-slate-900 pt-10">
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-lg">
+      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-lg mt-10">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">

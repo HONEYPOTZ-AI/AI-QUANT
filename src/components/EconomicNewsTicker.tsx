@@ -247,7 +247,7 @@ export default function EconomicNewsTicker() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b-2 border-yellow-500/70 shadow-2xl shadow-yellow-500/20">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b-2 border-yellow-500/70 shadow-2xl shadow-yellow-500/20">
       <div className="relative h-10 overflow-hidden">
         <div
           className="ticker-scroll absolute whitespace-nowrap flex items-center h-full gap-8 px-4"

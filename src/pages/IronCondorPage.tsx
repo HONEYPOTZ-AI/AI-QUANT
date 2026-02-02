@@ -125,8 +125,8 @@ export default function IronCondorPage() {
     },
     onSuccess: (data) => {
       const hasPythonAnalytics = data?.pythonAnalysis;
-      toast({ 
-        title: 'Success', 
+      toast({
+        title: 'Success',
         description: `Iron condor strategy created${hasPythonAnalytics ? ' with Python analytics' : ' successfully'}`
       });
       queryClient.invalidateQueries({ queryKey: ['iron-condor-active'] });
@@ -273,13 +273,13 @@ export default function IronCondorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8 pt-16">
+    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8 pt-14 sm:pt-16">
       {/* Python Service Real-time Sync */}
-      <PythonServiceSync 
+      <PythonServiceSync
         enabled={!!user}
         interval={30000}
-        strategyIds={activeStrategies?.map((s: any) => s.id) || []}
-      />
+        strategyIds={activeStrategies?.map((s: any) => s.id) || []} />
+
       
       <div className="container mx-auto space-y-6">
         {/* Header */}

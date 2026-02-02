@@ -110,29 +110,29 @@ const FastAPIConfiguration = () => {
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Connected
-          </Badge>
-        );
+          </Badge>);
+
       case 'disconnected':
         return (
           <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
             <XCircle className="h-3 w-3 mr-1" />
             Disconnected
-          </Badge>
-        );
+          </Badge>);
+
       case 'testing':
         return (
           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             Testing...
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge className="bg-slate-500/10 text-slate-400 border-slate-500/20">
             <AlertCircle className="h-3 w-3 mr-1" />
             Unknown
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -151,22 +151,22 @@ const FastAPIConfiguration = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {connectionStatus === 'connected' && serviceInfo && (
-          <Alert className="bg-green-500/10 border-green-500/20">
+        {connectionStatus === 'connected' && serviceInfo &&
+        <Alert className="bg-green-500/10 border-green-500/20">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400">
               <div className="space-y-1">
                 <div>Connected to {serviceInfo.service}</div>
                 <div className="text-xs">Version: {serviceInfo.version}</div>
-                {serviceInfo.features && (
-                  <div className="text-xs">
+                {serviceInfo.features &&
+              <div className="text-xs">
                     Features: {serviceInfo.features.join(', ')}
                   </div>
-                )}
+              }
               </div>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -180,8 +180,8 @@ const FastAPIConfiguration = () => {
                 placeholder="localhost"
                 value={settings.host}
                 onChange={(e) => setSettings({ ...settings, host: e.target.value })}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             </div>
 
             <div className="space-y-2">
@@ -194,8 +194,8 @@ const FastAPIConfiguration = () => {
                 placeholder="8000"
                 value={settings.port}
                 onChange={(e) => setSettings({ ...settings, port: e.target.value })}
-                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
-              />
+                className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500" />
+
             </div>
           </div>
 
@@ -212,37 +212,37 @@ const FastAPIConfiguration = () => {
             onClick={testConnection}
             disabled={isTesting || !settings.host || !settings.port}
             variant="outline"
-            className="border-slate-600 text-white hover:bg-slate-700 bg-blue-600 w-full sm:w-auto"
-          >
-            {isTesting ? (
-              <>
+            className="border-slate-600 text-white hover:bg-slate-700 bg-blue-600 w-full sm:w-auto">
+
+            {isTesting ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Testing...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <TestTube className="h-4 w-4 mr-2" />
                 Test Connection
               </>
-            )}
+            }
           </Button>
 
           <Button
             onClick={handleSave}
             disabled={isSaving || !settings.host || !settings.port}
-            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
-          >
-            {isSaving ? (
-              <>
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
+
+            {isSaving ?
+            <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="h-4 w-4 mr-2" />
                 Save Settings
               </>
-            )}
+            }
           </Button>
         </div>
 
@@ -258,8 +258,8 @@ const FastAPIConfiguration = () => {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default FastAPIConfiguration;
