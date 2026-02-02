@@ -137,12 +137,12 @@ const Dashboard = () => {
                 {lastUpdate.toLocaleTimeString()}
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="border-slate-600 w-full sm:w-auto z-10 relative"
-              onClick={() => window.location.reload()}
-            >
+              onClick={() => window.location.reload()}>
+
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>

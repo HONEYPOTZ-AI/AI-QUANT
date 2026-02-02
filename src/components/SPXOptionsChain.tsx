@@ -209,7 +209,7 @@ export default function SPXOptionsChain() {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {error instanceof Error ? error.message : 'Failed to load SPX options chain. Please check your API configuration.'}
+          {error instanceof Error ? error.message : 'Failed to load SPX options chain. Please check your Polygon.io API key in the .env file.'}
         </AlertDescription>
       </Alert>);
 

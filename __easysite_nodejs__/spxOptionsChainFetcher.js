@@ -148,7 +148,15 @@ async function fetchOptionsFromPolygon(params) {
   } catch (error) {
     console.error('Polygon.io options fetch error:', error.message);
     if (error.response) {
-      console.error('API Response:', error.response.data);
+      console.error('API Response:', error.response.status, error.response.data);
+      
+      if (error.response.status === 401 || error.response.status === 403) {
+        throw new Error('Invalid Polygon.io API key. Please check your POLYGON_API_KEY in the .env file.');
+      }
+      
+      if (error.response.status === 429) {
+        throw new Error('Polygon.io API rate limit exceeded. Please wait a moment and try again.');
+      }
     }
     throw error;
   }
@@ -227,7 +235,7 @@ export async function fetchOptionQuote(optionTicker) {
     const apiKey = Deno.env.get('POLYGON_API_KEY');
     
     if (!apiKey) {
-      throw new Error('POLYGON_API_KEY not found in environment variables');
+      throw new Error('POLYGON_API_KEY not found in environment variables. Please add it to your .env file.');
     }
 
     const axios = (await import('npm:axios@1.7.9')).default;
@@ -264,6 +272,17 @@ export async function fetchOptionQuote(optionTicker) {
     };
   } catch (error) {
     console.error('Error fetching option quote:', error.message);
+    if (error.response) {
+      console.error('API Response:', error.response.status, error.response.data);
+      
+      if (error.response.status === 401 || error.response.status === 403) {
+        throw new Error('Invalid Polygon.io API key. Please check your POLYGON_API_KEY in the .env file.');
+      }
+      
+      if (error.response.status === 429) {
+        throw new Error('Polygon.io API rate limit exceeded. Please wait a moment and try again.');
+      }
+    }
     throw error;
   }
 }
