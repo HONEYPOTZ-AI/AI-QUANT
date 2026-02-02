@@ -1,5 +1,3 @@
-import axios from "npm:axios";
-
 // Cache structure with 1-minute TTL
 const cache = {
   data: null,
@@ -35,6 +33,8 @@ const CRYPTO = {
  */
 async function fetchSnapshot(ticker, type = 'stocks') {
   try {
+    const axios = (await import('npm:axios@1.7.9')).default;
+    
     let endpoint;
     if (type === 'stocks') {
       endpoint = `${BASE_URL}/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}`;
