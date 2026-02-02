@@ -17,12 +17,47 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
   const { data, isConnected, subscribe, unsubscribe, dataSource, loading } = useMarketData();
 
   const [timeframe, setTimeframe] = useState('1m');
+  const [polygonData, setPolygonData] = useState<any>(null);
 
-  const marketData = data[symbol];
+  // Use Polygon API for SPX
+  useEffect(() => {
+    if (symbol === 'SPX' || symbol === 'I:SPX') {
+      const fetchSPXData = async () => {
+        try {
+          const result = await window.ezsite.apis.run({
+            path: 'spxRealTimePriceFetcher',
+            methodName: 'fetchRealTimeSPXPrice',
+            param: []
+          });
+          if (!result.error && result.data) {
+            setPolygonData(result.data);
+          }
+        } catch (err) {
+          console.error('Failed to fetch SPX data from Polygon:', err);
+        }
+      };
+
+      fetchSPXData();
+      const interval = setInterval(fetchSPXData, 30000); // Refresh every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [symbol]);
+
+  const marketData = (symbol === 'SPX' || symbol === 'I:SPX') && polygonData ? {
+    price: polygonData.price,
+    change: polygonData.change,
+    changePercent: polygonData.percentChange,
+    volume: polygonData.volume || 0,
+    open: polygonData.open,
+    high: polygonData.high,
+    low: polygonData.low
+  } : data[symbol];
 
   useEffect(() => {
-    subscribe([symbol]);
-    return () => unsubscribe([symbol]);
+    if (symbol !== 'SPX' && symbol !== 'I:SPX') {
+      subscribe([symbol]);
+      return () => unsubscribe([symbol]);
+    }
   }, [symbol, subscribe, unsubscribe]);
 
   const chartData = useMemo(() => {
@@ -169,7 +204,7 @@ export default function RealTimeChart({ symbol, height = 300 }: RealTimeChartPro
               <div className="font-medium">{marketData.volume.toLocaleString()}</div>
             </div>
           </div>
-        }
+        )}
       </CardContent>
     </Card>);
 
