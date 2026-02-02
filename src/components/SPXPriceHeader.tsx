@@ -6,27 +6,62 @@ import { ArrowUp, ArrowDown, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export default function SPXPriceHeader() {
   const { user } = useAuth();
 
   const { data, error, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['spx-realtime-price', user?.ID],
+    queryKey: ['spx-realtime-price'],
     queryFn: async () => {
-      const result = await window.ezsite.apis.run({
-        path: 'spxRealTimePriceFetcher',
-        methodName: 'fetchRealTimeSPXPrice',
-        param: []
-      });
-      if (result.error) throw new Error(result.error);
-      return result.data;
+      console.log('🔄 [SPXPriceHeader] Fetching real-time SPX price...');
+      try {
+        const result = await window.ezsite.apis.run({
+          path: 'spxRealTimePriceFetcher',
+          methodName: 'fetchRealTimeSPXPrice',
+          param: []
+        });
+        console.log('📊 [SPXPriceHeader] API Response:', result);
+        
+        if (result.error) {
+          console.error('❌ [SPXPriceHeader] Error from backend:', result.error);
+          throw new Error(result.error);
+        }
+        
+        console.log('✅ [SPXPriceHeader] Successfully fetched SPX price:', result.data?.price);
+        return result.data;
+      } catch (err) {
+        console.error('❌ [SPXPriceHeader] Exception during fetch:', err);
+        throw err;
+      }
     },
-    enabled: !!user?.ID,
+    enabled: true, // Always enabled - no auth requirement
     refetchInterval: 30000, // Auto-refresh every 30 seconds
     staleTime: 25000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000)
   });
+  
+  // Log state changes
+  console.log('📈 [SPXPriceHeader] Component state:', { 
+    isLoading, 
+    isFetching, 
+    hasData: !!data, 
+    hasError: !!error,
+    errorMessage: error?.message 
+  });
+  
+  // Show toast notification on error
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'SPX Price Update Failed',
+        description: error.message || 'Unable to fetch real-time SPX price data',
+        variant: 'destructive'
+      });
+    }
+  }, [error]);
 
   if (isLoading) {
     return (

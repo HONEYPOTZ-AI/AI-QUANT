@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 interface OptionData {
   symbol: string;
@@ -48,23 +50,57 @@ export default function SPXOptionsChain() {
   const [selectedExpiration, setSelectedExpiration] = useState<string>('');
 
   const { data, error, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['spx-options-chain', user?.ID, selectedExpiration],
+    queryKey: ['spx-options-chain', selectedExpiration],
     queryFn: async () => {
-      const params = selectedExpiration ? { expirationDate: selectedExpiration } : {};
-      const result = await window.ezsite.apis.run({
-        path: 'spxOptionsChainFetcher',
-        methodName: 'fetchSPXOptionsChain',
-        param: [params]
-      });
-      if (result.error) throw new Error(result.error);
-      return result.data as OptionsChainData;
+      console.log('🔄 [SPXOptionsChain] Fetching options chain for expiration:', selectedExpiration || 'all');
+      try {
+        const params = selectedExpiration ? { expirationDate: selectedExpiration } : {};
+        const result = await window.ezsite.apis.run({
+          path: 'spxOptionsChainFetcher',
+          methodName: 'fetchSPXOptionsChain',
+          param: [params]
+        });
+        console.log('📊 [SPXOptionsChain] API Response:', result);
+        
+        if (result.error) {
+          console.error('❌ [SPXOptionsChain] Error from backend:', result.error);
+          throw new Error(result.error);
+        }
+        
+        console.log('✅ [SPXOptionsChain] Successfully fetched options chain. Total contracts:', result.data?.totalContracts);
+        return result.data as OptionsChainData;
+      } catch (err) {
+        console.error('❌ [SPXOptionsChain] Exception during fetch:', err);
+        throw err;
+      }
     },
-    enabled: !!user?.ID,
+    enabled: true, // Always enabled - no auth requirement
     refetchInterval: 30000,
     staleTime: 25000,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000)
   });
+  
+  // Log state changes
+  console.log('🔗 [SPXOptionsChain] Component state:', { 
+    isLoading, 
+    isFetching, 
+    hasData: !!data, 
+    optionsCount: data?.options?.length,
+    hasError: !!error,
+    errorMessage: error?.message 
+  });
+  
+  // Show toast notification on error
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Options Chain Update Failed',
+        description: error.message || 'Unable to fetch SPX options chain data',
+        variant: 'destructive'
+      });
+    }
+  }, [error]);
 
   // Extract unique expiration dates
   const expirationDates = data?.options ?
