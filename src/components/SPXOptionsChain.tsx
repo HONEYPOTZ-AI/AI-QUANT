@@ -67,9 +67,9 @@ export default function SPXOptionsChain() {
   });
 
   // Extract unique expiration dates
-  const expirationDates = data?.options
-    ? [...new Set(data.options.map(opt => opt.expiration))].sort()
-    : [];
+  const expirationDates = data?.options ?
+  [...new Set(data.options.map((opt) => opt.expiration))].sort() :
+  [];
 
   // Set default expiration to nearest date if not set
   if (!selectedExpiration && expirationDates.length > 0) {
@@ -80,22 +80,22 @@ export default function SPXOptionsChain() {
   const strikeRows: StrikeRow[] = [];
   if (data?.options) {
     const strikeMap = new Map<number, StrikeRow>();
-    
-    data.options
-      .filter(opt => !selectedExpiration || opt.expiration === selectedExpiration)
-      .forEach(option => {
-        if (!strikeMap.has(option.strike)) {
-          strikeMap.set(option.strike, { strike: option.strike, call: null, put: null });
-        }
-        const row = strikeMap.get(option.strike)!;
-        if (option.type === 'CALL') {
-          row.call = option;
-        } else if (option.type === 'PUT') {
-          row.put = option;
-        }
-      });
 
-    strikeMap.forEach(row => strikeRows.push(row));
+    data.options.
+    filter((opt) => !selectedExpiration || opt.expiration === selectedExpiration).
+    forEach((option) => {
+      if (!strikeMap.has(option.strike)) {
+        strikeMap.set(option.strike, { strike: option.strike, call: null, put: null });
+      }
+      const row = strikeMap.get(option.strike)!;
+      if (option.type === 'CALL') {
+        row.call = option;
+      } else if (option.type === 'PUT') {
+        row.put = option;
+      }
+    });
+
+    strikeMap.forEach((row) => strikeRows.push(row));
     strikeRows.sort((a, b) => a.strike - b.strike);
   }
 
@@ -114,8 +114,8 @@ export default function SPXOptionsChain() {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-64 w-full" />
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -124,16 +124,16 @@ export default function SPXOptionsChain() {
         <AlertDescription>
           Failed to load options chain: {error.message}
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (!data) {
     return (
       <Alert>
         <AlertDescription>No options chain data available</AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   return (
@@ -142,11 +142,11 @@ export default function SPXOptionsChain() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <CardTitle className="text-xl">SPX Options Chain</CardTitle>
-            {data.underlyingPrice && (
-              <p className="text-sm text-muted-foreground">
+            {data.underlyingPrice &&
+            <p className="text-sm text-muted-foreground">
                 Underlying Price: <span className="font-semibold text-foreground">${data.underlyingPrice.toFixed(2)}</span>
               </p>
-            )}
+            }
           </div>
           <div className="flex items-center gap-3">
             <Select value={selectedExpiration} onValueChange={setSelectedExpiration}>
@@ -154,11 +154,11 @@ export default function SPXOptionsChain() {
                 <SelectValue placeholder="Select expiration" />
               </SelectTrigger>
               <SelectContent>
-                {expirationDates.map(date => (
-                  <SelectItem key={date} value={date}>
+                {expirationDates.map((date) =>
+                <SelectItem key={date} value={date}>
                     {format(new Date(date), 'MMM dd, yyyy')}
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
             <Button
@@ -166,8 +166,8 @@ export default function SPXOptionsChain() {
               size="sm"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="gap-2"
-            >
+              className="gap-2">
+
               <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -215,24 +215,24 @@ export default function SPXOptionsChain() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {strikeRows.length === 0 ? (
-                  <tr>
+                {strikeRows.length === 0 ?
+                <tr>
                     <td colSpan={11} className="p-8 text-center text-muted-foreground">
                       No options data available for selected expiration
                     </td>
-                  </tr>
-                ) : (
-                  strikeRows.map(row => {
-                    const isAtTheMoney = data.underlyingPrice && 
-                      Math.abs(row.strike - data.underlyingPrice) < 50;
-                    
-                    return (
-                      <tr 
-                        key={row.strike}
-                        className={`hover:bg-muted/50 transition-colors ${
-                          isAtTheMoney ? 'bg-blue-50/50 font-medium' : ''
-                        }`}
-                      >
+                  </tr> :
+
+                strikeRows.map((row) => {
+                  const isAtTheMoney = data.underlyingPrice &&
+                  Math.abs(row.strike - data.underlyingPrice) < 50;
+
+                  return (
+                    <tr
+                      key={row.strike}
+                      className={`hover:bg-muted/50 transition-colors ${
+                      isAtTheMoney ? 'bg-blue-50/50 font-medium' : ''}`
+                      }>
+
                         {/* Call Data */}
                         <td className={`p-2 text-right border-r ${row.call?.inTheMoney ? 'bg-green-50/30' : ''}`}>
                           {formatNumber(row.call?.volume)}
@@ -271,10 +271,10 @@ export default function SPXOptionsChain() {
                         <td className={`p-2 text-left border-l ${row.put?.inTheMoney ? 'bg-red-50/30' : ''}`}>
                           {formatNumber(row.put?.volume)}
                         </td>
-                      </tr>
-                    );
-                  })
-                )}
+                      </tr>);
+
+                })
+                }
               </tbody>
             </table>
           </div>
@@ -287,9 +287,9 @@ export default function SPXOptionsChain() {
             <span>•</span>
             <span>Source: {data.source}</span>
           </div>
-          {data.timestamp && (
-            <span>Last updated: {format(new Date(data.timestamp), 'PPpp')}</span>
-          )}
+          {data.timestamp &&
+          <span>Last updated: {format(new Date(data.timestamp), 'PPpp')}</span>
+          }
         </div>
 
         {/* Legend */}
@@ -310,6 +310,6 @@ export default function SPXOptionsChain() {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

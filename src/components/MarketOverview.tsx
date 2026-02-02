@@ -1,267 +1,263 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, BarChart3, DollarSign, Activity, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, TrendingDown, Activity, DollarSign, BarChart3, Users, Database, RefreshCw } from 'lucide-react';
-import { useMarketData, type DataSource } from './MarketDataService';
+import { toast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface MarketDataItem {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  timestamp: number;
+}
+
+interface MarketData {
+  indices: MarketDataItem[];
+  forex: MarketDataItem[];
+  crypto: MarketDataItem[];
+  lastUpdated: number;
+}
 
 const MarketOverview = () => {
-  const { marketSummary, data: marketData, loading, dataSource, setDataSource, refreshData } = useMarketData();
+  const [marketData, setMarketData] = useState<MarketData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  if (loading || !marketSummary) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[1, 2, 3, 4].map((i) =>
-        <Card key={i} className="border-border/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
-              <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted animate-pulse rounded w-16 mb-2"></div>
-              <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
-            </CardContent>
-          </Card>
-        )}
-      </div>);
+  // Fetch market data from backend
+  const fetchMarketData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  }
+      const { data, error: apiError } = await window.ezsite.apis.run({
+        path: 'polygonMarketDataFetcher',
+        methodName: 'getMarketOverviewData',
+        param: []
+      });
 
-  const totalVolume = marketSummary.totalVolume;
-  const avgChange = marketSummary.averageChange;
-  const marketMomentum = marketSummary.marketMomentum;
-  const totalSymbols = marketSummary.totalSymbols;
+      if (apiError) {
+        throw new Error(apiError);
+      }
 
-  const marketStats = [
-  {
-    title: 'Market Trend',
-    value: marketSummary.marketTrend.toUpperCase(),
-    change: `${avgChange > 0 ? '+' : ''}${avgChange}%`,
-    trend: avgChange > 0 ? 'up' : 'down',
-    icon: avgChange > 0 ? TrendingUp : TrendingDown
-  },
-  {
-    title: 'Active Symbols',
-    value: totalSymbols.toString(),
-    change: `${marketSummary.bullishStocks} bullish`,
-    trend: marketSummary.bullishStocks > marketSummary.bearishStocks ? 'up' : 'down',
-    icon: Users
-  },
-  {
-    title: 'Total Volume',
-    value: `${(totalVolume / 1000000).toFixed(1)}M`,
-    change: `${marketSummary.bearishStocks} bearish`,
-    trend: marketSummary.bearishStocks < marketSummary.bullishStocks ? 'up' : 'down',
-    icon: BarChart3
-  },
-  {
-    title: 'Market Momentum',
-    value: `${marketMomentum > 0 ? '+' : ''}${marketMomentum}%`,
-    change: marketSummary.neutralStocks > 0 ? `${marketSummary.neutralStocks} neutral` : 'Strong direction',
-    trend: marketMomentum > 0 ? 'up' : 'down',
-    icon: Activity
-  }];
+      setMarketData(data);
+      setLastUpdate(new Date());
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch market data';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const [localMarketData, setLocalMarketData] = useState([
-  {
-    symbol: 'SPX',
-    name: 'S&P 500 Index',
-    price: 4782.35,
-    change: 23.45,
-    changePercent: 0.49,
-    volume: '3.2B'
-  },
-  {
-    symbol: 'VIX',
-    name: 'CBOE Volatility Index',
-    price: 16.78,
-    change: -1.23,
-    changePercent: -6.83,
-    volume: '245M'
-  },
-  {
-    symbol: 'SPY',
-    name: 'SPDR S&P 500 ETF',
-    price: 478.92,
-    change: 2.34,
-    changePercent: 0.49,
-    volume: '82.5M'
-  },
-  {
-    symbol: 'QQQ',
-    name: 'Invesco QQQ Trust',
-    price: 398.45,
-    change: 5.67,
-    changePercent: 1.44,
-    volume: '45.2M'
-  }]
-  );
+  // Initial fetch
+  useEffect(() => {
+    fetchMarketData();
+  }, []);
 
-  // Mock real-time updates
+  // Auto-refresh every 60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setLocalMarketData((prevData) =>
-      prevData.map((item) => ({
-        ...item,
-        price: item.price + (Math.random() - 0.5) * 2,
-        change: item.change + (Math.random() - 0.5) * 0.5
-      }))
-      );
-    }, 5000);
+      fetchMarketData();
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const sectorData = [
-  { sector: 'Technology', performance: 2.34, weight: 28.7 },
-  { sector: 'Healthcare', performance: 1.23, weight: 13.2 },
-  { sector: 'Financial Services', performance: 0.89, weight: 11.1 },
-  { sector: 'Consumer Discretionary', performance: -0.45, weight: 10.5 },
-  { sector: 'Communication Services', performance: 1.78, weight: 8.9 }];
+  // Format timestamp
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
 
+  // Render individual market item card
+  const renderMarketItem = (item: MarketDataItem, index: number) => {
+    const isPositive = item.change >= 0;
+    const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+    const colorClass = isPositive ? 'text-green-500' : 'text-red-500';
+    const bgColorClass = isPositive ? 'bg-green-500/10' : 'bg-red-500/10';
+
+    return (
+      <motion.div
+        key={item.symbol}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+      >
+        <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {/* Header with Symbol and Badge */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">{item.symbol}</h3>
+                <Badge variant="outline" className="border-blue-500/30 text-blue-400 text-xs">
+                  Live
+                </Badge>
+              </div>
+
+              {/* Price */}
+              <motion.div 
+                className="text-2xl font-bold text-white"
+                key={item.price}
+                initial={{ scale: 1.1, color: isPositive ? '#22c55e' : '#ef4444' }}
+                animate={{ scale: 1, color: '#ffffff' }}
+                transition={{ duration: 0.5 }}
+              >
+                ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </motion.div>
+
+              {/* Change and Percent */}
+              <div className="flex items-center justify-between">
+                <div className={`flex items-center gap-1 ${colorClass}`}>
+                  <TrendIcon className="h-4 w-4" />
+                  <span className="font-semibold">
+                    {isPositive ? '+' : ''}{item.change.toFixed(2)}
+                  </span>
+                </div>
+                <div className={`${colorClass} font-medium px-2 py-1 rounded ${bgColorClass}`}>
+                  {isPositive ? '+' : ''}{item.changePercent.toFixed(2)}%
+                </div>
+              </div>
+
+              {/* Last Update */}
+              <div className="text-xs text-slate-400 flex items-center gap-1">
+                <Activity className="h-3 w-3" />
+                Updated: {formatTime(item.timestamp)}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
+
+  // Loading state
+  if (loading && !marketData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Market Overview</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(9)].map((_, i) => (
+            <Card key={i} className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="space-y-3 animate-pulse">
+                  <div className="h-5 bg-slate-700 rounded w-20"></div>
+                  <div className="h-8 bg-slate-700 rounded w-32"></div>
+                  <div className="h-4 bg-slate-700 rounded w-24"></div>
+                  <div className="h-3 bg-slate-700 rounded w-28"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-8 text-center">
+          <div className="text-red-400 mb-4">
+            <Activity className="h-12 w-12 mx-auto mb-2" />
+            <p className="text-lg font-semibold">Unable to load market data</p>
+            <p className="text-sm text-slate-400 mt-2">{error}</p>
+          </div>
+          <Button onClick={fetchMarketData} variant="outline" className="mt-4">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Data Source Selector */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <Database className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                Market Data Source
-              </CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Choose your real-time data provider</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={dataSource} onValueChange={(value) => setDataSource(value as DataSource)}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-slate-700 border-slate-600">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mock">Mock Data</SelectItem>
-                  <SelectItem value="ibrk">IBRK Live</SelectItem>
-                  <SelectItem value="auto">Auto (IBRK + Fallback)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={refreshData} size="sm" variant="outline" disabled={loading}>
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Market Indices */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-blue-500" />
-            Market Indices
-          </CardTitle>
-          <CardDescription>Real-time market data and indices</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {localMarketData.map((item, index) =>
-            <div key={index} className="bg-slate-900/50 p-3 sm:p-4 rounded-lg border border-slate-700">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm sm:text-base font-bold text-white">{item.symbol}</span>
-                  <Badge variant="outline" className="border-blue-500/20 text-blue-400 text-xs">
-                    Live
-                  </Badge>
-                </div>
-                <div className="text-xs sm:text-sm text-slate-400 mb-3">{item.name}</div>
-                <div className="space-y-2">
-                  <div className="text-xl sm:text-2xl font-bold text-white">
-                    ${item.price.toFixed(2)}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      {item.change >= 0 ?
-                    <TrendingUp className="h-4 w-4 text-green-500" /> :
-
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                    }
-                      <span className={item.change >= 0 ? "text-green-500" : "text-red-500"}>
-                        {item.change >= 0 ? "+" : ""}{item.change.toFixed(2)}
-                      </span>
-                    </div>
-                    <span className={`text-sm ${item.changePercent >= 0 ? "text-green-500" : "text-red-500"}`}>
-                      ({item.changePercent >= 0 ? "+" : ""}{item.changePercent.toFixed(2)}%)
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1">
-                    <Activity className="h-3 w-3" />
-                    Vol: {item.volume}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Market Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {marketStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="bg-slate-800 border-slate-700">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-300">{stat.title}</CardTitle>
-                <Icon className={`h-4 w-4 ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <p className={`text-xs ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'} flex items-center gap-1`}>
-                  {stat.trend === 'up' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {stat.change}
-                </p>
-              </CardContent>
-            </Card>);
-
-        })}
+      {/* Header with Refresh */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <BarChart3 className="h-6 w-6 text-blue-500" />
+            Market Overview
+          </h2>
+          {lastUpdate && (
+            <p className="text-sm text-slate-400 mt-1">
+              Last updated: {lastUpdate.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+              })}
+            </p>
+          )}
+        </div>
+        <Button
+          onClick={fetchMarketData}
+          disabled={loading}
+          variant="outline"
+          size="sm"
+          className="border-slate-600 hover:bg-slate-700"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
-      {/* Sector Performance */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-green-500" />
-            Sector Performance
-          </CardTitle>
-          <CardDescription>S&P 500 sector breakdown and performance</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {sectorData.map((sector, index) =>
-            <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                <div className="flex items-center gap-3">
-                  <div className="text-white font-medium">{sector.sector}</div>
-                  <Badge variant="secondary" className="text-xs">
-                    {sector.weight}%
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  {sector.performance >= 0 ?
-                <TrendingUp className="h-4 w-4 text-green-500" /> :
-
-                <TrendingDown className="h-4 w-4 text-red-500" />
-                }
-                  <span className={`font-medium ${sector.performance >= 0 ? "text-green-500" : "text-red-500"}`}>
-                    {sector.performance >= 0 ? "+" : ""}{sector.performance.toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            )}
+      {/* Stock Indices */}
+      {marketData?.indices && marketData.indices.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="h-5 w-5 text-blue-400" />
+            <h3 className="text-lg font-semibold text-white">Stock Indices</h3>
           </div>
-        </CardContent>
-      </Card>
-    </div>);
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {marketData.indices.map((item, index) => renderMarketItem(item, index))}
+          </div>
+        </div>
+      )}
 
+      {/* Forex */}
+      {marketData?.forex && marketData.forex.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <DollarSign className="h-5 w-5 text-green-400" />
+            <h3 className="text-lg font-semibold text-white">Forex</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {marketData.forex.map((item, index) => renderMarketItem(item, index))}
+          </div>
+        </div>
+      )}
+
+      {/* Crypto */}
+      {marketData?.crypto && marketData.crypto.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="h-5 w-5 text-orange-400" />
+            <h3 className="text-lg font-semibold text-white">Crypto</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {marketData.crypto.map((item, index) => renderMarketItem(item, index))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default MarketOverview;

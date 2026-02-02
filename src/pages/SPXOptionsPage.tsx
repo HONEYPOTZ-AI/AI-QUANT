@@ -19,6 +19,6 @@ export default function SPXOptionsPage() {
         {/* Options Chain */}
         <SPXOptionsChain />
       </div>
-    </div>
-  );
+    </div>);
+
 }
