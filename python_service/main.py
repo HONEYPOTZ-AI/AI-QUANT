@@ -1,25 +1,32 @@
 """
 FastAPI Market Data Processing Service
-This service provides HTTP endpoints for market data processing and analysis.
+Advanced market data processing, iron condor strategy analysis, and options analytics
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional, Any, Tuple
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
+from scipy import stats
+from scipy.optimize import minimize_scalar
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Market Data Processing Service",
-    description="Python FastAPI service for market data processing and analysis",
-    version="1.0.0"
+    description="Python FastAPI service for market data processing, iron condor strategy, and options analytics",
+    version="2.0.0"
 )
 
-# Add CORS middleware to allow requests from Deno backend
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, specify exact origins
@@ -28,7 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Data models
+# ==================== Data Models ====================
+
 class MarketDataRequest(BaseModel):
     symbols: List[str]
     timeframe: Optional[str] = "1m"
@@ -53,7 +61,49 @@ class EquityData(BaseModel):
     unrealized_pnl: float
     timestamp: str
 
-# Helper functions
+# Iron Condor Models
+class IronCondorAnalysisRequest(BaseModel):
+    symbol: str
+    expiration_date: str
+    long_call_strike: float
+    short_call_strike: float
+    short_put_strike: float
+    long_put_strike: float
+    contracts: int = Field(default=1, gt=0)
+    current_price: Optional[float] = None
+    implied_volatility: Optional[float] = Field(default=0.20, gt=0, le=2.0)
+    risk_free_rate: Optional[float] = Field(default=0.05, ge=0, le=0.20)
+
+class IronCondorGreeksRequest(BaseModel):
+    long_call_greeks: Dict[str, float]
+    short_call_greeks: Dict[str, float]
+    short_put_greeks: Dict[str, float]
+    long_put_greeks: Dict[str, float]
+    contracts: int = Field(default=1, gt=0)
+
+class IronCondorOptimizationRequest(BaseModel):
+    symbol: str
+    expiration_date: str
+    current_price: float
+    implied_volatility: float
+    target_probability: Optional[float] = Field(default=0.70, ge=0.5, le=0.95)
+    wing_width: Optional[float] = Field(default=5.0, gt=0)
+    contracts: int = Field(default=1, gt=0)
+
+class PositionMonitorRequest(BaseModel):
+    strategy_id: int
+    symbol: str
+    expiration_date: str
+    strikes: Dict[str, float]  # long_call, short_call, short_put, long_put
+    contracts: int
+    entry_credit: float
+
+class RealTimeUpdateRequest(BaseModel):
+    positions: List[Dict[str, Any]]
+    market_data: Dict[str, float]
+
+# ==================== Helper Functions ====================
+
 def generate_market_price(symbol: str) -> Dict[str, Any]:
     """Generate realistic market price data for a given symbol"""
     base_prices = {
@@ -88,7 +138,6 @@ def generate_market_price(symbol: str) -> Dict[str, Any]:
 def calculate_technical_indicators(prices: List[float]) -> Dict[str, Any]:
     """Calculate technical indicators using pandas and numpy"""
     if len(prices) < 20:
-        # Not enough data, return basic indicators
         return {
             "rsi": round(50.0 + random.random() * 30 - 15, 2),
             "macd": round((random.random() - 0.5) * 2, 4),
@@ -124,14 +173,175 @@ def calculate_technical_indicators(prices: List[float]) -> Dict[str, Any]:
         "ema_26": round(float(ema_26.iloc[-1]) if not np.isnan(ema_26.iloc[-1]) else 0.0, 4)
     }
 
-# API Endpoints
+# ==================== Black-Scholes Options Pricing ====================
+
+def black_scholes_call(S: float, K: float, T: float, r: float, sigma: float) -> float:
+    """Calculate Black-Scholes call option price"""
+    if T <= 0:
+        return max(0, S - K)
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    
+    call_price = S * stats.norm.cdf(d1) - K * np.exp(-r * T) * stats.norm.cdf(d2)
+    return call_price
+
+def black_scholes_put(S: float, K: float, T: float, r: float, sigma: float) -> float:
+    """Calculate Black-Scholes put option price"""
+    if T <= 0:
+        return max(0, K - S)
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    
+    put_price = K * np.exp(-r * T) * stats.norm.cdf(-d2) - S * stats.norm.cdf(-d1)
+    return put_price
+
+def calculate_greeks(S: float, K: float, T: float, r: float, sigma: float, 
+                     option_type: str) -> Dict[str, float]:
+    """Calculate option Greeks"""
+    if T <= 0:
+        return {"delta": 0, "gamma": 0, "theta": 0, "vega": 0}
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    
+    if option_type.upper() == 'C':
+        delta = stats.norm.cdf(d1)
+        theta = (-S * stats.norm.pdf(d1) * sigma / (2 * np.sqrt(T)) - 
+                 r * K * np.exp(-r * T) * stats.norm.cdf(d2)) / 365
+    else:  # Put
+        delta = stats.norm.cdf(d1) - 1
+        theta = (-S * stats.norm.pdf(d1) * sigma / (2 * np.sqrt(T)) + 
+                 r * K * np.exp(-r * T) * stats.norm.cdf(-d2)) / 365
+    
+    gamma = stats.norm.pdf(d1) / (S * sigma * np.sqrt(T))
+    vega = S * stats.norm.pdf(d1) * np.sqrt(T) / 100
+    
+    return {
+        "delta": delta,
+        "gamma": gamma,
+        "theta": theta,
+        "vega": vega
+    }
+
+# ==================== Iron Condor Analysis Functions ====================
+
+def calculate_iron_condor_payoff(underlying_price: float, strikes: Dict[str, float], 
+                                 net_credit: float) -> float:
+    """Calculate iron condor payoff at given underlying price"""
+    lc = strikes['long_call']
+    sc = strikes['short_call']
+    sp = strikes['short_put']
+    lp = strikes['long_put']
+    
+    # Call spread P&L
+    if underlying_price <= sc:
+        call_pnl = 0
+    elif underlying_price >= lc:
+        call_pnl = -(lc - sc)
+    else:
+        call_pnl = -(underlying_price - sc)
+    
+    # Put spread P&L
+    if underlying_price >= sp:
+        put_pnl = 0
+    elif underlying_price <= lp:
+        put_pnl = -(sp - lp)
+    else:
+        put_pnl = -(sp - underlying_price)
+    
+    total_pnl = (call_pnl + put_pnl) * 100 + net_credit
+    return total_pnl
+
+def calculate_probability_itm(S: float, K: float, T: float, sigma: float, 
+                              option_type: str) -> float:
+    """Calculate probability of option being ITM at expiration"""
+    if T <= 0:
+        return 1.0 if (option_type == 'C' and S > K) or (option_type == 'P' and S < K) else 0.0
+    
+    d2 = (np.log(S / K) + (-0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    
+    if option_type.upper() == 'C':
+        return 1 - stats.norm.cdf(d2)
+    else:
+        return stats.norm.cdf(d2)
+
+def optimize_iron_condor_strikes(current_price: float, T: float, sigma: float,
+                                 target_pop: float, wing_width: float) -> Dict[str, float]:
+    """Optimize iron condor strikes for target probability of profit"""
+    
+    # Calculate standard deviation of price movement
+    price_std = current_price * sigma * np.sqrt(T)
+    
+    # For target PoP, find the z-score
+    # PoP relates to probability that price stays between short strikes
+    z_score = stats.norm.ppf((1 + target_pop) / 2)
+    
+    # Place short strikes at z-score standard deviations
+    short_call_strike = current_price + (z_score * price_std)
+    short_put_strike = current_price - (z_score * price_std)
+    
+    # Add wings
+    long_call_strike = short_call_strike + wing_width
+    long_put_strike = short_put_strike - wing_width
+    
+    # Round to nearest 5
+    return {
+        'long_call': round(long_call_strike / 5) * 5,
+        'short_call': round(short_call_strike / 5) * 5,
+        'short_put': round(short_put_strike / 5) * 5,
+        'long_put': round(long_put_strike / 5) * 5
+    }
+
+def calculate_strategy_score(return_on_risk: float, probability_of_profit: float, 
+                            days_to_expiration: int) -> float:
+    """Calculate overall strategy quality score (0-100)"""
+    # Weight factors
+    ror_score = min(100, return_on_risk * 2)  # 50% ROR = 100 score
+    pop_score = probability_of_profit  # Already 0-100
+    
+    # Time factor (prefer 30-45 days to expiration)
+    if 30 <= days_to_expiration <= 45:
+        time_score = 100
+    elif days_to_expiration < 30:
+        time_score = max(0, (days_to_expiration / 30) * 100)
+    else:
+        time_score = max(0, 100 - ((days_to_expiration - 45) * 2))
+    
+    # Weighted average
+    total_score = (ror_score * 0.3) + (pop_score * 0.5) + (time_score * 0.2)
+    return round(total_score, 2)
+
+def get_strategy_rating(return_on_risk: float, probability_of_profit: float) -> str:
+    """Get qualitative rating for strategy"""
+    score = (return_on_risk * 2 * 0.4) + (probability_of_profit * 0.6)
+    
+    if score >= 80:
+        return "Excellent"
+    elif score >= 65:
+        return "Good"
+    elif score >= 50:
+        return "Fair"
+    else:
+        return "Poor"
+
+# ==================== API Endpoints ====================
+
 @app.get("/")
 async def root():
     """Root endpoint"""
     return {
         "service": "Market Data Processing Service",
         "status": "online",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": [
+            "Market Data Processing",
+            "Iron Condor Strategy Analysis",
+            "Options Greeks Calculation",
+            "Position Management",
+            "Real-time Updates"
+        ],
         "timestamp": datetime.now().isoformat()
     }
 
@@ -163,16 +373,14 @@ async def get_market_data(request: MarketDataRequest):
         market_data = {}
         
         for symbol in request.symbols:
-            # Generate or fetch price data
             price_data = generate_market_price(symbol)
             
-            # Generate historical prices for indicators (simulation)
+            # Generate historical prices for indicators
             historical_prices = [
                 price_data["last"] * (1 + (random.random() - 0.5) * 0.01)
                 for _ in range(50)
             ]
             
-            # Calculate technical indicators
             indicators = calculate_technical_indicators(historical_prices)
             
             market_data[symbol] = {
@@ -193,21 +401,15 @@ async def get_market_data(request: MarketDataRequest):
         }
         
     except Exception as e:
+        logger.error(f"Error processing market data: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to process market data: {str(e)}")
 
 @app.get("/positions")
 async def get_positions(account_id: Optional[str] = Query(None, description="Account ID")):
     """
     Retrieve current trading positions
-    
-    Args:
-        account_id: Optional account identifier
-        
-    Returns:
-        List of current positions with P&L information
     """
     try:
-        # Generate sample positions (in production, fetch from actual broker API)
         positions = [
             {
                 "position_id": f"POS_{random.randint(1000, 9999)}",
@@ -218,17 +420,6 @@ async def get_positions(account_id: Optional[str] = Query(None, description="Acc
                 "current_price": 1.0875,
                 "unrealized_pnl": 250.0,
                 "commission": 5.0,
-                "open_time": datetime.now().isoformat()
-            },
-            {
-                "position_id": f"POS_{random.randint(1000, 9999)}",
-                "symbol": "GBPUSD",
-                "position_type": "SHORT",
-                "quantity": 50000.0,
-                "entry_price": 1.2650,
-                "current_price": 1.2620,
-                "unrealized_pnl": 150.0,
-                "commission": 3.5,
                 "open_time": datetime.now().isoformat()
             }
         ]
@@ -245,21 +436,15 @@ async def get_positions(account_id: Optional[str] = Query(None, description="Acc
         }
         
     except Exception as e:
+        logger.error(f"Error fetching positions: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch positions: {str(e)}")
 
 @app.get("/equity")
 async def get_equity(account_id: Optional[str] = Query(None, description="Account ID")):
     """
     Retrieve account equity and balance information
-    
-    Args:
-        account_id: Optional account identifier
-        
-    Returns:
-        Current equity, balance, and margin information
     """
     try:
-        # Generate sample equity data (in production, fetch from actual broker API)
         base_equity = 50000.0
         unrealized_pnl = random.random() * 1000 - 500
         
@@ -282,102 +467,54 @@ async def get_equity(account_id: Optional[str] = Query(None, description="Accoun
         }
         
     except Exception as e:
+        logger.error(f"Error fetching equity: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch equity: {str(e)}")
 
-@app.post("/analyze")
-async def analyze_market(symbols: List[str] = Query(..., description="Symbols to analyze")):
-    """
-    Perform advanced market analysis on given symbols
-    
-    Args:
-        symbols: List of symbols to analyze
-        
-    Returns:
-        Comprehensive market analysis including correlations and trends
-    """
-    try:
-        if not symbols:
-            raise HTTPException(status_code=400, detail="At least one symbol is required")
-        
-        # Generate correlation matrix
-        correlation_matrix = {}
-        for sym1 in symbols:
-            correlation_matrix[sym1] = {}
-            for sym2 in symbols:
-                if sym1 == sym2:
-                    correlation_matrix[sym1][sym2] = 1.0
-                else:
-                    # Simulate correlation
-                    correlation_matrix[sym1][sym2] = round(random.random() * 0.8 + 0.1, 3)
-        
-        # Calculate market trends
-        trends = {}
-        for symbol in symbols:
-            price_data = generate_market_price(symbol)
-            trends[symbol] = {
-                "trend": "bullish" if price_data["change_percent"] > 0 else "bearish",
-                "strength": round(abs(price_data["change_percent"]) * 10, 1),
-                "volatility": round(random.random() * 3 + 1, 2)
-            }
-        
-        return {
-            "success": True,
-            "analysis": {
-                "correlations": correlation_matrix,
-                "trends": trends,
-                "market_sentiment": {
-                    "overall": "neutral",
-                    "confidence": round(random.random() * 30 + 60, 1)
-                }
-            },
-            "analyzed_symbols": len(symbols),
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+# ==================== Iron Condor Strategy Endpoints ====================
 
-# Iron Condor Strategy Models
-class IronCondorAnalysisRequest(BaseModel):
-    symbol: str
-    expiration_date: str
-    long_call_strike: float
-    short_call_strike: float
-    short_put_strike: float
-    long_put_strike: float
-    contracts: int
-    current_price: Optional[float] = None
-    implied_volatility: Optional[float] = 0.20  # Default 20% IV
-
-class IronCondorGreeksRequest(BaseModel):
-    long_call_greeks: Dict[str, float]
-    short_call_greeks: Dict[str, float]
-    short_put_greeks: Dict[str, float]
-    long_put_greeks: Dict[str, float]
-    contracts: int
-
-# Iron Condor Endpoints
 @app.post("/iron-condor/analyze")
 async def analyze_iron_condor(request: IronCondorAnalysisRequest):
     """
-    Analyze iron condor strategy
+    Comprehensive iron condor strategy analysis
     
     Returns:
         - Risk/reward metrics
+        - Breakeven points
+        - Probability analysis
         - Optimal strike recommendations
-        - Probability of profit
         - Sensitivity analysis
+        - Quality metrics
     """
     try:
+        # Parse expiration date
+        expiration = datetime.strptime(request.expiration_date, "%Y-%m-%d")
+        days_to_expiration = (expiration - datetime.now()).days
+        years_to_expiration = days_to_expiration / 365.0
+        
+        if days_to_expiration <= 0:
+            raise HTTPException(status_code=400, detail="Expiration date must be in the future")
+        
+        # Use provided current price or calculate midpoint
+        current_price = request.current_price or (request.short_call_strike + request.short_put_strike) / 2
+        
         # Calculate spread widths
         call_spread_width = request.long_call_strike - request.short_call_strike
         put_spread_width = request.short_put_strike - request.long_put_strike
         
-        # Estimate net credit (simplified - in production, use real option prices)
-        # Assume short strikes are worth more than long strikes
-        estimated_call_credit = call_spread_width * 0.4  # 40% of width
-        estimated_put_credit = put_spread_width * 0.4
-        net_credit = (estimated_call_credit + estimated_put_credit) * request.contracts * 100
+        # Calculate option prices using Black-Scholes
+        r = request.risk_free_rate
+        sigma = request.implied_volatility
+        T = years_to_expiration
+        
+        long_call_price = black_scholes_call(current_price, request.long_call_strike, T, r, sigma)
+        short_call_price = black_scholes_call(current_price, request.short_call_strike, T, r, sigma)
+        short_put_price = black_scholes_put(current_price, request.short_put_strike, T, r, sigma)
+        long_put_price = black_scholes_put(current_price, request.long_put_strike, T, r, sigma)
+        
+        # Calculate net credit
+        call_spread_credit = short_call_price - long_call_price
+        put_spread_credit = short_put_price - long_put_price
+        net_credit = (call_spread_credit + put_spread_credit) * request.contracts * 100
         
         # Calculate max profit and loss
         max_profit = net_credit
@@ -389,50 +526,48 @@ async def analyze_iron_condor(request: IronCondorAnalysisRequest):
         lower_breakeven = request.short_put_strike - credit_per_share
         
         # Calculate return on risk
-        return_on_risk = (max_profit / max_loss) * 100 if max_loss > 0 else 0
+        return_on_risk = (max_profit / max_loss * 100) if max_loss > 0 else 0
         
-        # Calculate probability of profit (using normal distribution approximation)
-        if request.current_price:
-            current_price = request.current_price
-        else:
-            # Estimate current price as midpoint of strikes
-            current_price = (request.short_call_strike + request.short_put_strike) / 2
+        # Calculate probability of profit
+        price_std = current_price * sigma * np.sqrt(T)
+        z_upper = (upper_breakeven - current_price) / price_std
+        z_lower = (lower_breakeven - current_price) / price_std
         
-        # Days to expiration
-        expiration = datetime.strptime(request.expiration_date, "%Y-%m-%d")
-        days_to_expiration = (expiration - datetime.now()).days
-        years_to_expiration = days_to_expiration / 365.0
+        prob_below_upper = stats.norm.cdf(z_upper) * 100
+        prob_below_lower = stats.norm.cdf(z_lower) * 100
+        probability_of_profit = prob_below_upper - prob_below_lower
         
-        # Probability calculation using implied volatility
-        iv = request.implied_volatility
-        if years_to_expiration > 0 and iv > 0:
-            # Standard deviation of price movement
-            price_std = current_price * iv * np.sqrt(years_to_expiration)
-            
-            # Z-scores for breakeven points
-            z_upper = (upper_breakeven - current_price) / price_std
-            z_lower = (lower_breakeven - current_price) / price_std
-            
-            # Probability that price stays within range (between lower and upper breakeven)
-            from scipy import stats
-            prob_below_upper = stats.norm.cdf(z_upper)
-            prob_below_lower = stats.norm.cdf(z_lower)
-            probability_of_profit = (prob_below_upper - prob_below_lower) * 100
-        else:
-            probability_of_profit = 60.0  # Default estimate
+        # Calculate individual leg probabilities
+        prob_short_call_itm = calculate_probability_itm(current_price, request.short_call_strike, T, sigma, 'C') * 100
+        prob_short_put_itm = calculate_probability_itm(current_price, request.short_put_strike, T, sigma, 'P') * 100
         
         # Optimal strike recommendations
-        # For iron condors, typically place short strikes at 1 standard deviation
-        optimal_std = current_price * iv * np.sqrt(years_to_expiration)
-        recommended_short_call = current_price + optimal_std
-        recommended_short_put = current_price - optimal_std
+        optimal_strikes = optimize_iron_condor_strikes(current_price, T, sigma, 0.70, 
+                                                      max(call_spread_width, put_spread_width))
         
-        # Wing width recommendation (typically 5-10 points)
-        recommended_wing_width = max(5, current_price * 0.02)
-        
-        # Sensitivity analysis - how much can underlying move before breakeven
+        # Sensitivity analysis
         upside_room = ((upper_breakeven - current_price) / current_price) * 100
         downside_room = ((current_price - lower_breakeven) / current_price) * 100
+        
+        # Calculate payoff at various price points
+        price_points = np.linspace(current_price * 0.85, current_price * 1.15, 20)
+        strikes = {
+            'long_call': request.long_call_strike,
+            'short_call': request.short_call_strike,
+            'short_put': request.short_put_strike,
+            'long_put': request.long_put_strike
+        }
+        payoff_profile = [
+            {
+                "price": round(float(price), 2),
+                "pnl": round(calculate_iron_condor_payoff(price, strikes, net_credit), 2)
+            }
+            for price in price_points
+        ]
+        
+        # Quality metrics
+        score = calculate_strategy_score(return_on_risk, probability_of_profit, days_to_expiration)
+        rating = get_strategy_rating(return_on_risk, probability_of_profit)
         
         return {
             "success": True,
@@ -441,37 +576,53 @@ async def analyze_iron_condor(request: IronCondorAnalysisRequest):
                     "max_profit": round(max_profit, 2),
                     "max_loss": round(max_loss, 2),
                     "return_on_risk_percent": round(return_on_risk, 2),
-                    "risk_reward_ratio": round(max_profit / max_loss, 3) if max_loss > 0 else 0
+                    "risk_reward_ratio": round(max_profit / max_loss, 3) if max_loss > 0 else 0,
+                    "net_credit": round(net_credit, 2)
                 },
                 "breakevens": {
                     "upper": round(upper_breakeven, 2),
                     "lower": round(lower_breakeven, 2),
-                    "range": round(upper_breakeven - lower_breakeven, 2)
+                    "range": round(upper_breakeven - lower_breakeven, 2),
+                    "range_percent": round((upper_breakeven - lower_breakeven) / current_price * 100, 2)
                 },
                 "probability": {
                     "profit_percent": round(probability_of_profit, 2),
                     "loss_percent": round(100 - probability_of_profit, 2),
-                    "method": "normal_distribution_approximation"
+                    "short_call_itm_percent": round(prob_short_call_itm, 2),
+                    "short_put_itm_percent": round(prob_short_put_itm, 2),
+                    "method": "black_scholes_normal_distribution"
                 },
                 "sensitivity": {
                     "upside_room_percent": round(upside_room, 2),
                     "downside_room_percent": round(downside_room, 2),
-                    "days_to_expiration": days_to_expiration
+                    "days_to_expiration": days_to_expiration,
+                    "implied_volatility": sigma,
+                    "current_price": current_price
                 },
                 "recommendations": {
-                    "optimal_short_call_strike": round(recommended_short_call, 2),
-                    "optimal_short_put_strike": round(recommended_short_put, 2),
-                    "recommended_wing_width": round(recommended_wing_width, 2),
-                    "reasoning": "Strikes placed at ~1 standard deviation from current price"
+                    "optimal_long_call_strike": optimal_strikes['long_call'],
+                    "optimal_short_call_strike": optimal_strikes['short_call'],
+                    "optimal_short_put_strike": optimal_strikes['short_put'],
+                    "optimal_long_put_strike": optimal_strikes['long_put'],
+                    "reasoning": f"Strikes optimized for ~70% probability of profit based on {sigma:.0%} IV"
                 },
                 "quality_metrics": {
-                    "score": calculate_strategy_score(return_on_risk, probability_of_profit, days_to_expiration),
-                    "rating": get_strategy_rating(return_on_risk, probability_of_profit)
-                }
+                    "score": score,
+                    "rating": rating,
+                    "factors": {
+                        "return_on_risk": "Good" if return_on_risk > 20 else "Fair" if return_on_risk > 10 else "Poor",
+                        "probability_of_profit": "Good" if probability_of_profit > 65 else "Fair" if probability_of_profit > 50 else "Poor",
+                        "time_to_expiration": "Optimal" if 30 <= days_to_expiration <= 45 else "Acceptable" if days_to_expiration > 20 else "Risky"
+                    }
+                },
+                "payoff_profile": payoff_profile
             },
             "timestamp": datetime.now().isoformat()
         }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid input: {str(e)}")
     except Exception as e:
+        logger.error(f"Iron condor analysis failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @app.post("/iron-condor/greeks")
@@ -479,28 +630,22 @@ async def calculate_iron_condor_greeks(request: IronCondorGreeksRequest):
     """
     Calculate combined Greeks for iron condor position
     
-    Args:
-        request: Greeks for each of the four legs
-        
     Returns:
-        Portfolio-level Greeks and risk metrics
+        Portfolio-level Greeks, individual leg breakdown, risk profile, and interpretations
     """
     try:
-        # Extract individual leg Greeks
         lc = request.long_call_greeks
         sc = request.short_call_greeks
         sp = request.short_put_greeks
         lp = request.long_put_greeks
         contracts = request.contracts
         
-        # Calculate net Greeks (consider position direction)
-        # Long positions: negative contribution to portfolio
-        # Short positions: positive contribution to portfolio
+        # Calculate net Greeks (long = negative, short = positive)
         portfolio_delta = (
-            -lc.get('delta', 0) +  # Long call
-            sc.get('delta', 0) +    # Short call
-            sp.get('delta', 0) +    # Short put
-            -lp.get('delta', 0)     # Long put
+            -lc.get('delta', 0) +
+            sc.get('delta', 0) +
+            sp.get('delta', 0) +
+            -lp.get('delta', 0)
         ) * contracts * 100
         
         portfolio_gamma = (
@@ -524,7 +669,7 @@ async def calculate_iron_condor_greeks(request: IronCondorGreeksRequest):
             -lp.get('vega', 0)
         ) * contracts * 100
         
-        # Calculate individual leg contributions (for analysis)
+        # Individual leg contributions
         legs_breakdown = {
             "long_call": {
                 "delta": round(-lc.get('delta', 0) * contracts * 100, 4),
@@ -561,8 +706,8 @@ async def calculate_iron_condor_greeks(request: IronCondorGreeksRequest):
         }
         
         # Daily P&L estimates
-        daily_theta_pnl = portfolio_theta  # Theta decay per day
-        daily_move_1pct = portfolio_delta * 0.01  # P&L if underlying moves 1%
+        daily_theta_pnl = portfolio_theta
+        daily_move_1pct = portfolio_delta * 0.01
         
         return {
             "success": True,
@@ -588,44 +733,164 @@ async def calculate_iron_condor_greeks(request: IronCondorGreeksRequest):
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
+        logger.error(f"Greeks calculation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Greeks calculation failed: {str(e)}")
 
-# Helper functions for iron condor analysis
-def calculate_strategy_score(return_on_risk: float, probability_of_profit: float, days_to_expiration: int) -> float:
+@app.post("/iron-condor/optimize")
+async def optimize_iron_condor(request: IronCondorOptimizationRequest):
     """
-    Calculate overall strategy quality score (0-100)
+    Optimize iron condor strikes for target probability of profit
+    
+    Returns:
+        Optimized strike prices and expected performance metrics
     """
-    # Weight factors
-    ror_score = min(100, return_on_risk * 2)  # 50% ROR = 100 score
-    pop_score = probability_of_profit  # Already 0-100
-    
-    # Time factor (prefer 30-45 days to expiration)
-    if 30 <= days_to_expiration <= 45:
-        time_score = 100
-    elif days_to_expiration < 30:
-        time_score = max(0, (days_to_expiration / 30) * 100)
-    else:
-        time_score = max(0, 100 - ((days_to_expiration - 45) * 2))
-    
-    # Weighted average
-    total_score = (ror_score * 0.3) + (pop_score * 0.5) + (time_score * 0.2)
-    return round(total_score, 2)
+    try:
+        expiration = datetime.strptime(request.expiration_date, "%Y-%m-%d")
+        days_to_expiration = (expiration - datetime.now()).days
+        T = days_to_expiration / 365.0
+        
+        if T <= 0:
+            raise HTTPException(status_code=400, detail="Expiration must be in future")
+        
+        # Optimize strikes
+        optimal_strikes = optimize_iron_condor_strikes(
+            request.current_price,
+            T,
+            request.implied_volatility,
+            request.target_probability,
+            request.wing_width
+        )
+        
+        # Calculate expected metrics with optimal strikes
+        analysis_request = IronCondorAnalysisRequest(
+            symbol=request.symbol,
+            expiration_date=request.expiration_date,
+            long_call_strike=optimal_strikes['long_call'],
+            short_call_strike=optimal_strikes['short_call'],
+            short_put_strike=optimal_strikes['short_put'],
+            long_put_strike=optimal_strikes['long_put'],
+            contracts=request.contracts,
+            current_price=request.current_price,
+            implied_volatility=request.implied_volatility
+        )
+        
+        analysis = await analyze_iron_condor(analysis_request)
+        
+        return {
+            "success": True,
+            "optimal_strikes": optimal_strikes,
+            "expected_performance": analysis["analysis"],
+            "optimization_parameters": {
+                "target_probability": request.target_probability,
+                "wing_width": request.wing_width,
+                "current_price": request.current_price,
+                "implied_volatility": request.implied_volatility,
+                "days_to_expiration": days_to_expiration
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Optimization failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
-def get_strategy_rating(return_on_risk: float, probability_of_profit: float) -> str:
+@app.post("/iron-condor/monitor")
+async def monitor_position(request: PositionMonitorRequest):
     """
-    Get qualitative rating for strategy
-    """
-    score = (return_on_risk * 2 * 0.4) + (probability_of_profit * 0.6)
+    Monitor iron condor position and provide real-time analysis
     
-    if score >= 80:
-        return "Excellent"
-    elif score >= 65:
-        return "Good"
-    elif score >= 50:
-        return "Fair"
-    else:
-        return "Poor"
+    Returns:
+        Current position status, P&L, Greeks, and alerts
+    """
+    try:
+        # This would integrate with real market data in production
+        expiration = datetime.strptime(request.expiration_date, "%Y-%m-%d")
+        days_to_expiration = (expiration - datetime.now()).days
+        
+        # Calculate current metrics (placeholder - use real market data)
+        current_price = request.market_data.get('price', 4500.0) if hasattr(request, 'market_data') else 4500.0
+        
+        # Calculate current P&L
+        strikes = request.strikes
+        current_pnl = calculate_iron_condor_payoff(current_price, strikes, request.entry_credit)
+        
+        # Check for alerts
+        alerts = []
+        pnl_percent = (current_pnl / abs(request.entry_credit)) * 100
+        
+        if pnl_percent >= 50:
+            alerts.append({
+                "type": "PROFIT_TARGET",
+                "message": f"Position has reached {pnl_percent:.1f}% of max profit",
+                "severity": "INFO"
+            })
+        
+        if current_pnl < -request.entry_credit * 0.5:
+            alerts.append({
+                "type": "LOSS_THRESHOLD",
+                "message": f"Position has lost {abs(current_pnl / request.entry_credit * 100):.1f}% of max profit",
+                "severity": "WARNING"
+            })
+        
+        if days_to_expiration <= 7:
+            alerts.append({
+                "type": "EXPIRATION_WARNING",
+                "message": f"Position expires in {days_to_expiration} days",
+                "severity": "INFO"
+            })
+        
+        return {
+            "success": True,
+            "position_status": {
+                "strategy_id": request.strategy_id,
+                "current_price": current_price,
+                "current_pnl": round(current_pnl, 2),
+                "pnl_percent": round(pnl_percent, 2),
+                "days_to_expiration": days_to_expiration,
+                "entry_credit": request.entry_credit
+            },
+            "alerts": alerts,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Position monitoring failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Monitoring failed: {str(e)}")
+
+@app.post("/iron-condor/batch-update")
+async def batch_update_positions(request: RealTimeUpdateRequest):
+    """
+    Batch update multiple iron condor positions with real-time data
+    
+    Returns:
+        Updated metrics for all positions
+    """
+    try:
+        updates = []
+        
+        for position in request.positions:
+            # Calculate current metrics for each position
+            current_price = request.market_data.get(position['symbol'], position.get('entry_price', 4500))
+            
+            # This is a simplified example - implement full logic as needed
+            update = {
+                "position_id": position.get('id'),
+                "symbol": position.get('symbol'),
+                "current_price": current_price,
+                "updated_at": datetime.now().isoformat()
+            }
+            updates.append(update)
+        
+        return {
+            "success": True,
+            "updates": updates,
+            "total_updated": len(updates),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Batch update failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Batch update failed: {str(e)}")
+
+# ==================== Startup ====================
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

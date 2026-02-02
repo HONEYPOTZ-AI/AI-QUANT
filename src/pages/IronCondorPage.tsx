@@ -14,6 +14,8 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, TrendingUp, TrendingDown, Plus, RefreshCw, AlertCircle, X, Eye, Settings } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import SPXPriceHeader from '@/components/SPXPriceHeader';
+import PythonServiceSync from '@/components/PythonServiceSync';
+import PythonServiceStatus from '@/components/PythonServiceStatus';
 import { format } from 'date-fns';
 
 export default function IronCondorPage() {
@@ -97,19 +99,36 @@ export default function IronCondorPage() {
     enabled: !!user?.ID
   });
 
-  // Create strategy mutation
+  // Create strategy mutation (with Python analytics)
   const createStrategyMutation = useMutation({
     mutationFn: async (strategyConfig: any) => {
-      const result = await window.ezsite.apis.run({
-        path: 'ironCondorStrategy',
-        methodName: 'createIronCondor',
-        param: [user?.ID, strategyConfig]
-      });
-      if (result.error) throw new Error(result.error);
-      return result.data;
+      // Try Python-enhanced creation first
+      try {
+        const result = await window.ezsite.apis.run({
+          path: 'ironCondorPythonIntegration',
+          methodName: 'createIronCondorWithPython',
+          param: [user?.ID, strategyConfig]
+        });
+        if (result.error) throw new Error(result.error);
+        return result.data;
+      } catch (pythonError) {
+        console.warn('Python service unavailable, using standard method:', pythonError);
+        // Fallback to standard method
+        const result = await window.ezsite.apis.run({
+          path: 'ironCondorStrategy',
+          methodName: 'createIronCondor',
+          param: [user?.ID, strategyConfig]
+        });
+        if (result.error) throw new Error(result.error);
+        return result.data;
+      }
     },
-    onSuccess: () => {
-      toast({ title: 'Success', description: 'Iron condor strategy created successfully' });
+    onSuccess: (data) => {
+      const hasPythonAnalytics = data?.pythonAnalysis;
+      toast({ 
+        title: 'Success', 
+        description: `Iron condor strategy created${hasPythonAnalytics ? ' with Python analytics' : ' successfully'}`
+      });
       queryClient.invalidateQueries({ queryKey: ['iron-condor-active'] });
       queryClient.invalidateQueries({ queryKey: ['iron-condor-performance'] });
       setShowBuilder(false);
@@ -255,11 +274,21 @@ export default function IronCondorPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8 pt-16">
+      {/* Python Service Real-time Sync */}
+      <PythonServiceSync 
+        enabled={!!user}
+        interval={30000}
+        strategyIds={activeStrategies?.map((s: any) => s.id) || []}
+      />
+      
       <div className="container mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Iron Condor Strategies</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-white">Iron Condor Strategies</h1>
+              <PythonServiceStatus />
+            </div>
             <p className="text-slate-400 mt-1">Manage and monitor your SPX iron condor positions</p>
           </div>
           <Button onClick={() => setShowBuilder(!showBuilder)} className="gap-2">

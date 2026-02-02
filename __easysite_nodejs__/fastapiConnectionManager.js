@@ -1,4 +1,5 @@
 import axios from "npm:axios@1.6.5";
+import { testPythonServiceConnection } from './pythonServiceBridge.js';
 
 /**
  * Establish connection to FastAPI Python service via HTTP

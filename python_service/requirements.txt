@@ -1,6 +1,19 @@
+# FastAPI and web server
 fastapi==0.115.6
-uvicorn==0.34.0
+uvicorn[standard]==0.34.0
+
+# Data validation
 pydantic==2.10.5
+
+# Data processing and analysis
 pandas==2.2.3
 numpy==2.2.1
+
+# Scientific computing and statistics
 scipy==1.14.1
+
+# Optional: Enhanced logging
+python-json-logger==3.2.1
+
+# Optional: For production deployments
+gunicorn==23.0.0
