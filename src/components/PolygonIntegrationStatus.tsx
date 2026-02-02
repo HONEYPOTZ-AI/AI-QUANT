@@ -34,18 +34,18 @@ export default function PolygonIntegrationStatus() {
         });
 
         if (result.error) {
-          setStatus(prev => ({
+          setStatus((prev) => ({
             ...prev,
             spxPrice: { status: 'error', error: result.error }
           }));
         } else {
-          setStatus(prev => ({
+          setStatus((prev) => ({
             ...prev,
             spxPrice: { status: 'success', data: result.data }
           }));
         }
       } catch (error: any) {
-        setStatus(prev => ({
+        setStatus((prev) => ({
           ...prev,
           spxPrice: { status: 'error', error: error.message }
         }));
@@ -60,18 +60,18 @@ export default function PolygonIntegrationStatus() {
         });
 
         if (result.error) {
-          setStatus(prev => ({
+          setStatus((prev) => ({
             ...prev,
             marketData: { status: 'error', error: result.error }
           }));
         } else {
-          setStatus(prev => ({
+          setStatus((prev) => ({
             ...prev,
             marketData: { status: 'success', data: result.data }
           }));
         }
       } catch (error: any) {
-        setStatus(prev => ({
+        setStatus((prev) => ({
           ...prev,
           marketData: { status: 'error', error: error.message }
         }));
@@ -130,17 +130,17 @@ export default function PolygonIntegrationStatus() {
           </Badge>
         </div>
 
-        {status.spxPrice.status === 'success' && status.spxPrice.data && (
-          <div className="pl-6 text-xs text-muted-foreground">
+        {status.spxPrice.status === 'success' && status.spxPrice.data &&
+        <div className="pl-6 text-xs text-muted-foreground">
             Price: ${status.spxPrice.data.price?.toFixed(2)} | Change: {status.spxPrice.data.change >= 0 ? '+' : ''}{status.spxPrice.data.change?.toFixed(2)} ({status.spxPrice.data.percentChange?.toFixed(2)}%)
           </div>
-        )}
+        }
 
-        {status.spxPrice.error && (
-          <Alert variant="destructive" className="py-2">
+        {status.spxPrice.error &&
+        <Alert variant="destructive" className="py-2">
             <AlertDescription className="text-xs">{status.spxPrice.error}</AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Market Data Status */}
         <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50">
@@ -153,34 +153,34 @@ export default function PolygonIntegrationStatus() {
           </Badge>
         </div>
 
-        {status.marketData.status === 'success' && status.marketData.data && (
-          <div className="pl-6 text-xs text-muted-foreground">
+        {status.marketData.status === 'success' && status.marketData.data &&
+        <div className="pl-6 text-xs text-muted-foreground">
             Indices: {status.marketData.data.indices?.length || 0} | Forex: {status.marketData.data.forex?.length || 0} | Crypto: {status.marketData.data.crypto?.length || 0}
           </div>
-        )}
+        }
 
-        {status.marketData.error && (
-          <Alert variant="destructive" className="py-2">
+        {status.marketData.error &&
+        <Alert variant="destructive" className="py-2">
             <AlertDescription className="text-xs">{status.marketData.error}</AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Overall Status */}
         <div className="pt-2 border-t">
-          {allSuccess && (
-            <div className="flex items-center gap-2 text-sm text-green-600">
+          {allSuccess &&
+          <div className="flex items-center gap-2 text-sm text-green-600">
               <CheckCircle2 className="h-4 w-4" />
               All systems operational
             </div>
-          )}
-          {hasErrors && (
-            <div className="flex items-center gap-2 text-sm text-red-600">
+          }
+          {hasErrors &&
+          <div className="flex items-center gap-2 text-sm text-red-600">
               <XCircle className="h-4 w-4" />
               Integration issues detected
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

@@ -48,27 +48,27 @@ export default function APITestPage() {
                   <CardDescription>Test individual components</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button 
+                  <Button
                     onClick={() => setActiveTab('spx')}
-                    variant="outline" 
-                    className="w-full justify-start"
-                  >
+                    variant="outline"
+                    className="w-full justify-start">
+
                     <Activity className="h-4 w-4 mr-2" />
                     View SPX Real-time Data
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => setActiveTab('market')}
-                    variant="outline" 
-                    className="w-full justify-start"
-                  >
+                    variant="outline"
+                    className="w-full justify-start">
+
                     <BarChart3 className="h-4 w-4 mr-2" />
                     View Market Overview
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => setActiveTab('verification')}
-                    variant="outline" 
-                    className="w-full justify-start"
-                  >
+                    variant="outline"
+                    className="w-full justify-start">
+
                     <TestTube className="h-4 w-4 mr-2" />
                     Run Full Verification
                   </Button>
@@ -108,6 +108,6 @@ export default function APITestPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 }

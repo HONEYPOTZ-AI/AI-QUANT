@@ -14,8 +14,8 @@ interface TestResultSummaryProps {
 }
 
 export default function TestResultSummary({ results }: TestResultSummaryProps) {
-  const passed = results.filter(r => r.status === 'PASSED').length;
-  const failed = results.filter(r => r.status === 'FAILED').length;
+  const passed = results.filter((r) => r.status === 'PASSED').length;
+  const failed = results.filter((r) => r.status === 'FAILED').length;
   const total = results.length;
 
   return (
@@ -43,19 +43,19 @@ export default function TestResultSummary({ results }: TestResultSummaryProps) {
         </div>
         
         <div className="mt-4 pt-4 border-t">
-          {failed === 0 ? (
-            <div className="flex items-center justify-center gap-2 text-green-600">
+          {failed === 0 ?
+          <div className="flex items-center justify-center gap-2 text-green-600">
               <CheckCircle2 className="h-5 w-5" />
               <span className="font-medium">All tests passed successfully!</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-orange-600">
+            </div> :
+
+          <div className="flex items-center justify-center gap-2 text-orange-600">
               <AlertTriangle className="h-5 w-5" />
               <span className="font-medium">Some tests failed - check details below</span>
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }

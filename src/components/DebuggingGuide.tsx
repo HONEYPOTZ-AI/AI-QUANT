@@ -69,6 +69,6 @@ export default function DebuggingGuide() {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
