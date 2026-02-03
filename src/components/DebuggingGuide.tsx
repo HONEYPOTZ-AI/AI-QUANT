@@ -65,7 +65,7 @@ export default function DebuggingGuide() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs">
-            <strong>If you see API errors:</strong> Check that POLYGON_API_KEY is set in your .env file and that you have API access to indices data
+            <strong>If you see API errors:</strong> Contact the administrator to ensure Polygon API is properly configured on the backend server
           </AlertDescription>
         </Alert>
       </CardContent>

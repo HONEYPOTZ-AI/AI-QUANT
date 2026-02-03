@@ -133,13 +133,21 @@ export function MarketDataProvider({ children }: {children: ReactNode;}) {
 
       if (source === 'ibrk') {
         // Fetch from IBRK
-        const response = await window.ezsite.apis.run({ path: 'ibrkMarketDataFetcher', param: [symbols, null] });
+        const response = await window.ezsite.apis.run({ 
+          path: 'ibrkMarketDataFetcher', 
+          methodName: 'fetchMarketData',
+          param: [symbols, null] 
+        });
         if (response.error) throw new Error(response.error);
         result = response.data;
       } else if (source === 'auto') {
         // Try IBRK first, fallback to mock
         try {
-          const response = await window.ezsite.apis.run({ path: 'ibrkMarketDataFetcher', param: [symbols, null] });
+          const response = await window.ezsite.apis.run({ 
+            path: 'ibrkMarketDataFetcher', 
+            methodName: 'fetchMarketData',
+            param: [symbols, null] 
+          });
           if (response.error) throw new Error(response.error);
           result = response.data;
         } catch (err) {

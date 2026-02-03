@@ -12,6 +12,7 @@ export default function EconomicDataRefreshTrigger() {
     queryFn: async () => {
       const result = await window.ezsite.apis.run({
         path: 'economicCalendarFetcher',
+        methodName: 'fetchEconomicCalendar',
         param: []
       });
       if (result.error) throw new Error(result.error);
@@ -25,6 +26,7 @@ export default function EconomicDataRefreshTrigger() {
     queryFn: async () => {
       const result = await window.ezsite.apis.run({
         path: 'whiteHouseMonitor',
+        methodName: 'monitorWhiteHouse',
         param: []
       });
       if (result.error) throw new Error(result.error);
@@ -38,6 +40,7 @@ export default function EconomicDataRefreshTrigger() {
     queryFn: async () => {
       const result = await window.ezsite.apis.run({
         path: 'economicNewsFetcher',
+        methodName: 'fetchEconomicNews',
         param: []
       });
       if (result.error) throw new Error(result.error);

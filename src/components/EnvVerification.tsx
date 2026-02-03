@@ -77,13 +77,13 @@ export default function EnvVerification() {
           </Button>
         </div>
         <CardDescription>
-          Verify that environment variables are properly configured
+          Verify that backend environment variables are properly configured
         </CardDescription>
       </CardHeader>
       <CardContent>
         {result ?
         <div className="space-y-4">
-            {/* .env Configuration Status */}
+            {/* Backend .env Configuration Status */}
             <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
               {result.exists ?
             <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" /> :
@@ -92,12 +92,12 @@ export default function EnvVerification() {
             }
               <div className="flex-1">
                 <h3 className="font-semibold text-sm">
-                  .env File Configuration
+                  Backend Environment Configuration
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {result.exists ?
-                '✓ Environment file is properly configured' :
-                '✗ Environment file not configured or missing variables'}
+                '✓ Backend environment is properly configured' :
+                '✗ Backend environment not configured or missing variables'}
                 </p>
               </div>
             </div>
@@ -143,12 +143,12 @@ export default function EnvVerification() {
             {!result.exists &&
           <div className="mt-4 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                 <h4 className="font-semibold text-sm text-yellow-900 dark:text-yellow-200 mb-2">
-                  Configuration Required
+                  Backend Configuration Required
                 </h4>
                 <ol className="text-sm text-yellow-800 dark:text-yellow-300 space-y-1 list-decimal list-inside">
-                  <li>Create a <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">.env</code> file in your project root</li>
-                  <li>Add: <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">POLYGON_API_KEY=your_api_key_here</code></li>
-                  <li>Restart the application to load environment variables</li>
+                  <li>Contact the administrator to configure backend environment variables</li>
+                  <li>Backend must have: <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">POLYGON_API_KEY=your_api_key_here</code></li>
+                  <li>Backend server must be restarted after configuration changes</li>
                 </ol>
               </div>
           }

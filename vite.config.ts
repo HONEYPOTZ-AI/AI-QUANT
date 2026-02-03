@@ -17,10 +17,10 @@ export default defineConfig(({ mode }) => ({
     }
   },
   define: {
-    // Note: POLYGON_API_KEY should ONLY be accessed from backend (Deno)
-    // Frontend should call backend APIs, never expose API keys in frontend
-    'import.meta.env.VITE_POLYGON_WARNING': JSON.stringify(
-      'POLYGON_API_KEY must be accessed via backend only. Use window.ezsite.apis.run() to call backend functions.'
+    // Security: API keys are NEVER exposed to frontend
+    // All API calls must go through backend using window.ezsite.apis.run()
+    'import.meta.env.VITE_API_SECURITY_NOTICE': JSON.stringify(
+      '⚠️ Security: All API keys are securely stored on backend. Use window.ezsite.apis.run() for API calls.'
     )
   }
 }));
