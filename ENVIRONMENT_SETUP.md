@@ -17,7 +17,11 @@ The `.env` file is listed in `.gitignore` to prevent committing sensitive API ke
 
 ## Access Pattern
 
-### Node.js/Deno Backend (EzSite Backend)
+### ⚠️ IMPORTANT: API Key Security
+
+**The POLYGON_API_KEY should ONLY be accessed from the backend (Deno), NEVER from frontend code.**
+
+### Node.js/Deno Backend (EzSite Backend) ✅ CORRECT
 The Polygon API key is accessed in backend code via:
 ```javascript
 const POLYGON_API_KEY = Deno.env.get('POLYGON_API_KEY');
@@ -33,6 +37,23 @@ const BASE_URL = 'https://api.polygon.io';
 const response = await axios.get(endpoint, {
   params: { apiKey: POLYGON_API_KEY },
   timeout: 10000
+});
+```
+
+### Frontend Access ❌ WRONG
+**DO NOT** try to access POLYGON_API_KEY from frontend code:
+```javascript
+// ❌ WRONG - This will NOT work and exposes API keys
+const apiKey = import.meta.env.VITE_POLYGON_API_KEY;
+```
+
+Instead, frontend should call backend functions:
+```javascript
+// ✅ CORRECT - Call backend function that uses the API key securely
+const { data, error } = await window.ezsite.apis.run({
+  path: 'polygonMarketDataFetcher',
+  methodName: 'getMarketOverviewData',
+  param: []
 });
 ```
 

@@ -26,7 +26,12 @@ export default function PythonServiceStatus() {
 
   const isConnected = data?.status === 'connected';
   const StatusIcon = isLoading ? Loader2 : isConnected ? CheckCircle : XCircle;
-  const statusColor = isLoading ? 'blue' : isConnected ? 'green' : 'red';
+  
+  const badgeClassName = isLoading
+    ? 'flex items-center gap-1.5 bg-blue-500/10 text-blue-500 border-blue-500/20 cursor-help'
+    : isConnected
+    ? 'flex items-center gap-1.5 bg-green-500/10 text-green-500 border-green-500/20 cursor-help'
+    : 'flex items-center gap-1.5 bg-red-500/10 text-red-500 border-red-500/20 cursor-help';
 
   return (
     <TooltipProvider>
@@ -34,8 +39,7 @@ export default function PythonServiceStatus() {
         <TooltipTrigger asChild>
           <Badge
             variant="outline"
-            className={`flex items-center gap-1.5 bg-${statusColor}-500/10 text-${statusColor}-500 border-${statusColor}-500/20 cursor-help`}>
-
+            className={badgeClassName}>
             <Server className="h-3 w-3" />
             <StatusIcon className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Checking...' : isConnected ? 'Python Service' : 'Service Offline'}

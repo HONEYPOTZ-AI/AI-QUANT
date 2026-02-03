@@ -9,11 +9,18 @@ export default defineConfig(({ mode }) => ({
     port: 8080
   },
   plugins: [
-  react()],
-
+    react()
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")
     }
+  },
+  define: {
+    // Note: POLYGON_API_KEY should ONLY be accessed from backend (Deno)
+    // Frontend should call backend APIs, never expose API keys in frontend
+    'import.meta.env.VITE_POLYGON_WARNING': JSON.stringify(
+      'POLYGON_API_KEY must be accessed via backend only. Use window.ezsite.apis.run() to call backend functions.'
+    )
   }
 }));

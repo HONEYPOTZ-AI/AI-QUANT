@@ -16,6 +16,7 @@ interface TestResult {
 }
 
 export default function PolygonAPITestPanel() {
+  const { toast } = useToast();
   const [testing, setTesting] = useState(false);
   const [results, setResults] = useState<{
     timestamp?: string;
@@ -27,7 +28,6 @@ export default function PolygonAPITestPanel() {
       failed: number;
     };
   }>({});
-  const { toast } = useToast();
 
   const runTests = async () => {
     setTesting(true);
