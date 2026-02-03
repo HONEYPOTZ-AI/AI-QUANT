@@ -36,7 +36,7 @@ export default function EnvVerification() {
 
       setResult(data);
       setLastChecked(new Date());
-      
+
       toast({
         title: data.exists ? 'Environment Verified' : 'Configuration Issue',
         description: data.message,
@@ -70,8 +70,8 @@ export default function EnvVerification() {
             variant="outline"
             size="sm"
             onClick={verifyEnvironment}
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Verify
           </Button>
@@ -81,49 +81,49 @@ export default function EnvVerification() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {result ? (
-          <div className="space-y-4">
+        {result ?
+        <div className="space-y-4">
             {/* .env Configuration Status */}
             <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
-              {result.exists ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-              ) : (
-                <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
-              )}
+              {result.exists ?
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" /> :
+
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            }
               <div className="flex-1">
                 <h3 className="font-semibold text-sm">
                   .env File Configuration
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {result.exists 
-                    ? '✓ Environment file is properly configured' 
-                    : '✗ Environment file not configured or missing variables'}
+                  {result.exists ?
+                '✓ Environment file is properly configured' :
+                '✗ Environment file not configured or missing variables'}
                 </p>
               </div>
             </div>
 
             {/* POLYGON_API_KEY Status */}
             <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
-              {result.exists ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-              ) : (
-                <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
-              )}
+              {result.exists ?
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" /> :
+
+            <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+            }
               <div className="flex-1">
                 <h3 className="font-semibold text-sm">
                   POLYGON_API_KEY Status
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {result.exists 
-                    ? `✓ API key found (${result.length} characters)` 
-                    : '✗ API key not found in environment variables'}
+                  {result.exists ?
+                `✓ API key found (${result.length} characters)` :
+                '✗ API key not found in environment variables'}
                 </p>
               </div>
             </div>
 
             {/* Masked API Key */}
-            {result.exists && result.masked && (
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
+            {result.exists && result.masked &&
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
                 <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm">
@@ -137,11 +137,11 @@ export default function EnvVerification() {
                   </p>
                 </div>
               </div>
-            )}
+          }
 
             {/* Configuration Instructions */}
-            {!result.exists && (
-              <div className="mt-4 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+            {!result.exists &&
+          <div className="mt-4 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                 <h4 className="font-semibold text-sm text-yellow-900 dark:text-yellow-200 mb-2">
                   Configuration Required
                 </h4>
@@ -151,21 +151,21 @@ export default function EnvVerification() {
                   <li>Restart the application to load environment variables</li>
                 </ol>
               </div>
-            )}
+          }
 
             {/* Last Checked */}
-            {lastChecked && (
-              <p className="text-xs text-muted-foreground text-center">
+            {lastChecked &&
+          <p className="text-xs text-muted-foreground text-center">
                 Last checked: {lastChecked.toLocaleTimeString()}
               </p>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-8">
+          }
+          </div> :
+
+        <div className="flex items-center justify-center py-8">
             <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
