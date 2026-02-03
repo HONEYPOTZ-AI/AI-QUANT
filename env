@@ -1,0 +1,11 @@
+# Environment Variables Configuration
+# This file contains environment-specific configuration variables for the application.
+# 
+# IMPORTANT: 
+# - Never commit sensitive credentials or API keys to version control
+# - Add .env to .gitignore to prevent accidental commits
+# - Create a .env.example file with placeholder values for team reference
+#
+# Add your environment variables below in the format:
+# VARIABLE_NAME=value
+
