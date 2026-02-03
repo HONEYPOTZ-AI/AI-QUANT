@@ -1,5 +1,6 @@
 # Polygon.io API Key for market data fetching
 POLYGON_API_KEY=SfT6VXJpySjdDdHyNP6SZNZgETYSDieA
+VITE_POLYGON_API_KEY=SfT6VXJpySjdDdHyNP6SZNZgETYSDieA
 
 # Application Configuration
 VITE_APP_NAME="Trading Dashboard"
