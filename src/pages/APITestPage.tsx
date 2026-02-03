@@ -8,6 +8,7 @@ import DebuggingGuide from '@/components/DebuggingGuide';
 import SPXPriceHeader from '@/components/SPXPriceHeader';
 import MarketOverview from '@/components/MarketOverview';
 import RealTimeChart from '@/components/RealTimeChart';
+import EnvVerification from '@/components/EnvVerification';
 import { Activity, BarChart3, TestTube } from 'lucide-react';
 
 export default function APITestPage() {
@@ -36,6 +37,9 @@ export default function APITestPage() {
           </TabsList>
 
           <TabsContent value="status" className="space-y-6">
+            {/* Environment Configuration Verification */}
+            <EnvVerification />
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PolygonIntegrationStatus />
               <DebuggingGuide />
