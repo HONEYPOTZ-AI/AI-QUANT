@@ -1,23 +1,19 @@
 
-async function economicCalendarFetcher() {
+// Fetch upcoming high-importance economic events (next 7-14 days)
+export function getUpcomingEconomicEvents() {
   try {
-    // Fetch economic calendar data from multiple sources
-    const events = [];
+    const now = new Date();
+    const endDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days ahead
 
-    // Fetch from Trading Economics (using their free endpoints)
-    try {
-      // Note: This is a simplified example. In production, you'd use proper API endpoints
-      // For now, we'll create some sample upcoming events based on typical economic calendar
-      const currentDate = new Date();
-
-      // Generate upcoming economic events (typical schedule)
-      const upcomingEvents = [
+    // Generate upcoming economic events (typical schedule)
+    const upcomingEvents = [
       {
         event_type: 'FOMC',
         event_name: 'FOMC Meeting Decision',
         event_date: getNextFOMCDate(),
         description: 'Federal Open Market Committee policy meeting and interest rate decision',
         importance: 'High',
+        importance_score: 10,
         source_url: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'
       },
       {
@@ -26,6 +22,7 @@ async function economicCalendarFetcher() {
         event_date: getNextNFPDate(),
         description: 'Monthly employment report showing job creation and unemployment rate',
         importance: 'High',
+        importance_score: 10,
         source_url: 'https://www.bls.gov/news.release/empsit.toc.htm'
       },
       {
@@ -34,6 +31,7 @@ async function economicCalendarFetcher() {
         event_date: getNextCPIDate(),
         description: 'Monthly inflation report measuring changes in consumer prices',
         importance: 'High',
+        importance_score: 10,
         source_url: 'https://www.bls.gov/news.release/cpi.toc.htm'
       },
       {
@@ -42,23 +40,41 @@ async function economicCalendarFetcher() {
         event_date: getNextGDPDate(),
         description: 'Quarterly economic growth rate report',
         importance: 'High',
+        importance_score: 9,
         source_url: 'https://www.bea.gov/data/gdp/gross-domestic-product'
       },
       {
-        event_type: 'Unemployment',
-        event_name: 'Unemployment Claims',
-        event_date: getNextUnemploymentDate(),
-        description: 'Weekly initial jobless claims report',
-        importance: 'Medium',
-        source_url: 'https://www.dol.gov/ui/data.pdf'
-      }];
+        event_type: 'PPI',
+        event_name: 'Producer Price Index',
+        event_date: getNextPPIDate(),
+        description: 'Monthly wholesale inflation report',
+        importance: 'High',
+        importance_score: 8,
+        source_url: 'https://www.bls.gov/ppi/'
+      }
+    ];
 
+    // Filter events within next 7-14 days and high importance only
+    const filteredEvents = upcomingEvents
+      .filter(event => {
+        const eventDate = new Date(event.event_date);
+        return eventDate >= now && eventDate <= endDate && event.importance === 'High';
+      })
+      .sort((a, b) => {
+        const dateCompare = new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
+        if (dateCompare !== 0) return dateCompare;
+        return b.importance_score - a.importance_score;
+      });
 
-      events.push(...upcomingEvents);
+    return filteredEvents;
+  } catch (error) {
+    throw new Error(`Failed to get upcoming events: ${error.message}`);
+  }
+}
 
-    } catch (error) {
-      console.error('Error fetching economic calendar:', error);
-    }
+async function economicCalendarFetcher() {
+  try {
+    const events = getUpcomingEconomicEvents();
 
     // Save events to database
     for (const event of events) {
@@ -67,9 +83,9 @@ async function economicCalendarFetcher() {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-        { name: 'event_name', op: 'Equal', value: event.event_name },
-        { name: 'event_date', op: 'Equal', value: event.event_date }]
-
+          { name: 'event_name', op: 'Equal', value: event.event_name },
+          { name: 'event_date', op: 'Equal', value: event.event_date }
+        ]
       });
 
       if (!existing || existing.List.length === 0) {
@@ -153,6 +169,18 @@ function getNextUnemploymentDate() {
   nextThursday.setHours(8, 30, 0, 0);
 
   return nextThursday.toISOString();
+}
+
+function getNextPPIDate() {
+  // PPI is released around 14th-16th of each month at 8:30 AM ET
+  const now = new Date();
+  let nextRelease = new Date(now.getFullYear(), now.getMonth(), 14, 8, 30, 0, 0);
+
+  if (nextRelease <= now) {
+    nextRelease = new Date(now.getFullYear(), now.getMonth() + 1, 14, 8, 30, 0, 0);
+  }
+
+  return nextRelease.toISOString();
 }
 
 module.exports = economicCalendarFetcher;

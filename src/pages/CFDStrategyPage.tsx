@@ -246,8 +246,8 @@ export default function CFDStrategyPage() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-10">
-      <div className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-10 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm fixed top-10 left-0 right-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex flex-col gap-3">
@@ -301,7 +301,7 @@ export default function CFDStrategyPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 mt-32">
         {error &&
         <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900/50">
             <AlertCircle className="h-4 w-4" />
@@ -312,7 +312,7 @@ export default function CFDStrategyPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="dashboard" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1">
                 <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 <TabsTrigger value="pnl">P&L</TabsTrigger>
                 <TabsTrigger value="equity">Equity</TabsTrigger>

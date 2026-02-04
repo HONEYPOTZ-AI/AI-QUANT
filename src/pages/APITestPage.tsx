@@ -15,25 +15,26 @@ export default function APITestPage() {
   const [activeTab, setActiveTab] = useState('status');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8 pt-14 md:pt-16 lg:pt-18">
-      <div className="max-w-[1800px] mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8 pt-24 md:pt-28 lg:pt-32">
+      <div className="max-w-[1800px] mx-auto space-y-4 sm:space-y-6">
         {/* Page Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <TestTube className="h-8 w-8 text-blue-600" />
-            API Integration Testing
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <TestTube className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <span className="hidden sm:inline">API Integration Testing</span>
+            <span className="sm:hidden">API Testing</span>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-xs sm:text-base">
             Real-time testing and verification of Polygon.io API integration
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="status">Live Status</TabsTrigger>
-            <TabsTrigger value="verification">Full Verification</TabsTrigger>
-            <TabsTrigger value="spx">SPX Data</TabsTrigger>
-            <TabsTrigger value="market">Market Data</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="status" className="text-xs sm:text-sm">Live Status</TabsTrigger>
+            <TabsTrigger value="verification" className="text-xs sm:text-sm">Verification</TabsTrigger>
+            <TabsTrigger value="spx" className="text-xs sm:text-sm">SPX Data</TabsTrigger>
+            <TabsTrigger value="market" className="text-xs sm:text-sm">Market Data</TabsTrigger>
           </TabsList>
 
           <TabsContent value="status" className="space-y-6">

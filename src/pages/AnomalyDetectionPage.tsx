@@ -197,9 +197,9 @@ const AnomalyDetectionPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="border-b bg-white shadow-sm sticky top-10 z-10">
+      <div className="border-b bg-white shadow-sm fixed top-10 left-0 right-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex flex-col gap-3">
@@ -228,7 +228,7 @@ const AnomalyDetectionPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 py-6">
+      <div className="container mx-auto px-4 sm:px-6 py-6 mt-32">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
           <Card>
@@ -244,49 +244,49 @@ const AnomalyDetectionPage = () => {
           </Card>
           
           <Card className="border-red-200">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-red-600">Critical</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
+                  <p className="text-xs sm:text-sm text-red-600">Critical</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.critical}</p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-red-500" />
+                <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-orange-200">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-orange-600">High</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.high}</p>
+                  <p className="text-xs sm:text-sm text-orange-600">High</p>
+                  <p className="text-xl sm:text-2xl font-bold text-orange-600">{stats.high}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-orange-500" />
+                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-yellow-200">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-yellow-600">Medium</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.medium}</p>
+                  <p className="text-xs sm:text-sm text-yellow-600">Medium</p>
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.medium}</p>
                 </div>
-                <Volume2 className="h-8 w-8 text-yellow-500" />
+                <Volume2 className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-blue-200">
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-600">Low</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.low}</p>
+                  <p className="text-xs sm:text-sm text-blue-600">Low</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.low}</p>
                 </div>
-                <Info className="h-8 w-8 text-blue-500" />
+                <Info className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -298,11 +298,11 @@ const AnomalyDetectionPage = () => {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-500" />
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
                   Detected Anomalies
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Real-time market anomalies detected by AI algorithms
                 </CardDescription>
               </CardHeader>

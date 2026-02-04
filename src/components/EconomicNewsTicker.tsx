@@ -1,57 +1,39 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 
 interface EconomicEvent {
-  id: number;
   event_type: string;
   event_name: string;
   event_date: string;
   importance: string;
+  importance_score?: number;
 }
 
-interface WhiteHouseAlert {
-  id: number;
-  alert_type: string;
-  title: string;
-  published_date: string;
-  severity: string;
-  is_live: boolean;
+interface SPXExpiration {
+  date: string;
+  type: string;
+  isQuarterly: boolean;
 }
 
-interface EconomicNews {
-  id: number;
-  headline: string;
-  category: string;
-  published_date: string;
-  importance: string;
-}
-
-interface TrumpTweet {
-  id: number;
-  tweet_id: string;
-  content: string;
-  posted_at: string;
-  retweet_count: number;
-  like_count: number;
-  reply_count: number;
-  url: string;
-  is_important: boolean;
+interface TickerItem {
+  text: string;
+  color: string;
+  type: 'event' | 'expiration';
+  date: Date;
 }
 
 export default function EconomicNewsTicker() {
   const [tickerItems, setTickerItems] = useState<string[]>([]);
 
-  // Fetch economic events
+  // Fetch upcoming economic events from backend
   const { data: eventsData } = useQuery({
-    queryKey: ['economicEvents'],
+    queryKey: ['upcomingEconomicEvents'],
     queryFn: async () => {
-      const result = await window.ezsite.apis.tablePage(58102, {
-        PageNo: 1,
-        PageSize: 20,
-        OrderByField: 'event_date',
-        IsAsc: true,
-        Filters: []
+      const result = await window.ezsite.apis.run({
+        path: 'economicCalendarFetcher',
+        methodName: 'getUpcomingEconomicEvents',
+        param: []
       });
       if (result.error) throw new Error(result.error);
       return result.data;
@@ -59,192 +41,133 @@ export default function EconomicNewsTicker() {
     refetchInterval: 5 * 60 * 1000 // Refresh every 5 minutes
   });
 
-  // Fetch White House alerts
-  const { data: alertsData } = useQuery({
-    queryKey: ['whiteHouseAlerts'],
+  // Fetch SPX option expiration dates from backend
+  const { data: expirationsData } = useQuery({
+    queryKey: ['spxExpirations'],
     queryFn: async () => {
-      const result = await window.ezsite.apis.tablePage(58103, {
-        PageNo: 1,
-        PageSize: 10,
-        OrderByField: 'published_date',
-        IsAsc: false,
-        Filters: []
+      const result = await window.ezsite.apis.run({
+        path: 'spxOptionExpirations',
+        methodName: 'getSPXExpirationDates',
+        param: []
       });
       if (result.error) throw new Error(result.error);
       return result.data;
     },
-    refetchInterval: 2 * 60 * 1000 // Refresh every 2 minutes
+    refetchInterval: 60 * 60 * 1000 // Refresh every hour
   });
 
-  // Fetch economic news
-  const { data: newsData } = useQuery({
-    queryKey: ['economicNews'],
-    queryFn: async () => {
-      const result = await window.ezsite.apis.tablePage(58104, {
-        PageNo: 1,
-        PageSize: 15,
-        OrderByField: 'published_date',
-        IsAsc: false,
-        Filters: []
-      });
-      if (result.error) throw new Error(result.error);
-      return result.data;
-    },
-    refetchInterval: 3 * 60 * 1000 // Refresh every 3 minutes
-  });
+  // Helper function to calculate countdown
+  const getCountdown = (targetDate: Date): string => {
+    const now = new Date();
+    const days = differenceInDays(targetDate, now);
+    const hours = differenceInHours(targetDate, now);
+    const minutes = differenceInMinutes(targetDate, now);
 
-  // Fetch Trump tweets
-  const { data: tweetsData } = useQuery({
-    queryKey: ['trumpTweets'],
-    queryFn: async () => {
-      const result = await window.ezsite.apis.tablePage(73738, {
-        PageNo: 1,
-        PageSize: 20,
-        OrderByField: 'posted_at',
-        IsAsc: false,
-        Filters: []
-      });
-      if (result.error) throw new Error(result.error);
-      return result.data;
-    },
-    refetchInterval: 60 * 1000 // Refresh every 60 seconds
-  });
-
-  // Helper function to get color based on importance
-  const getImportanceColor = (importance: string | undefined, fallbackColor: string): string => {
-    if (!importance) return fallbackColor;
-
-    const importanceLower = importance.toLowerCase();
-
-    // Bright red for critical/highest priority
-    if (importanceLower.includes('critical') || importanceLower.includes('urgent') || importanceLower.includes('high')) {
-      return '#FF0000'; // Bright red
+    if (days > 1) {
+      return `in ${days} days`;
+    } else if (days === 1) {
+      return `in 1 day`;
+    } else if (hours > 1) {
+      return `in ${hours} hours`;
+    } else if (hours === 1) {
+      return `in 1 hour`;
+    } else if (minutes > 0) {
+      return `in ${minutes} min`;
+    } else {
+      return 'now';
     }
-
-    // Bright green for important items
-    if (importanceLower.includes('important') || importanceLower.includes('medium')) {
-      return '#00FF00'; // Bright green
-    }
-
-    return fallbackColor;
   };
 
-  // Helper function to get color based on severity
-  const getSeverityColor = (severity: string | undefined, fallbackColor: string): string => {
-    if (!severity) return fallbackColor;
-
-    const severityLower = severity.toLowerCase();
-
-    // Bright red for critical/severe
-    if (severityLower.includes('critical') || severityLower.includes('severe') || severityLower.includes('high')) {
-      return '#FF0000'; // Bright red
-    }
-
-    // Bright green for medium severity
-    if (severityLower.includes('medium') || severityLower.includes('moderate')) {
-      return '#00FF00'; // Bright green
-    }
-
-    return fallbackColor;
+  // Helper function to get event color
+  const getEventColor = (eventType: string): string => {
+    const colors: {[key: string]: string} = {
+      FOMC: '#FF0000',      // Bright red
+      NFP: '#00FF00',       // Bright green
+      CPI: '#FFA500',       // Orange
+      GDP: '#00FFFF',       // Cyan
+      PPI: '#FFFF00',       // Yellow
+      FedSpeech: '#FF0000'
+    };
+    return colors[eventType] || '#FFFFFF';
   };
 
   // Combine and format ticker items
   useEffect(() => {
-    const items: string[] = [];
+    const items: TickerItem[] = [];
 
     // Add economic events
-    if (eventsData?.List) {
-      eventsData.List.forEach((event: EconomicEvent) => {
+    if (eventsData && Array.isArray(eventsData)) {
+      eventsData.forEach((event: EconomicEvent) => {
         try {
-          const dateStr = format(new Date(event.event_date), 'MMM dd, HH:mm');
-          const baseColor = getEventColor(event.event_type);
-          const color = getImportanceColor(event.importance, baseColor);
-          items.push(
-            `<span class="ticker-item font-semibold" style="color: ${color}">📊 ${event.event_type}: ${event.event_name} - ${dateStr}</span>`
-          );
+          const eventDate = new Date(event.event_date);
+          const dateStr = format(eventDate, 'MMM dd, HH:mm');
+          const countdown = getCountdown(eventDate);
+          const color = getEventColor(event.event_type);
+          
+          items.push({
+            text: `📊 ${event.event_type}: ${event.event_name} - ${dateStr} (${countdown})`,
+            color: color,
+            type: 'event',
+            date: eventDate
+          });
         } catch (e) {
           console.error('Error formatting event:', e);
         }
       });
     }
 
-    // Add White House alerts
-    if (alertsData?.List) {
-      alertsData.List.forEach((alert: WhiteHouseAlert) => {
-        const icon = alert.is_live ? '🔴 LIVE' : '🏛️';
-        const baseColor = alert.is_live ? '#ef4444' : '#8b5cf6';
-        const color = getSeverityColor(alert.severity, baseColor);
-        items.push(
-          `<span class="ticker-item font-semibold" style="color: ${color}">${icon} ${alert.title}</span>`
-        );
-      });
-    }
-
-    // Add Trump tweets with bright cyan color
-    if (tweetsData?.List) {
-      tweetsData.List.forEach((tweet: TrumpTweet) => {
+    // Add SPX option expirations
+    if (expirationsData && Array.isArray(expirationsData)) {
+      expirationsData.forEach((expiration: SPXExpiration) => {
         try {
-          const dateStr = format(new Date(tweet.posted_at), 'MMM dd, HH:mm');
-          const tweetColor = tweet.is_important ? '#FF0000' : '#00FFFF'; // Bright red for important, bright cyan otherwise
-          const truncatedContent = tweet.content.length > 100 ?
-          tweet.content.substring(0, 100) + '...' :
-          tweet.content;
-          const engagement = `👍 ${tweet.like_count} 🔁 ${tweet.retweet_count}`;
-          items.push(
-            `<span class="ticker-item font-semibold" style="color: ${tweetColor}">𝕏 TRUMP: ${truncatedContent} - ${dateStr} | ${engagement}</span>`
-          );
+          const expirationDate = new Date(expiration.date);
+          const dateStr = format(expirationDate, 'MMM dd');
+          const countdown = getCountdown(expirationDate);
+          const color = expiration.isQuarterly ? '#FF00FF' : '#00FFFF'; // Magenta for quarterly, cyan for monthly
+          const icon = expiration.isQuarterly ? '🔷' : '📅';
+          
+          items.push({
+            text: `${icon} ${expiration.type} SPX Expiry - ${dateStr} (${countdown})`,
+            color: color,
+            type: 'expiration',
+            date: expirationDate
+          });
         } catch (e) {
-          console.error('Error formatting tweet:', e);
+          console.error('Error formatting expiration:', e);
         }
       });
     }
 
-    // Add economic news
-    if (newsData?.List) {
-      newsData.List.slice(0, 10).forEach((news: EconomicNews) => {
-        const baseColor = getCategoryColor(news.category);
-        const color = getImportanceColor(news.importance, baseColor);
-        items.push(
-          `<span class="ticker-item font-semibold" style="color: ${color}">📰 ${news.headline}</span>`
-        );
-      });
-    }
-
     if (items.length > 0) {
+      // Sort by date
+      items.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+      // Alternate between events and expirations for better visual flow
+      const events = items.filter(item => item.type === 'event');
+      const expirations = items.filter(item => item.type === 'expiration');
+      const alternated: TickerItem[] = [];
+      
+      const maxLength = Math.max(events.length, expirations.length);
+      for (let i = 0; i < maxLength; i++) {
+        if (i < events.length) alternated.push(events[i]);
+        if (i < expirations.length) alternated.push(expirations[i]);
+      }
+
+      // Format as HTML strings
+      const formattedItems = alternated.map(item => 
+        `<span class="ticker-item font-semibold" style="color: ${item.color}">${item.text}</span>`
+      );
+
       // Duplicate items for seamless infinite scroll
-      setTickerItems([...items, ...items, ...items]);
+      setTickerItems([...formattedItems, ...formattedItems, ...formattedItems]);
     } else {
       setTickerItems([
-      '<span class="ticker-item font-semibold text-yellow-400">📊 Loading economic data...</span>',
-      '<span class="ticker-item font-semibold text-blue-400">🔄 Fetching market updates...</span>',
-      '<span class="ticker-item font-semibold text-green-400">📈 Real-time news loading...</span>']
-      );
+        '<span class="ticker-item font-semibold text-yellow-400">📊 Loading upcoming economic events...</span>',
+        '<span class="ticker-item font-semibold text-cyan-400">📅 Loading SPX expiration dates...</span>',
+        '<span class="ticker-item font-semibold text-green-400">🔄 Real-time data loading...</span>'
+      ]);
     }
-  }, [eventsData, alertsData, newsData, tweetsData]);
-
-  const getEventColor = (eventType: string): string => {
-    const colors: {[key: string]: string;} = {
-      FOMC: '#ef4444',
-      NFP: '#3b82f6',
-      CPI: '#f97316',
-      GDP: '#10b981',
-      Unemployment: '#3b82f6',
-      FedSpeech: '#dc2626'
-    };
-    return colors[eventType] || '#6b7280';
-  };
-
-  const getCategoryColor = (category: string): string => {
-    const colors: {[key: string]: string;} = {
-      Markets: '#3b82f6',
-      Policy: '#8b5cf6',
-      Employment: '#06b6d4',
-      Inflation: '#f59e0b',
-      Trade: '#10b981',
-      General: '#6b7280'
-    };
-    return colors[category] || '#6b7280';
-  };
+  }, [eventsData, expirationsData]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b-2 border-yellow-500/70 shadow-2xl shadow-yellow-500/20">
@@ -255,13 +178,13 @@ export default function EconomicNewsTicker() {
             __html: tickerItems.join(
               '<span class="ticker-separator mx-6 text-yellow-500 text-xl">•</span>'
             )
-          }} />
-
+          }}
+        />
       </div>
       
       {/* Gradient fade edges for smooth visual effect */}
       <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none z-10" />
       <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-10" />
-    </div>);
-
+    </div>
+  );
 }

@@ -75,25 +75,26 @@ export default function OptionsGreeksPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 pt-10">
-      <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6 mt-24">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">SPX Options Analytics</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">SPX Options Analytics</h1>
+            <p className="text-muted-foreground mt-1 text-xs sm:text-base">
               Real-time Greeks monitoring and P&L attribution analysis
             </p>
           </div>
-          <Button onClick={handleManualRefresh} variant="outline" size="lg">
+          <Button onClick={handleManualRefresh} variant="outline" size="lg" className="w-full sm:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh All Data
+            <span className="hidden sm:inline">Refresh All Data</span>
+            <span className="sm:hidden">Refresh</span>
           </Button>
         </div>
 
         {/* Portfolio Greeks Summary */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Portfolio Greeks Summary</h2>
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Portfolio Greeks Summary</h2>
           <PortfolioGreeksSummary />
         </section>
 
@@ -109,8 +110,8 @@ export default function OptionsGreeksPage() {
 
         {/* P&L Attribution */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">P&L Attribution Analysis</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">P&L Attribution Analysis</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <PnLAttributionChart />
             <PnLAttributionBreakdown />
           </div>

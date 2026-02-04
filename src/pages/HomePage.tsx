@@ -45,9 +45,9 @@ const HomePage = () => {
   { label: "Alerts Triggered", value: "3,249", trend: "+12%" }];
 
   return (
-    <div className="min-h-screen bg-slate-900 pt-10">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-lg mt-10">
+      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-lg fixed top-10 left-0 right-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -75,7 +75,7 @@ const HomePage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20 mt-24">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-400 px-3 sm:px-4 py-2 rounded-full mb-6 border border-blue-500/20">
             <TrendingUp className="h-4 w-4" />

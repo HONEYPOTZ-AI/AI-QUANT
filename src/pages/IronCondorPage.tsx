@@ -273,7 +273,7 @@ export default function IronCondorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8 pt-14 sm:pt-16">
+    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8 pt-24 sm:pt-28">
       {/* Python Service Real-time Sync */}
       <PythonServiceSync
         enabled={!!user}
@@ -283,28 +283,31 @@ export default function IronCondorPage() {
       
       <div className="container mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-white">Iron Condor Strategies</h1>
-              <PythonServiceStatus />
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start sm:items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Iron Condor</h1>
+                <PythonServiceStatus />
+              </div>
+              <p className="text-slate-400 mt-1 text-xs sm:text-sm">Manage SPX iron condor positions</p>
             </div>
-            <p className="text-slate-400 mt-1">Manage and monitor your SPX iron condor positions</p>
+            <Button onClick={() => setShowBuilder(!showBuilder)} className="gap-2 shrink-0" size="sm">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">New Strategy</span>
+              <span className="sm:hidden">New</span>
+            </Button>
           </div>
-          <Button onClick={() => setShowBuilder(!showBuilder)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Strategy
-          </Button>
         </div>
 
         {/* SPX Price Header */}
         <SPXPriceHeader />
 
-        <Tabs defaultValue="strategies" className="space-y-6">
-          <TabsList className="bg-slate-800">
-            <TabsTrigger value="strategies">Active Strategies</TabsTrigger>
-            <TabsTrigger value="builder">Strategy Builder</TabsTrigger>
-            <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
+        <Tabs defaultValue="strategies" className="space-y-4 sm:space-y-6">
+          <TabsList className="bg-slate-800 grid w-full grid-cols-3">
+            <TabsTrigger value="strategies" className="text-xs sm:text-sm">Active</TabsTrigger>
+            <TabsTrigger value="builder" className="text-xs sm:text-sm">Builder</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Active Strategies Tab */}

@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { RefreshCw, TrendingUp, TrendingDown, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
@@ -175,44 +177,46 @@ export default function SPXOptionsChain() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">SPX Options Chain</CardTitle>
-            {data.underlyingPrice &&
-            <p className="text-sm text-muted-foreground">
-                Underlying Price: <span className="font-semibold text-foreground">${data.underlyingPrice.toFixed(2)}</span>
-              </p>
-            }
-          </div>
-          <div className="flex items-center gap-3">
-            <Select value={selectedExpiration} onValueChange={setSelectedExpiration}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select expiration" />
-              </SelectTrigger>
-              <SelectContent>
-                {expirationDates.map((date) =>
-                <SelectItem key={date} value={date}>
-                    {format(new Date(date), 'MMM dd, yyyy')}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="gap-2">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="space-y-1">
+              <CardTitle className="text-lg sm:text-xl">SPX Options Chain</CardTitle>
+              {data.underlyingPrice &&
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                  Underlying: <span className="font-semibold text-foreground">${data.underlyingPrice.toFixed(2)}</span>
+                </p>
+              }
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Select value={selectedExpiration} onValueChange={setSelectedExpiration}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Select expiration" />
+                </SelectTrigger>
+                <SelectContent>
+                  {expirationDates.map((date) =>
+                  <SelectItem key={date} value={date}>
+                      {format(new Date(date), 'MMM dd, yyyy')}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="gap-2 shrink-0">
 
-              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg border overflow-hidden">
-          <div className="overflow-x-auto">
+        <ScrollArea className="w-full">
+          <div className="rounded-lg border overflow-hidden min-w-[800px]">
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
                 <tr>
@@ -314,10 +318,10 @@ export default function SPXOptionsChain() {
               </tbody>
             </table>
           </div>
-        </div>
+        </ScrollArea>
 
         {/* Footer Info */}
-        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>Total Contracts: {data.totalContracts}</span>
             <span>•</span>
@@ -330,7 +334,7 @@ export default function SPXOptionsChain() {
 
         {/* Legend */}
         <div className="mt-4 p-3 bg-muted/30 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-green-100 border border-green-300" />
               <span>In-the-money calls</span>

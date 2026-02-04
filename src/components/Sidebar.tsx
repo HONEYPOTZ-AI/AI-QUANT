@@ -197,7 +197,7 @@ const Sidebar = ({ activeTab, setActiveTab, onStartTour }: SidebarProps) => {
   return (
     <>
       {/* Mobile Hamburger Menu */}
-      <div className="lg:hidden fixed top-10 left-0 right-0 z-50 bg-slate-800 border-b border-slate-700 px-4 py-3">
+      <div className="lg:hidden fixed top-10 left-0 right-0 z-50 bg-slate-800 border-b border-slate-700 px-4 py-3 shadow-lg">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">

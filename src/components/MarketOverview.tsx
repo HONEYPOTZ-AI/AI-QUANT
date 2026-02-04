@@ -225,7 +225,7 @@ const MarketOverview = () => {
             <BarChart3 className="h-5 w-5 text-blue-400" />
             <h3 className="text-lg font-semibold text-white">Stock Indices</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {marketData.indices.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>
@@ -238,7 +238,7 @@ const MarketOverview = () => {
             <DollarSign className="h-5 w-5 text-green-400" />
             <h3 className="text-lg font-semibold text-white">Forex</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {marketData.forex.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>
@@ -251,7 +251,7 @@ const MarketOverview = () => {
             <Activity className="h-5 w-5 text-orange-400" />
             <h3 className="text-lg font-semibold text-white">Crypto</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {marketData.crypto.map((item, index) => renderMarketItem(item, index))}
           </div>
         </div>

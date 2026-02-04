@@ -120,43 +120,43 @@ const AnomalyAlerts = () => {
         </Card>
         
         <Card className="bg-orange-500/10 border-orange-500/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-orange-400">
+                <div className="text-xl sm:text-2xl font-bold text-orange-400">
                   {activeAlerts.filter((a) => a.severity === 'medium').length}
                 </div>
-                <div className="text-sm text-orange-400">Medium Severity</div>
+                <div className="text-xs sm:text-sm text-orange-400">Medium Severity</div>
               </div>
-              <Bell className="h-8 w-8 text-orange-400" />
+              <Bell className="h-6 w-6 sm:h-8 sm:w-8 text-orange-400" />
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-yellow-500/10 border-yellow-500/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-yellow-400">
+                <div className="text-xl sm:text-2xl font-bold text-yellow-400">
                   {activeAlerts.filter((a) => a.severity === 'low').length}
                 </div>
-                <div className="text-sm text-yellow-400">Low Severity</div>
+                <div className="text-xs sm:text-sm text-yellow-400">Low Severity</div>
               </div>
-              <Volume2 className="h-8 w-8 text-yellow-400" />
+              <Volume2 className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-400" />
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-slate-700 border-slate-600">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-xl sm:text-2xl font-bold text-white">
                   {alerts.length}
                 </div>
-                <div className="text-sm text-slate-400">Total Today</div>
+                <div className="text-xs sm:text-sm text-slate-400">Total Today</div>
               </div>
-              <TrendingUp className="h-8 w-8 text-blue-400" />
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -165,20 +165,23 @@ const AnomalyAlerts = () => {
       {/* Active Alerts */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-white flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-orange-500" />
-                Active Anomaly Alerts
-              </CardTitle>
-              <CardDescription>AI-detected market anomalies requiring attention</CardDescription>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 shrink-0" />
+                  <span className="truncate">Active Anomaly Alerts</span>
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">AI-detected market anomalies</CardDescription>
+              </div>
+              <Link to="/anomaly-detection">
+                <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                  <span className="hidden sm:inline">View All</span>
+                  <span className="sm:hidden">All</span>
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
-            <Link to="/anomaly-detection">
-              <Button variant="outline" size="sm" className="gap-2">
-                View All
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </Link>
           </div>
         </CardHeader>
         <CardContent>
@@ -192,26 +195,28 @@ const AnomalyAlerts = () => {
             activeAlerts.map((alert) =>
             <div
               key={alert.id}
-              className={`p-4 rounded-lg border ${getSeverityColor(alert.severity)} bg-slate-900/50`}>
+              className={`p-3 sm:p-4 rounded-lg border ${getSeverityColor(alert.severity)} bg-slate-900/50`}>
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {getAlertIcon(alert.type)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-white">{alert.title}</h3>
-                          <Badge variant="outline" className="text-xs">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                      <div className="shrink-0 mt-0.5">
+                        {getAlertIcon(alert.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-white text-sm sm:text-base">{alert.title}</h3>
+                          <Badge variant="outline" className="text-xs shrink-0">
                             {alert.symbol}
                           </Badge>
-                          <Badge variant="secondary" className="text-xs capitalize">
+                          <Badge variant="secondary" className="text-xs capitalize shrink-0">
                             {alert.severity}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-300 mb-3">{alert.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-slate-400">
+                        <p className="text-xs sm:text-sm text-slate-300 mb-2 sm:mb-3">{alert.description}</p>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-slate-400">
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {alert.timestamp.toLocaleTimeString()}
+                            <span className="text-xs">{alert.timestamp.toLocaleTimeString()}</span>
                           </div>
                           <div>Confidence: {alert.confidence}%</div>
                         </div>
@@ -221,7 +226,7 @@ const AnomalyAlerts = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => dismissAlert(alert.id)}
-                  className="text-slate-400 hover:text-white">
+                  className="text-slate-400 hover:text-white shrink-0 h-8 w-8 p-0">
 
                       <X className="h-4 w-4" />
                     </Button>

@@ -171,23 +171,23 @@ function PredictiveInsights() {
         </Card>
 
         <Card className="bg-gradient-to-br from-green-500/10 to-blue-500/10 border-green-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-green-500" />
-                <span className="font-medium text-white">Next Week</span>
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                <span className="text-sm sm:text-base font-medium text-white">Next Week</span>
               </div>
               {predictions.nextWeek && getDirectionIcon(predictions.nextWeek.direction)}
             </div>
             <div className="space-y-2">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-xl sm:text-2xl font-bold text-white">
                 ${predictions.nextWeek ? predictions.nextWeek.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
                 <span className={`text-sm font-medium ${predictions.nextWeek ? getDirectionColor(predictions.nextWeek.direction) : ''}`}>
                   {predictions.nextWeek ? predictions.nextWeek.direction.toUpperCase() : 'N/A'}
                 </span>
-                <span className="text-sm text-slate-400">
+                <span className="text-xs sm:text-sm text-slate-400">
                   {predictions.nextWeek ? predictions.nextWeek.probability : 0}% confidence
                 </span>
               </div>
@@ -197,23 +197,23 @@ function PredictiveInsights() {
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-purple-500" />
-                <span className="font-medium text-white">Next Month</span>
+                <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
+                <span className="text-sm sm:text-base font-medium text-white">Next Month</span>
               </div>
               {predictions.nextMonth && getDirectionIcon(predictions.nextMonth.direction)}
             </div>
             <div className="space-y-2">
-              <div className="text-2xl font-bold text-white">
+              <div className="text-xl sm:text-2xl font-bold text-white">
                 ${predictions.nextMonth ? predictions.nextMonth.targetPrice.toFixed(2) : '0.00'}
               </div>
               <div className="flex items-center justify-between">
                 <span className={`text-sm font-medium ${predictions.nextMonth ? getDirectionColor(predictions.nextMonth.direction) : ''}`}>
                   {predictions.nextMonth ? predictions.nextMonth.direction.toUpperCase() : 'N/A'}
                 </span>
-                <span className="text-sm text-slate-400">
+                <span className="text-xs sm:text-sm text-slate-400">
                   {predictions.nextMonth ? predictions.nextMonth.probability : 0}% confidence
                 </span>
               </div>
@@ -226,14 +226,14 @@ function PredictiveInsights() {
       {/* Forecast Chart */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-500" />
+          <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+            <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             AI Price Forecast
           </CardTitle>
-          <CardDescription>Machine learning predictions with confidence intervals</CardDescription>
+          <CardDescription className="text-xs sm:text-sm">Machine learning predictions with confidence intervals</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-80">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={forecastData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -280,7 +280,7 @@ function PredictiveInsights() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-4 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full" />
               <span className="text-slate-300">Actual Price</span>
