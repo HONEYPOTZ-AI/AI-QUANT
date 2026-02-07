@@ -109,7 +109,7 @@ export default function SPXVIXDisplay() {
 
   }
 
-  if (!data) {
+  if (!data || typeof data.price !== 'number') {
     return (
       <Alert className="mb-4">
         <AlertCircle className="h-4 w-4" />
@@ -120,7 +120,7 @@ export default function SPXVIXDisplay() {
 
   }
 
-  const isPositive = data.change >= 0;
+  const isPositive = (data.change ?? 0) >= 0;
   const changeColor = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   const bgColor = isPositive ?
   'from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950' :
@@ -182,7 +182,7 @@ export default function SPXVIXDisplay() {
         <div className="space-y-4">
           <div className="flex items-baseline gap-3">
             <span className="text-5xl font-bold text-slate-900 dark:text-slate-100">
-              {data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {(data.price ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
           
@@ -190,13 +190,13 @@ export default function SPXVIXDisplay() {
             <div className={`flex items-center gap-1 ${changeColor} font-semibold`}>
               {isPositive ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
               <span className="text-2xl">
-                {isPositive ? '+' : ''}{data.change.toFixed(2)}
+                {isPositive ? '+' : ''}{(data.change ?? 0).toFixed(2)}
               </span>
             </div>
             
             <div className={`px-4 py-2 rounded-full ${changeColor} ${isPositive ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
               <span className="text-lg font-semibold">
-                {isPositive ? '+' : ''}{data.percentChange.toFixed(2)}%
+                {isPositive ? '+' : ''}{(data.percentChange ?? 0).toFixed(2)}%
               </span>
             </div>
           </div>
@@ -205,25 +205,25 @@ export default function SPXVIXDisplay() {
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Previous Close</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {data.previousClose.toFixed(2)}
+                {(data.previousClose ?? 0).toFixed(2)}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Open</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {data.open.toFixed(2)}
+                {(data.open ?? 0).toFixed(2)}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">High</p>
               <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                {data.high.toFixed(2)}
+                {(data.high ?? 0).toFixed(2)}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Low</p>
               <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-                {data.low.toFixed(2)}
+                {(data.low ?? 0).toFixed(2)}
               </p>
             </div>
             <div>

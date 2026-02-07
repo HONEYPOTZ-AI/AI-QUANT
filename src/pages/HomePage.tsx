@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, BarChart3, Brain, Shield, Zap, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ArrowRight, BarChart3, Brain, Shield, Zap, TrendingUp, AlertTriangle, BookOpen } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/LoginForm';
@@ -64,6 +64,12 @@ const HomePage = () => {
                 <div className="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse" />
                 Live Market Data
               </Badge>
+              <Link to="/blog" className="hidden sm:block">
+                <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800 text-sm sm:text-base px-3 sm:px-4">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Blog
+                </Button>
+              </Link>
               <Link to="/dashboard">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-sm sm:text-base px-3 sm:px-4">
                   Dashboard

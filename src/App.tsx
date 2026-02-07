@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HelmetProvider } from 'react-helmet-async';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -18,14 +19,17 @@ import OptionsGreeksPage from '@/pages/OptionsGreeksPage';
 import SPXOptionsPage from '@/pages/SPXOptionsPage';
 import APITestPage from '@/pages/APITestPage';
 import IronCondorPage from '@/pages/IronCondorPage';
+import BlogListingPage from '@/pages/BlogListingPage';
+import BlogArticlePage from '@/pages/BlogArticlePage';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
           <MarketDataProvider>
             <Router>
               {/* Economic News Ticker - Fixed at top of all pages */}
@@ -44,16 +48,19 @@ function App() {
                 <Route path="/spx-options" element={<SPXOptionsPage />} />
                 <Route path="/api-test" element={<APITestPage />} />
                 <Route path="/iron-condor" element={<IronCondorPage />} />
+                <Route path="/blog" element={<BlogListingPage />} />
+                <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/onauthsuccess" element={<AuthSuccess />} />
                 <Route path="/resetpassword" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Router>
           </MarketDataProvider>
-        </AuthProvider>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>);
+          </AuthProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>);
 
 }
 

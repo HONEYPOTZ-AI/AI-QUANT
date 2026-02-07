@@ -80,12 +80,12 @@ export default function EconomicNewsTicker() {
 
   // Helper function to get event color
   const getEventColor = (eventType: string): string => {
-    const colors: {[key: string]: string} = {
-      FOMC: '#FF0000',      // Bright red
-      NFP: '#00FF00',       // Bright green
-      CPI: '#FFA500',       // Orange
-      GDP: '#00FFFF',       // Cyan
-      PPI: '#FFFF00',       // Yellow
+    const colors: {[key: string]: string;} = {
+      FOMC: '#FF0000', // Bright red
+      NFP: '#00FF00', // Bright green
+      CPI: '#FFA500', // Orange
+      GDP: '#00FFFF', // Cyan
+      PPI: '#FFFF00', // Yellow
       FedSpeech: '#FF0000'
     };
     return colors[eventType] || '#FFFFFF';
@@ -103,7 +103,7 @@ export default function EconomicNewsTicker() {
           const dateStr = format(eventDate, 'MMM dd, HH:mm');
           const countdown = getCountdown(eventDate);
           const color = getEventColor(event.event_type);
-          
+
           items.push({
             text: `📊 ${event.event_type}: ${event.event_name} - ${dateStr} (${countdown})`,
             color: color,
@@ -125,7 +125,7 @@ export default function EconomicNewsTicker() {
           const countdown = getCountdown(expirationDate);
           const color = expiration.isQuarterly ? '#FF00FF' : '#00FFFF'; // Magenta for quarterly, cyan for monthly
           const icon = expiration.isQuarterly ? '🔷' : '📅';
-          
+
           items.push({
             text: `${icon} ${expiration.type} SPX Expiry - ${dateStr} (${countdown})`,
             color: color,
@@ -143,10 +143,10 @@ export default function EconomicNewsTicker() {
       items.sort((a, b) => a.date.getTime() - b.date.getTime());
 
       // Alternate between events and expirations for better visual flow
-      const events = items.filter(item => item.type === 'event');
-      const expirations = items.filter(item => item.type === 'expiration');
+      const events = items.filter((item) => item.type === 'event');
+      const expirations = items.filter((item) => item.type === 'expiration');
       const alternated: TickerItem[] = [];
-      
+
       const maxLength = Math.max(events.length, expirations.length);
       for (let i = 0; i < maxLength; i++) {
         if (i < events.length) alternated.push(events[i]);
@@ -154,18 +154,18 @@ export default function EconomicNewsTicker() {
       }
 
       // Format as HTML strings
-      const formattedItems = alternated.map(item => 
-        `<span class="ticker-item font-semibold" style="color: ${item.color}">${item.text}</span>`
+      const formattedItems = alternated.map((item) =>
+      `<span class="ticker-item font-semibold" style="color: ${item.color}">${item.text}</span>`
       );
 
       // Duplicate items for seamless infinite scroll
       setTickerItems([...formattedItems, ...formattedItems, ...formattedItems]);
     } else {
       setTickerItems([
-        '<span class="ticker-item font-semibold text-yellow-400">📊 Loading upcoming economic events...</span>',
-        '<span class="ticker-item font-semibold text-cyan-400">📅 Loading SPX expiration dates...</span>',
-        '<span class="ticker-item font-semibold text-green-400">🔄 Real-time data loading...</span>'
-      ]);
+      '<span class="ticker-item font-semibold text-yellow-400">📊 Loading upcoming economic events...</span>',
+      '<span class="ticker-item font-semibold text-cyan-400">📅 Loading SPX expiration dates...</span>',
+      '<span class="ticker-item font-semibold text-green-400">🔄 Real-time data loading...</span>']
+      );
     }
   }, [eventsData, expirationsData]);
 
@@ -178,13 +178,13 @@ export default function EconomicNewsTicker() {
             __html: tickerItems.join(
               '<span class="ticker-separator mx-6 text-yellow-500 text-xl">•</span>'
             )
-          }}
-        />
+          }} />
+
       </div>
       
       {/* Gradient fade edges for smooth visual effect */}
       <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-slate-950 to-transparent pointer-events-none z-10" />
       <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-10" />
-    </div>
-  );
+    </div>);
+
 }
