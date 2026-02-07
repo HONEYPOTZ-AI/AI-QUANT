@@ -43,12 +43,12 @@ const BlogListingPage = () => {
         OrderByField: 'publish_date',
         IsAsc: false,
         Filters: [
-          {
-            name: 'is_published',
-            op: 'Equal',
-            value: true
-          }
-        ]
+        {
+          name: 'is_published',
+          op: 'Equal',
+          value: true
+        }]
+
       });
 
       if (error) throw error;
@@ -66,19 +66,19 @@ const BlogListingPage = () => {
   };
 
   const categories = useMemo(() => {
-    const cats = new Set(articles.map(a => a.category).filter(Boolean));
+    const cats = new Set(articles.map((a) => a.category).filter(Boolean));
     return ['all', ...Array.from(cats)];
   }, [articles]);
 
   const filteredArticles = useMemo(() => {
-    return articles.filter(article => {
-      const matchesSearch = 
-        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.tags.toLowerCase().includes(searchQuery.toLowerCase());
-      
+    return articles.filter((article) => {
+      const matchesSearch =
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.tags.toLowerCase().includes(searchQuery.toLowerCase());
+
       const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
-      
+
       return matchesSearch && matchesCategory;
     });
   }, [articles, searchQuery, selectedCategory]);
@@ -94,8 +94,8 @@ const BlogListingPage = () => {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-white text-xl">Loading articles...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -139,28 +139,28 @@ const BlogListingPage = () => {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
-              />
+                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-400" />
+
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {categories.map(category => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setCurrentPage(1);
-                  }}
-                  className={selectedCategory === category 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                    : 'border-slate-600 text-slate-300 hover:bg-slate-800'
-                  }
-                >
+              {categories.map((category) =>
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => {
+                  setSelectedCategory(category);
+                  setCurrentPage(1);
+                }}
+                className={selectedCategory === category ?
+                'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700' :
+                'border-slate-600 text-slate-300 hover:bg-slate-800'
+                }>
+
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </Button>
-              ))}
+              )}
             </div>
           </div>
 
@@ -170,33 +170,33 @@ const BlogListingPage = () => {
           </div>
 
           {/* Articles Grid */}
-          {paginatedArticles.length === 0 ? (
-            <Card className="bg-slate-800/50 border-slate-700">
+          {paginatedArticles.length === 0 ?
+          <Card className="bg-slate-800/50 border-slate-700">
               <CardContent className="p-12 text-center">
                 <p className="text-slate-400 text-lg">No articles found. Try adjusting your search or filters.</p>
               </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {paginatedArticles.map((article) => (
-                <Link key={article.id} to={`/blog/${article.slug}`}>
+            </Card> :
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {paginatedArticles.map((article) =>
+            <Link key={article.id} to={`/blog/${article.slug}`}>
                   <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all h-full flex flex-col overflow-hidden group">
-                    {article.featured_image && (
-                      <div className="w-full h-48 overflow-hidden">
-                        <img 
-                          src={article.featured_image} 
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                    {article.featured_image &&
+                <div className="w-full h-48 overflow-hidden">
+                        <img
+                    src={article.featured_image}
+                    alt={article.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+
                       </div>
-                    )}
+                }
                     <CardHeader className="flex-1">
                       <div className="flex items-center gap-2 mb-3">
-                        {article.category && (
-                          <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 text-xs">
+                        {article.category &&
+                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 text-xs">
                             {article.category}
                           </Badge>
-                        )}
+                    }
                         <span className="text-xs text-slate-400 flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
                           {format(new Date(article.publish_date), 'MMM dd, yyyy')}
@@ -217,66 +217,66 @@ const BlogListingPage = () => {
                         </span>
                         <span>{article.view_count} views</span>
                       </div>
-                      {article.tags && (
-                        <div className="flex flex-wrap gap-1 mt-3">
-                          {article.tags.split(',').slice(0, 3).map((tag, index) => (
-                            <span key={index} className="text-xs text-slate-500 flex items-center gap-1">
+                      {article.tags &&
+                  <div className="flex flex-wrap gap-1 mt-3">
+                          {article.tags.split(',').slice(0, 3).map((tag, index) =>
+                    <span key={index} className="text-xs text-slate-500 flex items-center gap-1">
                               <Tag className="h-3 w-3" />
                               {tag.trim()}
                             </span>
-                          ))}
+                    )}
                         </div>
-                      )}
+                  }
                     </CardContent>
                   </Card>
                 </Link>
-              ))}
+            )}
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
+          {totalPages > 1 &&
+          <div className="flex justify-center items-center gap-2">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-50"
-              >
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-50">
+
                 Previous
               </Button>
               <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className={currentPage === page
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600'
-                      : 'border-slate-600 text-slate-300 hover:bg-slate-800'
-                    }
-                  >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
+              <Button
+                key={page}
+                variant={currentPage === page ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+                className={currentPage === page ?
+                'bg-gradient-to-r from-blue-600 to-purple-600' :
+                'border-slate-600 text-slate-300 hover:bg-slate-800'
+                }>
+
                     {page}
                   </Button>
-                ))}
+              )}
               </div>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-50"
-              >
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-50">
+
                 Next
               </Button>
             </div>
-          )}
+          }
         </div>
       </div>
-    </>
-  );
+    </>);
+
 };
 
 export default BlogListingPage;

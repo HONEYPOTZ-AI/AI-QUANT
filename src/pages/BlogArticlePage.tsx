@@ -26,7 +26,7 @@ interface Article {
 }
 
 const BlogArticlePage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug } = useParams<{slug: string;}>();
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
@@ -42,15 +42,15 @@ const BlogArticlePage = () => {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch the article by slug
       const { data, error } = await window.ezsite.apis.tablePage(74766, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'slug', op: 'Equal', value: slug },
-          { name: 'is_published', op: 'Equal', value: true }
-        ]
+        { name: 'slug', op: 'Equal', value: slug },
+        { name: 'is_published', op: 'Equal', value: true }]
+
       });
 
       if (error) throw error;
@@ -97,13 +97,13 @@ const BlogArticlePage = () => {
         OrderByField: 'publish_date',
         IsAsc: false,
         Filters: [
-          { name: 'category', op: 'Equal', value: category },
-          { name: 'is_published', op: 'Equal', value: true }
-        ]
+        { name: 'category', op: 'Equal', value: category },
+        { name: 'is_published', op: 'Equal', value: true }]
+
       });
 
       if (error) throw error;
-      
+
       const related = (data?.List || []).filter((a: Article) => a.id !== currentId).slice(0, 3);
       setRelatedArticles(related);
     } catch (error) {
@@ -146,8 +146,8 @@ const BlogArticlePage = () => {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-white text-xl">Loading article...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!article) return null;
@@ -214,23 +214,23 @@ const BlogArticlePage = () => {
           </Link>
 
           {/* Featured Image */}
-          {article.featured_image && (
-            <div className="w-full h-64 sm:h-96 rounded-lg overflow-hidden mb-8">
-              <img 
-                src={article.featured_image} 
-                alt={article.title}
-                className="w-full h-full object-cover"
-              />
+          {article.featured_image &&
+          <div className="w-full h-64 sm:h-96 rounded-lg overflow-hidden mb-8">
+              <img
+              src={article.featured_image}
+              alt={article.title}
+              className="w-full h-full object-cover" />
+
             </div>
-          )}
+          }
 
           {/* Article Header */}
           <header className="mb-8">
-            {article.category && (
-              <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 mb-4">
+            {article.category &&
+            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 mb-4">
                 {article.category}
               </Badge>
-            )}
+            }
             
             <h1 className="text-3xl sm:text-5xl font-bold text-white mb-6 leading-tight">
               {article.title}
@@ -258,32 +258,32 @@ const BlogArticlePage = () => {
                 size="sm"
                 variant="outline"
                 onClick={() => handleShare('twitter')}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
-              >
+                className="border-slate-600 text-slate-300 hover:bg-slate-800">
+
                 <Twitter className="h-4 w-4" />
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleShare('facebook')}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
-              >
+                className="border-slate-600 text-slate-300 hover:bg-slate-800">
+
                 <Facebook className="h-4 w-4" />
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleShare('linkedin')}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
-              >
+                className="border-slate-600 text-slate-300 hover:bg-slate-800">
+
                 <Linkedin className="h-4 w-4" />
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleShare('copy')}
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
-              >
+                className="border-slate-600 text-slate-300 hover:bg-slate-800">
+
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
@@ -293,55 +293,55 @@ const BlogArticlePage = () => {
 
           {/* Article Content */}
           <section className="prose prose-invert prose-slate max-w-none mb-12">
-            <div 
+            <div
               className="text-slate-300 leading-relaxed text-lg whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: article.content }}
-            />
+              dangerouslySetInnerHTML={{ __html: article.content }} />
+
           </section>
 
           {/* Tags */}
-          {article.tags && (
-            <div className="mb-12">
+          {article.tags &&
+          <div className="mb-12">
               <Separator className="bg-slate-700 mb-6" />
               <div className="flex flex-wrap items-center gap-2">
                 <Tag className="h-4 w-4 text-slate-400" />
-                {article.tags.split(',').map((tag, index) => (
-                  <Badge 
-                    key={index}
-                    variant="outline"
-                    className="border-slate-600 text-slate-300"
-                  >
+                {article.tags.split(',').map((tag, index) =>
+              <Badge
+                key={index}
+                variant="outline"
+                className="border-slate-600 text-slate-300">
+
                     {tag.trim()}
                   </Badge>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Related Articles */}
-          {relatedArticles.length > 0 && (
-            <section className="mt-16">
+          {relatedArticles.length > 0 &&
+          <section className="mt-16">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8">Related Articles</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedArticles.map((related) => (
-                  <Link key={related.id} to={`/blog/${related.slug}`}>
+                {relatedArticles.map((related) =>
+              <Link key={related.id} to={`/blog/${related.slug}`}>
                     <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all h-full group">
-                      {related.featured_image && (
-                        <div className="w-full h-40 overflow-hidden rounded-t-lg">
-                          <img 
-                            src={related.featured_image} 
-                            alt={related.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
+                      {related.featured_image &&
+                  <div className="w-full h-40 overflow-hidden rounded-t-lg">
+                          <img
+                      src={related.featured_image}
+                      alt={related.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+
                         </div>
-                      )}
+                  }
                       <CardHeader>
                         <div className="flex items-center gap-2 mb-2">
-                          {related.category && (
-                            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 text-xs">
+                          {related.category &&
+                      <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 text-xs">
                               {related.category}
                             </Badge>
-                          )}
+                      }
                         </div>
                         <h3 className="text-white text-lg font-semibold group-hover:text-blue-400 transition-colors line-clamp-2">
                           {related.title}
@@ -352,14 +352,14 @@ const BlogArticlePage = () => {
                       </CardHeader>
                     </Card>
                   </Link>
-                ))}
+              )}
               </div>
             </section>
-          )}
+          }
         </article>
       </div>
-    </>
-  );
+    </>);
+
 };
 
 export default BlogArticlePage;
